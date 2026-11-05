@@ -62,11 +62,14 @@ def main() -> int:
     for path in pending:
         print(f"warning: pending marker {PENDING_MARKER!r} in {path}")
 
+    warnings: list[str] = []
     try:
-        page_count = build_site(ROOT, languages, entries, site_url)
+        page_count = build_site(ROOT, languages, entries, site_url, warnings)
     except BuildError as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 1
+    for warning in warnings:
+        print(f"warning: {warning}")
 
     mode = "production" if args.prod else "development"
     print(f"{mode} build: {page_count} page(s) in dist/, {len(pending)} pending marker(s)")

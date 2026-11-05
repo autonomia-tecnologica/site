@@ -10,6 +10,7 @@ next to its page. Canonical URLs, sitemap entries and feeds are absolute and use
 the site address given to build_site.
 """
 
+import re
 import shutil
 from datetime import UTC, date, datetime, time
 from email.utils import format_datetime
@@ -25,6 +26,35 @@ OUTPUT_DIR = "dist"
 SCHEMA_CONTEXT = "https://schema.org"
 STYLES_DIR = "src/styles"
 FONTS_DIR = "src/assets/fonts"
+WIKI_LINK_RE = re.compile(r"\[\[([^\[\]\n]+)\]\]")
+
+
+def make_markdown() -> MarkdownIt:
+    """CommonMark with tables, no raw HTML, and Obsidian [[links]] shown as plain text."""
+    md = MarkdownIt("commonmark", {"html": False}).enable("table")
+    md.core.ruler.push("obsidian_wiki_links", unlink_wiki_links)
+    return md
+
+
+def unlink_wiki_links(state) -> None:
+    """Obsidian links ([[Note]]) have no target on the site: keep the text, log each one.
+
+    Runs after inline parsing, so code spans and code blocks are not touched.
+    """
+    for token in state.tokens:
+        if token.type != "inline" or not token.children:
+            continue
+        for child in token.children:
+            if child.type != "text" or "[[" not in child.content:
+                continue
+
+            def keep_text(match: re.Match) -> str:
+                state.env["warnings"].append(
+                    f"{state.env['where']}: Obsidian link [[{match.group(1)}]] shown as plain text"
+                )
+                return match.group(1)
+
+            child.content = WIKI_LINK_RE.sub(keep_text, child.content)
 
 
 def lookup(strings: dict, dotted: str, lang: str) -> str:
@@ -98,8 +128,25 @@ def article_json_ld(strings: dict, lang: str, meta: dict, url: str, home: str) -
     }
 
 
-def build_site(root: Path, languages: dict[str, dict], entries: list[Entry], site_url: str) -> int:
-    """Writes the site to dist/ and returns the number of HTML pages written."""
+def render_body(markdown: MarkdownIt, entry: Entry, root: Path, warnings: list[str]) -> str:
+    """HTML of an entry's Markdown body; the warnings name the file they come from."""
+    env: dict = {"where": entry.path.relative_to(root).as_posix(), "warnings": []}
+    html = markdown.render(entry.body, env)
+    warnings.extend(env["warnings"])
+    return html
+
+
+def build_site(
+    root: Path,
+    languages: dict[str, dict],
+    entries: list[Entry],
+    site_url: str,
+    warnings: list[str],
+) -> int:
+    """Writes the site to dist/ and returns the number of HTML pages written.
+
+    Problems that do not stop the build (such as Obsidian links) are appended to warnings.
+    """
     active = sorted({entry.lang for entry in entries})
     routes: dict[tuple[str, str, str], str] = {}
     used_urls: set[str] = set()
@@ -133,7 +180,7 @@ def build_site(root: Path, languages: dict[str, dict], entries: list[Entry], sit
     )
     env.globals["stylesheets"] = [f"/styles/{name}" for name in STYLESHEETS]
     env.globals["identity_author_url"] = IDENTITY_AUTHOR_URL
-    markdown = MarkdownIt("commonmark", {"html": False})
+    markdown = make_markdown()
     # The site index has no language of its own; it uses the first language's interface text.
     root_lang = sorted(languages)[0]
     home = site_url + "/"
@@ -323,7 +370,7 @@ def build_site(root: Path, languages: dict[str, dict], entries: list[Entry], sit
                     "summary": entry.meta["summary"],
                     "date": entry.meta.get("date"),
                     "updated": entry.meta.get("updated"),
-                    "body": markdown.render(entry.body),
+                    "body": render_body(markdown, entry, root, warnings),
                 },
                 seo=page_seo(
                     title=title,
