@@ -9,9 +9,15 @@ html {
   text-size-adjust: 100%;
 }
 
+/*
+ * The page is solid --color-bg on the left half. On the right, a radial glow
+ * (--color-bg-glow) sits behind where the symbol will be (see DESIGN.md).
+ */
 body {
   margin: 0;
-  background: var(--color-bg);
+  background-color: var(--color-bg);
+  background-image: radial-gradient(circle 26vw at 74% 70%, var(--color-bg-glow), var(--color-bg));
+  background-repeat: no-repeat;
   color: var(--color-text);
   font-family: var(--font-text);
   font-size: 1rem;

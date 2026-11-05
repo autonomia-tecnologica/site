@@ -17,6 +17,24 @@ scheme change touches one file.
 - `data-theme="light"` or `data-theme="dark"` on `:root` lets the visitor force a scheme.
 - The light values are written twice in `tokens.css` (media query and forced attribute).
   `check_contrast.py` fails if the two copies differ.
+- **The light scheme is a proposal, waiting for Rafael's approval.** The dark scheme follows the
+  mockup (`screen.png`). The light one keeps the same purple identity: a very light lilac page
+  (`#f6f1ff`), the same purple `#7b39ec` for accents and links, and a white surface. It passes
+  the contrast checks, but Rafael still has to look at it and approve or change it.
+
+## Background and identity colors
+
+- Dark background: `--color-bg` (`#1f1233`), solid on the left half of the page. On the right,
+  `--color-bg-glow` (`#2f1656`) makes a radial glow (`radial-gradient` in `base.css`, 26 vw
+  around 74 % / 70 % of the page). The glow is where the symbol goes; it will be sized with the
+  symbol (item 40). The glow is set on `body`, so it is placed on the page, not on the viewport.
+- Header and footer keep their own `--color-bg` fill, so the glow stops at them.
+- Purple of the mockup: `--color-accent` (`#7b39ec`) for graphics and large text on dark. On dark
+  it has 3.05:1 on `--color-bg`, so it is not used for normal text. Text on dark uses
+  `--color-accent-text` (`#a476ff`, 5.55:1).
+- Pill button (not wired to `button.css` yet): `--color-button-start` (`#7838e5`, top) and
+  `--color-button-end` (`#5321a0`, bottom) for a vertical gradient, with no shadow. White text
+  on both ends passes AA (6.0:1 and 10.0:1).
 
 ## Contrast
 
@@ -25,6 +43,7 @@ scheme change touches one file.
   `--color-accent-text` instead (accent on dark surface is 2.73:1, below 3:1). The accent on
   dark is for graphics or large text only (24 px, or 18.66 px in bold).
 - On light, the accent may also sit on `--color-surface`.
+- On dark, `--color-accent` on `--color-bg` is 3.05:1: graphics and large text only, as above.
 - Brand surface (`--color-surface-brand`) takes `--color-on-brand` text only (white in both schemes).
 
 ## Dependency colors
