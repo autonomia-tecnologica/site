@@ -30,13 +30,35 @@ SCHEMA_CONTEXT = "https://schema.org"
 STYLES_DIR = "src/styles"
 FONTS_DIR = "src/assets/fonts"
 WIKI_LINK_RE = re.compile(r"\[\[([^\[\]\n]+)\]\]")
+MANIFESTO_PAGE = "manifesto"
+POINT_ANCHOR_PREFIX = "ponto-"
 
 
 def make_markdown() -> MarkdownIt:
     """CommonMark with tables, no raw HTML, and Obsidian [[links]] shown as plain text."""
     md = MarkdownIt("commonmark", {"html": False}).enable("table")
     md.core.ruler.push("obsidian_wiki_links", unlink_wiki_links)
+    md.core.ruler.push("point_anchors", add_point_anchors)
     return md
+
+
+def add_point_anchors(state) -> None:
+    """Gives id="ponto-N" to each item of the top-level ordered list, when the env asks for it.
+
+    Only the manifesto turns this on (env["point_anchors"]), so its points have fixed links.
+    """
+    if not state.env.get("point_anchors"):
+        return
+    number = 0
+    in_list = False
+    for token in state.tokens:
+        if token.level == 0 and token.type == "ordered_list_open":
+            in_list = True
+        elif token.level == 0 and token.type == "ordered_list_close":
+            in_list = False
+        elif in_list and token.level == 1 and token.type == "list_item_open":
+            number += 1
+            token.attrSet("id", f"{POINT_ANCHOR_PREFIX}{number}")
 
 
 def unlink_wiki_links(state) -> None:
@@ -133,9 +155,15 @@ def article_json_ld(strings: dict, lang: str, meta: dict, url: str, home: str) -
     }
 
 
-def render_body(markdown: MarkdownIt, entry: Entry, root: Path, warnings: list[str]) -> str:
+def render_body(
+    markdown: MarkdownIt, entry: Entry, root: Path, warnings: list[str], point_anchors: bool = False
+) -> str:
     """HTML of an entry's Markdown body; the warnings name the file they come from."""
-    env: dict = {"where": entry.path.relative_to(root).as_posix(), "warnings": []}
+    env: dict = {
+        "where": entry.path.relative_to(root).as_posix(),
+        "warnings": [],
+        "point_anchors": point_anchors,
+    }
     html = markdown.render(entry.body, env)
     warnings.extend(env["warnings"])
     return html
@@ -386,7 +414,10 @@ def build_site(
                     "summary": entry.meta["summary"],
                     "date": entry.meta.get("date"),
                     "updated": entry.meta.get("updated"),
-                    "body": render_body(markdown, entry, root, warnings),
+                    "body": render_body(
+                        markdown, entry, root, warnings,
+                        point_anchors=entry.kind == "page" and entry.key == MANIFESTO_PAGE,
+                    ),
                     "photo": (
                         {"href": f"/{PHOTO_DIR}/{PHOTO_FILE_NAME}", "alt": lookup(strings, "about.photo_alt", lang)}
                         if is_about and photo is not None else None

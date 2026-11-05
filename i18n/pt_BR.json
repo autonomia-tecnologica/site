@@ -17,7 +17,8 @@
     "articles": "artigos",
     "pages": {
       "about": "quem-somos",
-      "consulting": "consultoria"
+      "consulting": "consultoria",
+      "manifesto": "manifesto"
     }
   },
   "ui": {
