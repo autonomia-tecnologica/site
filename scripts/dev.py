@@ -5,10 +5,11 @@ Usage (from the repository root, or through `npm run dev`):
     python3 scripts/dev.py              # serves http://localhost:8000
     python3 scripts/dev.py --port 8080
 
-Only the Python standard library is used. Every build runs as a separate process
-(`python3 -m src.build`), so each rebuild loads the current code. The build reads
-SITE_URL and SITE_PRIVATE_DIR from the environment, as it does everywhere else.
-Stop with Ctrl+C.
+Only the Python standard library is used here. Every build runs as a separate process
+with the interpreter of `.venv/` (`.venv/bin/python -m src.build`), so each rebuild loads
+the current code. Without `.venv/`, the server does not start: run `npm run setup` first.
+The build reads SITE_URL and SITE_PRIVATE_DIR from the environment, as it does everywhere
+else. Stop with Ctrl+C.
 """
 
 import argparse
@@ -20,6 +21,8 @@ import sys
 import threading
 import time
 from pathlib import Path
+
+from project_python import venv_python
 
 ROOT = Path(__file__).resolve().parents[1]
 DIST = ROOT / "dist"
@@ -53,10 +56,10 @@ def snapshot() -> FileState:
     return files
 
 
-def build() -> None:
-    """Run the development build as a process; its output goes to the terminal."""
+def build(python: Path) -> None:
+    """Run the development build as a process with `python`; its output goes to the terminal."""
     print("building the site...", flush=True)
-    result = subprocess.run([sys.executable, "-m", "src.build"], cwd=ROOT)
+    result = subprocess.run([str(python), "-m", "src.build"], cwd=ROOT)
     if result.returncode == 0:
         print("build finished", flush=True)
     else:
@@ -79,6 +82,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(description="Build the site, serve it and rebuild on changes.")
     parser.add_argument("--port", type=int, default=DEFAULT_PORT, help=f"port to serve on (default {DEFAULT_PORT})")
     args = parser.parse_args()
+    python = venv_python()
 
     try:
         server = start_server(args.port)
@@ -89,14 +93,14 @@ def main() -> int:
     print(f"serving {DIST} at http://localhost:{args.port}/ (Ctrl+C to stop)", flush=True)
     try:
         seen = snapshot()
-        build()
+        build(python)
         while True:
             time.sleep(POLL_SECONDS)
             current = snapshot()
             if current != seen:
                 print("change detected", flush=True)
                 seen = current
-                build()
+                build(python)
     except KeyboardInterrupt:
         print("\nstopping the server", flush=True)
     finally:

@@ -16,6 +16,11 @@ import re
 import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from project_python import relaunch_in_venv  # noqa: E402
+
+relaunch_in_venv()
+
 TOKENS = Path(__file__).resolve().parent.parent / "src" / "styles" / "tokens.css"
 
 # Pairs as (foreground, background, minimum ratio). Border is decorative and exempt.

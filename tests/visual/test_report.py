@@ -5,10 +5,9 @@ about.html only), compares the runs with scripts/diff_report.py, and checks the
 changed pages and components exactly. Outputs go to tests/visual/out/test-report/,
 which is not versioned.
 
-Run from the repository root, after `pip install --require-hashes -r requirements-dev.txt`
-and `python -m playwright install chromium`:
+Run from the repository root, after `npm run setup`:
 
-    .venv/bin/python -m unittest discover -s tests/visual -t tests/visual -p "test_report.py"
+    python3 scripts/project_python.py -m unittest discover -s tests/visual -t tests/visual -p "test_report.py"
 """
 
 import json

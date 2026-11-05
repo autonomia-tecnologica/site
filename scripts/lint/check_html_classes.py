@@ -7,7 +7,7 @@ and every literal color in a `style` attribute against the tokens rule.
 Jinja tags are removed before the check, so class names built from variables
 are not checked. Standard library only.
 
-Usage: python3 scripts/lint/check_html_classes.py [--root DIR]
+Usage: python3 scripts/project_python.py scripts/lint/check_html_classes.py [--root DIR]
 Exit status: 0 when clean, 1 when a violation is found.
 """
 

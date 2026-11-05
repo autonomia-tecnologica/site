@@ -11,7 +11,8 @@ Usage:
   python3 scripts/capture.py --site dist --out tests/visual/out/after --pages tests/visual/pages.json
 
 Pages file: a JSON list of {"path": "index.html", "components": ["header", "main"]}.
-Playwright is required (requirements-dev.txt); the site build does not use this script.
+Playwright is required (requirements-dev.txt, installed by `npm run setup`). The script runs
+with the interpreter of `.venv/`, and the site build does not use it.
 """
 
 import argparse
@@ -23,9 +24,12 @@ import threading
 from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
 from pathlib import Path
 
-from playwright.sync_api import sync_playwright
-
 sys.path.insert(0, str(Path(__file__).resolve().parent))
+from project_python import relaunch_in_venv  # noqa: E402
+
+relaunch_in_venv()
+
+from playwright.sync_api import sync_playwright  # noqa: E402
 from browser_checks import find_unresolved_custom_properties  # noqa: E402
 
 REPO = Path(__file__).resolve().parents[1]
