@@ -1,0 +1,13 @@
+.card {
+  background: var(--color-bg);
+  color: var(--color-text);
+  border: 1px solid var(--color-accent, currentcolor);
+}
+
+.card a[href$=".pdf"] {
+  color: var(--color-accent);
+}
+
+.card:hover .button-pill {
+  color: var(--color-text);
+}
