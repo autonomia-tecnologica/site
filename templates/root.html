@@ -1,6 +1,7 @@
 {% extends "base.html" %}
 {% block header_nav %}{% endblock %}
 {% block content %}
+<h1 id="root-title">{{ t("site.name") }}</h1>
 <ul>
 {% for alt in alternates %}<li><a href="{{ alt.href }}">{{ alt.name }}</a></li>
 {% endfor %}

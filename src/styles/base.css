@@ -47,12 +47,14 @@ a:hover {
   outline-offset: 2px;
 }
 
-/* The skip link is off screen until it gets focus, then it sits at the top left. */
+/* The skip link is off screen until it gets focus, then it sits at the top left. Touch target: 44 px. */
 #skip-link {
   position: absolute;
   inset-block-start: 0.5rem;
   inset-inline-start: 0.5rem;
   z-index: 1;
+  min-block-size: 44px;
+  min-inline-size: 44px;
   padding: 0.5rem 1rem;
   background: var(--color-bg);
   color: var(--color-text);
@@ -61,4 +63,14 @@ a:hover {
 
 #skip-link:focus {
   transform: none;
+}
+
+/* The title of the language list is for screen readers only: the site name is already in the header. */
+#root-title {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
