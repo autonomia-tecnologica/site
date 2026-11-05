@@ -12,12 +12,14 @@ import sys
 from pathlib import Path
 from urllib.parse import urlsplit
 
+from .config import PHOTO_FILE_NAME
 from .content import BuildError, PENDING_MARKER, find_pending_markers, load_entries, load_languages
 from .site import build_site
 
 ROOT = Path(__file__).resolve().parents[2]
 REQUIRED_DIRS = ["content/articles", "content/pages", "i18n", "templates"]
 DEV_SITE_URL = "http://localhost"
+PHOTO_ENV = "SITE_PRIVATE_DIR"
 
 
 def check_layout(errors: list[str]) -> None:
@@ -41,14 +43,36 @@ def read_site_url(prod: bool, errors: list[str]) -> str:
     return f"{parts.scheme}://{parts.netloc}"
 
 
+def find_photo(prod: bool, errors: list[str], warnings: list[str]) -> Path | None:
+    """The About page photo, read from the private folder named by SITE_PRIVATE_DIR.
+
+    The production build needs it (error); the development build goes on without it (warning).
+    """
+    raw = os.environ.get(PHOTO_ENV, "").strip()
+    if not raw:
+        problem = f"{PHOTO_ENV} is not set"
+    else:
+        photo = Path(raw).expanduser() / PHOTO_FILE_NAME
+        if photo.is_file():
+            return photo
+        problem = f"photo not found at {photo}"
+    if prod:
+        errors.append(f"{problem}; the production build needs {PHOTO_FILE_NAME} in the folder of {PHOTO_ENV}")
+    else:
+        warnings.append(f"{problem}; the About page is built without the photo")
+    return None
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Build the static site.")
     parser.add_argument("--prod", action="store_true", help="production build: fail on pending markers")
     args = parser.parse_args()
 
     errors: list[str] = []
+    warnings: list[str] = []
     check_layout(errors)
     site_url = read_site_url(args.prod, errors)
+    photo = find_photo(args.prod, errors, warnings)
     languages = load_languages(ROOT, errors) if not errors else {}
     entries = load_entries(ROOT, languages, errors) if not errors else []
     pending = find_pending_markers(ROOT)
@@ -61,14 +85,16 @@ def main() -> int:
         return 1
     for path in pending:
         print(f"warning: pending marker {PENDING_MARKER!r} in {path}")
+    for warning in warnings:
+        print(f"warning: {warning}")
 
-    warnings: list[str] = []
+    shown = len(warnings)
     try:
-        page_count = build_site(ROOT, languages, entries, site_url, warnings)
+        page_count = build_site(ROOT, languages, entries, site_url, warnings, photo)
     except BuildError as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 1
-    for warning in warnings:
+    for warning in warnings[shown:]:
         print(f"warning: {warning}")
 
     mode = "production" if args.prod else "development"
