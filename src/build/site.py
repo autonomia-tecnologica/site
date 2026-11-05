@@ -33,6 +33,8 @@ OUTPUT_DIR = "dist"
 SCHEMA_CONTEXT = "https://schema.org"
 STYLES_DIR = "src/styles"
 FONTS_DIR = "src/assets/fonts"
+LOGO_DIR = "src/assets/logo"
+LOGO_SUFFIXES = (".svg", ".png")
 WIKI_LINK_RE = re.compile(r"\[\[([^\[\]\n]+)\]\]")
 MANIFESTO_PAGE = "manifesto"
 POINT_ANCHOR_PREFIX = "ponto-"
@@ -441,6 +443,7 @@ def build_site(
             lang_tag=lang_tag,
             nav=nav_items(lang),
             current_href=url,
+            home_href=routes.get(("index", lang, ""), "/"),
             **context,
         )
         texts[html_path(url)] = html
@@ -644,6 +647,10 @@ def build_site(
     for source in sorted((root / FONTS_DIR).iterdir()):
         if source.is_file():
             copies[f"assets/fonts/{source.name}"] = source
+    # Logo files: the SVG logotypes, the symbol and the favicon PNG. Nothing else of the art is copied.
+    for source in sorted((root / LOGO_DIR).iterdir()):
+        if source.suffix in LOGO_SUFFIXES:
+            copies[f"assets/logo/{source.name}"] = source
     if photo is not None:
         copies[f"{PHOTO_DIR}/{PHOTO_FILE_NAME}"] = photo
     for rel, source in copies.items():

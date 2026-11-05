@@ -60,6 +60,20 @@ Links keep their underline. Color alone does not mark a link. Visited links use
 - Button error (`aria-invalid="true"`) is a dashed border, not red. The message text comes
   from i18n, next to the control.
 
+## Logo, symbol and favicon
+
+- The files in `src/assets/logo/` are converted from the official vector of the visual identity
+  (`pdftocairo -svg`), not drawn again. The symbol (`symbol.svg`) is the first page of that vector
+  without the wordmark. Its favicon is `favicon-32.png`, rendered from the symbol.
+- The logotype has two versions, by background: `logo-on-dark.svg` (gradient symbol, white text)
+  and `logo-on-light.svg` (purple outline symbol, black text). Both are the official variants of
+  the presentation's logotype page. The header shows one of them by scheme, with no script.
+- The colors inside these SVG files are the art's own. They are the exception to the token rule
+  above: they are not written in the stylesheets or templates.
+- License: the logo, the symbol, the visual identity and the name "Autonomia Tecnológica" are all
+  rights reserved (see `CLAUDE.md`). They are not covered by the MIT code license or the CC BY 4.0
+  content license. The source files (`.ai`, `.eps`, the full presentation) are not in this repository.
+
 ## Fonts
 
 - Quicksand for titles (provisional). Nunito Sans for text.

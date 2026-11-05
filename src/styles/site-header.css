@@ -1,5 +1,5 @@
 /*
- * Site header: the name, the main navigation, the language choice (only with
+ * Site header: the logotype, the main navigation, the language choice (only with
  * more than one language) and the theme choice, in a row under a thin rule.
  * Each link and each theme option is at least 44 px high, for touch.
  * The theme choice is a radio group; its options are styled as buttons, and the
@@ -22,6 +22,40 @@
   align-items: center;
   min-block-size: 44px;
   min-inline-size: 44px;
+}
+
+/*
+ * Logotype: two images in the link, the dark-background version first and the
+ * light-background version second. The scheme shows one of them, with no script:
+ * dark by default, light when the system asks for it, and data-theme forces either.
+ * The hidden one is removed from the accessibility tree too.
+ */
+.site-header a img {
+  display: block;
+  block-size: 2.75rem;
+  inline-size: auto;
+}
+
+.site-header a img + img {
+  display: none;
+}
+
+:root[data-theme="light"] .site-header a img:first-child {
+  display: none;
+}
+
+:root[data-theme="light"] .site-header a img + img {
+  display: block;
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) .site-header a img:first-child {
+    display: none;
+  }
+
+  :root:not([data-theme="dark"]) .site-header a img + img {
+    display: block;
+  }
 }
 
 .site-header nav ul {
