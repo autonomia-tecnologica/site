@@ -84,7 +84,9 @@
 </main>
 <footer class="site-footer">
 {% if seo.feed_href %}<a href="{{ seo.feed_href }}">{{ t("ui.feed") }}</a>{% endif %}
-<p>{{ t("ui.footer") }}</p>
+<p>{{ t("footer.credits.identity") }} <a href="{{ identity_author_url }}" rel="noopener">{{ t("footer.credits.identity_name") }}</a></p>
+<p>{{ t("footer.credits.layout") }}</p>
+<p>{{ t("footer.credits.texts") }}</p>
 </footer>
 </body>
 </html>

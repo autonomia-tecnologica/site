@@ -16,6 +16,9 @@ STYLESHEETS = (
     "site-footer.css",
 )
 
+# Profile of the person who made the logo and visual identity, linked from the footer credits.
+IDENTITY_AUTHOR_URL = "https://www.instagram.com/teeuscorreia/"
+
 # Profiles of the author, used as schema.org sameAs links in the JSON-LD.
 PERSON_SAME_AS = [
     "https://www.linkedin.com/in/rafael-correia/",

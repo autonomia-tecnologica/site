@@ -27,8 +27,15 @@
     "theme_system": "[a escrever]",
     "theme_dark": "[a escrever]",
     "theme_light": "[a escrever]",
-    "feed": "[a escrever]",
-    "footer": "[a escrever]"
+    "feed": "[a escrever]"
+  },
+  "footer": {
+    "credits": {
+      "identity": "Logo e identidade visual por",
+      "identity_name": "Mateus Correia",
+      "layout": "Layout, design e desenvolvimento do site gerados por IA com supervisão de Rafael Correia",
+      "texts": "Textos escritos por humanos"
+    }
   },
   "person": {
     "name": "Rafael Correia"
