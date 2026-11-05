@@ -19,7 +19,7 @@ templates/                Jinja2 templates
 ## Development build
 
 Requires Python 3.11 or newer and the dependencies in `pyproject.toml`
-(`markdown-it-py`, `Jinja2`, `PyYAML`).
+(`markdown-it-py`, `mdit-py-plugins`, `Jinja2`, `PyYAML`).
 
 ```
 python -m src.build          # development

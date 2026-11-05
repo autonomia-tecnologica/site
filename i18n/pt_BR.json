@@ -31,7 +31,9 @@
     "theme_system": "[a escrever]",
     "theme_dark": "[a escrever]",
     "theme_light": "[a escrever]",
-    "feed": "[a escrever]"
+    "feed": "[a escrever]",
+    "index": "[a escrever]",
+    "footnote_back": "[a escrever]"
   },
   "footer": {
     "credits": {
