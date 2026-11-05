@@ -17,36 +17,43 @@
 {% if seo.og_locale %}<meta property="og:locale" content="{{ seo.og_locale }}">
 {% endif %}{% for block in seo.json_ld %}<script type="application/ld+json">{{ block|tojson }}</script>
 {% endfor %}<script>
-/* Theme choice: the only script of the site. Without it the page follows the system.
-   The saved choice is applied before the page paints; the control is shown only with script. */
+/* Theme button: the only script of the site. Without it the page follows the system
+   and the button stays hidden. The saved choice is applied before the page paints;
+   with no saved choice the page follows the system. */
 (function () {
   var root = document.documentElement;
   var key = "theme";
+  var dark = window.matchMedia("(prefers-color-scheme: dark)");
   function read() {
     try { return localStorage.getItem(key); } catch (error) { return null; }
   }
   function write(value) {
-    try {
-      if (value === "system") { localStorage.removeItem(key); } else { localStorage.setItem(key, value); }
-    } catch (error) { /* storage blocked: the choice lasts for this page only */ }
+    try { localStorage.setItem(key, value); } catch (error) { /* storage blocked: the choice lasts for this page only */ }
   }
   function apply(value) {
     if (value === "dark" || value === "light") { root.setAttribute("data-theme", value); } else { root.removeAttribute("data-theme"); }
   }
-  var saved = read();
-  apply(saved);
+  function shown() {
+    var forced = root.getAttribute("data-theme");
+    if (forced === "dark" || forced === "light") { return forced; }
+    return dark.matches ? "dark" : "light";
+  }
+  apply(read());
   document.addEventListener("DOMContentLoaded", function () {
-    var control = document.getElementById("theme-control");
-    if (!control) { return; }
-    var choice = saved === "dark" || saved === "light" ? saved : "system";
-    var input = control.querySelector('input[value="' + choice + '"]');
-    if (input) { input.checked = true; }
-    control.addEventListener("change", function (event) {
-      if (event.target.name !== "theme") { return; }
-      write(event.target.value);
-      apply(event.target.value);
+    var button = document.getElementById("theme-toggle");
+    if (!button) { return; }
+    function show() {
+      button.setAttribute("aria-pressed", String(shown() === "dark"));
+    }
+    button.addEventListener("click", function () {
+      var next = shown() === "dark" ? "light" : "dark";
+      write(next);
+      apply(next);
+      show();
     });
-    control.hidden = false;
+    dark.addEventListener("change", show);
+    show();
+    button.hidden = false;
   });
 })();
 </script>
@@ -72,12 +79,10 @@
 </nav>
 {% endif %}
 {% endblock %}
-<div id="theme-control" role="radiogroup" aria-labelledby="theme-name" hidden>
-<p id="theme-name">{{ t("ui.theme") }}</p>
-<label class="button" for="theme-system"><input type="radio" id="theme-system" name="theme" value="system" checked>{{ t("ui.theme_system") }}</label>
-<label class="button" for="theme-dark"><input type="radio" id="theme-dark" name="theme" value="dark">{{ t("ui.theme_dark") }}</label>
-<label class="button" for="theme-light"><input type="radio" id="theme-light" name="theme" value="light">{{ t("ui.theme_light") }}</label>
-</div>
+<button type="button" id="theme-toggle" aria-label="{{ t('ui.theme_toggle') }}" aria-pressed="false" hidden>
+<svg data-icon="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+<svg data-icon="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+</button>
 </header>
 <main id="main" tabindex="-1">
 {% block content %}{% endblock %}

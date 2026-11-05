@@ -1,9 +1,9 @@
 /*
- * Site header: the name, the main navigation, the language choice (only with
- * more than one language) and the theme choice, in a row under a thin rule.
- * Each link and each theme option is at least 44 px high, for touch.
- * The theme choice is a radio group; its options are styled as buttons, and the
- * checked one shows the accent fill. The inputs are hidden but still focusable.
+ * Site header: the name, the main navigation, the locale choice (only with
+ * more than one locale) and the theme button, in a row under a thin rule.
+ * Each link and the theme button are at least 44 px high, for touch.
+ * The theme button is a round icon, hidden without script. It shows the icon of
+ * the theme it switches to: the moon on the light page, the sun on the dark one.
  */
 
 .site-header {
@@ -41,49 +41,42 @@
   font-weight: 700;
 }
 
-.site-header [role="radiogroup"] {
-  display: flex;
-  flex-wrap: wrap;
+.site-header button {
+  display: inline-flex;
   align-items: center;
-  gap: 0.5rem;
-}
-
-.site-header [role="radiogroup"][hidden] {
-  display: none;
-}
-
-.site-header [role="radiogroup"] > p {
+  justify-content: center;
+  flex: none;
+  inline-size: 44px;
+  block-size: 44px;
   margin: 0;
-}
-
-.site-header [role="radiogroup"] input {
-  position: absolute;
-  inline-size: 1px;
-  block-size: 1px;
-  margin: 0;
-  opacity: 0;
-}
-
-.site-header [role="radiogroup"] label.button {
-  position: relative;
+  padding: 0;
+  border: 2px solid var(--color-border-strong);
+  border-radius: 50%;
   background: var(--color-bg);
   color: var(--color-text);
-  border-color: var(--color-border-strong);
-  font-weight: 400;
+  cursor: pointer;
 }
 
-.site-header [role="radiogroup"] label.button:hover {
+.site-header button:hover {
   border-color: var(--color-text);
 }
 
-.site-header [role="radiogroup"] label.button:has(input:checked) {
-  background: var(--color-accent);
-  border-color: var(--color-accent);
-  color: var(--color-on-accent);
-  font-weight: 700;
-}
-
-.site-header [role="radiogroup"] label.button:has(input:focus-visible) {
+.site-header button:focus-visible {
   outline: 3px solid var(--color-focus);
   outline-offset: 2px;
+}
+
+.site-header button[hidden] {
+  display: none;
+}
+
+.site-header button svg {
+  display: none;
+  inline-size: 20px;
+  block-size: 20px;
+}
+
+.site-header button[aria-pressed="false"] svg[data-icon="moon"],
+.site-header button[aria-pressed="true"] svg[data-icon="sun"] {
+  display: block;
 }
