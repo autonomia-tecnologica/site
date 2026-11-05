@@ -24,18 +24,23 @@ scheme change touches one file.
 
 ## Background and identity colors
 
-- Dark background: `--color-bg` (`#1f1233`), solid on the left half of the page. On the right,
-  `--color-bg-glow` (`#2f1656`) makes a radial glow (`radial-gradient` in `base.css`, 26 vw
-  around 74 % / 70 % of the page). The glow is where the symbol goes; it will be sized with the
-  symbol (item 40). The glow is set on `body`, so it is placed on the page, not on the viewport.
+- Visual style: flat where it is a control or a mark, soft where it is the page. The page
+  background may use a gradient and a glow; buttons and logos/symbols are solid. No box-shadow,
+  no decorative blur, no glow on buttons or logos.
+- Background: `--color-bg` (`#1f1233`), solid on the left half of the page. On the right,
+  `--color-bg-glow` (`#2f1656`) makes a soft radial glow (`radial-gradient` in `base.css`, 26 vw
+  around 74 % / 70 % of the page). The glow sits behind the symbol and is placed on the page
+  (`body`), not on the viewport. On light, `--color-bg-glow` (`#ebe0ff`) is the subtle lilac
+  equivalent (proposal, see above).
 - Header and footer keep their own `--color-bg` fill, so the glow stops at them.
 - Purple of the mockup: `--color-accent` (`#7b39ec`) for graphics and large text on dark. On dark
   it has 3.05:1 on `--color-bg`, so it is not used for normal text. Text on dark uses
   `--color-accent-text` (`#a476ff`, 5.55:1).
-- Pill button (not wired to `button.css` yet): `--color-button-start` (`#7838e5`, top) and
-  `--color-button-end` (`#5321a0`, bottom) for a vertical gradient, with no shadow. White text
-  on both ends passes AA (6.0:1 and 10.0:1).
-
+- Pill button: `--color-button` (`#7b39ec`), one solid fill in both schemes, no gradient and
+  no shadow. Text on it is `--color-on-accent` (white): 5.77:1, passes AA. The light value is
+  the same purple as the light accent, so the button reads the same on both pages. The light
+  scheme is still a proposal for Rafael to approve. The pill button belongs to `button.css`,
+  which is done by another item, not by the tokens.
 ## Contrast
 
 - Text: 4.5:1 (WCAG 2.x AA). Graphics and large elements: 3:1. Borders are decorative and exempt.
