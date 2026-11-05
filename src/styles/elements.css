@@ -1,7 +1,15 @@
 /*
- * Element styles with no class: block quotes, code and tables.
+ * Element styles with no class: block quotes, code, tables and list links.
  * Rationale: see DESIGN.md.
  */
+
+/* Links in the lists of the content keep a 44 px touch target. */
+main ul > li > a,
+main ol > li > a {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: 44px;
+}
 
 blockquote {
   margin-inline: 0;

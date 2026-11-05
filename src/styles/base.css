@@ -1,6 +1,6 @@
 /*
- * Base: page background, text, headings, links and focus.
- * Element selectors only. Colors and font families come from tokens.css.
+ * Base: page background, text, headings, links, focus and the skip link.
+ * Element selectors and the skip link's id only. Colors and font families come from tokens.css.
  * Rationale: see DESIGN.md.
  */
 
@@ -45,4 +45,20 @@ a:hover {
 :focus-visible {
   outline: 3px solid var(--color-focus);
   outline-offset: 2px;
+}
+
+/* The skip link is off screen until it gets focus, then it sits at the top left. */
+#skip-link {
+  position: absolute;
+  inset-block-start: 0.5rem;
+  inset-inline-start: 0.5rem;
+  z-index: 1;
+  padding: 0.5rem 1rem;
+  background: var(--color-bg);
+  color: var(--color-text);
+  transform: translateY(-250%);
+}
+
+#skip-link:focus {
+  transform: none;
 }

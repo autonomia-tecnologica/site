@@ -8,31 +8,83 @@
 <link rel="canonical" href="{{ seo.canonical }}">
 {% for alt in seo.hreflang %}<link rel="alternate" hreflang="{{ alt.tag }}" href="{{ alt.href }}">
 {% endfor %}{% if seo.feed_href %}<link rel="alternate" type="application/rss+xml" title="{{ seo.site_name }}" href="{{ seo.feed_href }}">
-{% endif %}<meta property="og:type" content="{{ seo.og_type }}">
+{% endif %}{% for href in stylesheets %}<link rel="stylesheet" href="{{ href }}">
+{% endfor %}<meta property="og:type" content="{{ seo.og_type }}">
 <meta property="og:title" content="{{ seo.title }}">
 <meta property="og:description" content="{{ seo.description }}">
 <meta property="og:url" content="{{ seo.canonical }}">
 <meta property="og:site_name" content="{{ seo.site_name }}">
 {% if seo.og_locale %}<meta property="og:locale" content="{{ seo.og_locale }}">
 {% endif %}{% for block in seo.json_ld %}<script type="application/ld+json">{{ block|tojson }}</script>
-{% endfor %}</head>
+{% endfor %}<script>
+/* Theme choice: the only script of the site. Without it the page follows the system.
+   The saved choice is applied before the page paints; the control is shown only with script. */
+(function () {
+  var root = document.documentElement;
+  var key = "theme";
+  function read() {
+    try { return localStorage.getItem(key); } catch (error) { return null; }
+  }
+  function write(value) {
+    try {
+      if (value === "system") { localStorage.removeItem(key); } else { localStorage.setItem(key, value); }
+    } catch (error) { /* storage blocked: the choice lasts for this page only */ }
+  }
+  function apply(value) {
+    if (value === "dark" || value === "light") { root.setAttribute("data-theme", value); } else { root.removeAttribute("data-theme"); }
+  }
+  var saved = read();
+  apply(saved);
+  document.addEventListener("DOMContentLoaded", function () {
+    var control = document.getElementById("theme-control");
+    if (!control) { return; }
+    var choice = saved === "dark" || saved === "light" ? saved : "system";
+    var input = control.querySelector('input[value="' + choice + '"]');
+    if (input) { input.checked = true; }
+    control.addEventListener("change", function (event) {
+      if (event.target.name !== "theme") { return; }
+      write(event.target.value);
+      apply(event.target.value);
+    });
+    control.hidden = false;
+  });
+})();
+</script>
+</head>
 <body>
-<header>
-<p><a href="/">{{ t("site.name") }}</a></p>
-{% block selector %}
-{% if alternates|length > 1 %}
-<nav>
-<p>{{ t("ui.languages") }}</p>
+<a id="skip-link" href="#main">{{ t("ui.skip_to_content") }}</a>
+<header class="site-header">
+<a href="/">{{ t("site.name") }}</a>
+{% block header_nav %}
+<nav aria-label="{{ t('ui.main_nav') }}">
 <ul>
-{% for alt in alternates %}<li><a href="{{ alt.href }}">{{ alt.name }}</a></li>
+{% for item in nav %}<li><a href="{{ item.href }}"{% if item.href == current_href %} aria-current="page"{% endif %}>{{ item.label }}</a></li>
+{% endfor %}
+</ul>
+</nav>
+{% if alternates|length > 1 %}
+<nav aria-labelledby="languages-name">
+<p id="languages-name">{{ t("ui.languages") }}</p>
+<ul>
+{% for alt in alternates %}<li><a href="{{ alt.href }}" lang="{{ alt.tag }}">{{ alt.name }}</a></li>
 {% endfor %}
 </ul>
 </nav>
 {% endif %}
 {% endblock %}
+<div id="theme-control" role="radiogroup" aria-labelledby="theme-name" hidden>
+<p id="theme-name">{{ t("ui.theme") }}</p>
+<label class="button" for="theme-system"><input type="radio" id="theme-system" name="theme" value="system" checked>{{ t("ui.theme_system") }}</label>
+<label class="button" for="theme-dark"><input type="radio" id="theme-dark" name="theme" value="dark">{{ t("ui.theme_dark") }}</label>
+<label class="button" for="theme-light"><input type="radio" id="theme-light" name="theme" value="light">{{ t("ui.theme_light") }}</label>
+</div>
 </header>
-<main>
+<main id="main" tabindex="-1">
 {% block content %}{% endblock %}
 </main>
+<footer class="site-footer">
+{% if seo.feed_href %}<a href="{{ seo.feed_href }}">{{ t("ui.feed") }}</a>{% endif %}
+<p>{{ t("ui.footer") }}</p>
+</footer>
 </body>
 </html>
