@@ -15,12 +15,16 @@ the author's profile links. The photo is copied to dist/ only when it is given.
 
 import re
 import shutil
+import unicodedata
 from datetime import UTC, date, datetime, time
 from email.utils import format_datetime
 from pathlib import Path
 
 from jinja2 import Environment, FileSystemLoader, StrictUndefined, select_autoescape
 from markdown_it import MarkdownIt
+from markdown_it.common.utils import escapeHtml
+from markdown_it.token import Token
+from mdit_py_plugins.footnote import footnote_plugin
 
 from .config import IDENTITY_AUTHOR_URL, PERSON_PROFILES, PERSON_SAME_AS, PHOTO_FILE_NAME, STYLESHEETS
 from .content import HOME_PAGE_KEY, BuildError, Entry
@@ -32,14 +36,132 @@ FONTS_DIR = "src/assets/fonts"
 WIKI_LINK_RE = re.compile(r"\[\[([^\[\]\n]+)\]\]")
 MANIFESTO_PAGE = "manifesto"
 POINT_ANCHOR_PREFIX = "ponto-"
+FOOTNOTE_CLASS_RE = re.compile(r' class="footnote[\w-]*"')
+FOOTNOTE_ID_RE = re.compile(r"fn(?:ref)?[0-9]+")
+INDEX_HEADING_TAGS = ("h2", "h3")
+DEFAULT_HEADING_ID = "section"
 
 
 def make_markdown() -> MarkdownIt:
-    """CommonMark with tables, no raw HTML, and Obsidian [[links]] shown as plain text."""
+    """CommonMark with tables and footnotes, no raw HTML, and Obsidian [[links]] shown as plain text.
+
+    The site allows only the class names of its vocabulary, so the footnote markup has none.
+    """
     md = MarkdownIt("commonmark", {"html": False}).enable("table")
+    md.use(footnote_plugin)
+    for name in ("footnote_ref", "footnote_block_open", "footnote_open"):
+        md.add_render_rule(name, without_footnote_classes(md.renderer.rules[name]))
+    md.add_render_rule("footnote_anchor", render_footnote_anchor)
     md.core.ruler.push("obsidian_wiki_links", unlink_wiki_links)
     md.core.ruler.push("point_anchors", add_point_anchors)
+    md.core.ruler.push("image_captions", add_image_captions)
+    md.core.ruler.push("heading_anchors", add_heading_anchors)
     return md
+
+
+def without_footnote_classes(rule):
+    """Wraps a footnote renderer so that its output has no class attribute of the plugin."""
+
+    def render(self, tokens, idx, options, env) -> str:  # bound to the renderer by add_render_rule
+        return FOOTNOTE_CLASS_RE.sub("", rule(tokens, idx, options, env))
+
+    return render
+
+
+def render_footnote_anchor(self, tokens, idx, options, env) -> str:
+    """Back link of a note. The plugin's version has no name; this one is labelled from the site text."""
+    ident = self.rules["footnote_anchor_name"](tokens, idx, options, env)
+    if tokens[idx].meta["subId"] > 0:
+        ident += ":" + str(tokens[idx].meta["subId"])
+    label = escapeHtml(env["footnote_back_label"])
+    return f' <a href="#fnref{ident}" aria-label="{label}">↩︎</a>'
+
+
+def add_image_captions(state) -> None:
+    """Turns a paragraph that holds only an image with a title into a figure with a caption.
+
+    ![alt](src "caption") becomes <figure><img ...><figcaption>caption</figcaption></figure>.
+    """
+    tokens = state.tokens
+    for i in range(len(tokens) - 2):
+        opening, inline, closing = tokens[i : i + 3]
+        if opening.type != "paragraph_open" or inline.type != "inline" or closing.type != "paragraph_close":
+            continue
+        children = inline.children or []
+        if len(children) != 1 or children[0].type != "image" or "title" not in children[0].attrs:
+            continue
+        image = children[0]
+        caption = image.attrs.pop("title")
+        opening.type, opening.tag = "figure_open", "figure"
+        closing.type, closing.tag = "figure_close", "figure"
+        caption_text = Token("text", "", 0)
+        caption_text.content = caption
+        inline.children = [
+            image,
+            Token("figcaption_open", "figcaption", 1),
+            caption_text,
+            Token("figcaption_close", "figcaption", -1),
+        ]
+
+
+def slugify(text: str) -> str:
+    """ASCII id from a heading: accents are dropped, other characters become single hyphens."""
+    ascii_text = unicodedata.normalize("NFKD", text).encode("ascii", "ignore").decode("ascii").lower()
+    return re.sub(r"[^a-z0-9]+", "-", ascii_text).strip("-") or DEFAULT_HEADING_ID
+
+
+def unique_id(base: str, used: set[str]) -> str:
+    """base, or base-2, base-3... when it is taken; ids that look like footnote ids are avoided too."""
+    candidate, number = base, 1
+    while candidate in used or FOOTNOTE_ID_RE.fullmatch(candidate):
+        number += 1
+        candidate = f"{base}-{number}"
+    used.add(candidate)
+    return candidate
+
+
+def add_heading_anchors(state) -> None:
+    """Gives an id to each top-level h2 and h3, and puts an index before the body when there are two.
+
+    Only articles turn this on (env["index_label"] is set), so the other pages keep their headings as they are.
+    """
+    label = state.env.get("index_label")
+    if label is None:
+        return
+    tokens = state.tokens
+    used: set[str] = set()
+    headings: list[tuple[str, str]] = []
+    for i, token in enumerate(tokens):
+        if token.type != "heading_open" or token.level != 0 or token.tag not in INDEX_HEADING_TAGS:
+            continue
+        children = tokens[i + 1].children or []
+        text = "".join(child.content for child in children if child.type in ("text", "code_inline"))
+        ident = unique_id(slugify(text), used)
+        token.attrSet("id", ident)
+        headings.append((ident, text))
+    if len(headings) >= 2:
+        tokens[0:0] = index_tokens(label, headings)
+
+
+def index_tokens(label: str, headings: list[tuple[str, str]]) -> list[Token]:
+    """The index of an article: a nav with one link per heading."""
+    nav = Token("index_open", "nav", 1)
+    nav.attrSet("aria-label", label)
+    tokens = [nav, Token("index_list_open", "ul", 1)]
+    for ident, text in headings:
+        link = Token("index_link_open", "a", 1)
+        link.attrSet("href", f"#{ident}")
+        link_text = Token("text", "", 0)
+        link_text.content = text
+        tokens += [
+            Token("index_item_open", "li", 1),
+            link,
+            link_text,
+            Token("index_link_close", "a", -1),
+            Token("index_item_close", "li", -1),
+        ]
+    tokens += [Token("index_list_close", "ul", -1), Token("index_close", "nav", -1)]
+    return tokens
 
 
 def add_point_anchors(state) -> None:
@@ -156,13 +278,25 @@ def article_json_ld(strings: dict, lang: str, meta: dict, url: str, home: str) -
 
 
 def render_body(
-    markdown: MarkdownIt, entry: Entry, root: Path, warnings: list[str], point_anchors: bool = False
+    markdown: MarkdownIt,
+    entry: Entry,
+    root: Path,
+    warnings: list[str],
+    strings: dict,
+    lang: str,
+    point_anchors: bool = False,
+    article: bool = False,
 ) -> str:
-    """HTML of an entry's Markdown body; the warnings name the file they come from."""
+    """HTML of an entry's Markdown body; the warnings name the file they come from.
+
+    An article gets an id on each heading and an index of them, labelled from the site text.
+    """
     env: dict = {
         "where": entry.path.relative_to(root).as_posix(),
         "warnings": [],
         "point_anchors": point_anchors,
+        "index_label": lookup(strings, "ui.index", lang) if article else None,
+        "footnote_back_label": lookup(strings, "ui.footnote_back", lang),
     }
     html = markdown.render(entry.body, env)
     warnings.extend(env["warnings"])
@@ -349,7 +483,7 @@ def build_site(
             alternates=alternates("index", ""),
             home=None if home_entry is None else {
                 "title": home_entry.meta["title"],
-                "body": render_body(markdown, home_entry, root, warnings),
+                "body": render_body(markdown, home_entry, root, warnings, strings, lang),
             },
             pages=[{"title": e.meta["title"], "href": routes[("page", lang, e.key)]} for e in page_entries],
             has_articles=bool(articles),
@@ -426,8 +560,9 @@ def build_site(
                     "date": entry.meta.get("date"),
                     "updated": entry.meta.get("updated"),
                     "body": render_body(
-                        markdown, entry, root, warnings,
+                        markdown, entry, root, warnings, strings, lang,
                         point_anchors=entry.kind == "page" and entry.key == MANIFESTO_PAGE,
+                        article=is_article,
                     ),
                     "photo": (
                         {"href": f"/{PHOTO_DIR}/{PHOTO_FILE_NAME}", "alt": lookup(strings, "about.photo_alt", lang)}
