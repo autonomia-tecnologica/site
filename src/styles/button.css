@@ -40,6 +40,28 @@
   border-color: var(--color-text);
 }
 
+/*
+ * Pill variant of the home hero: a flat fill, no shadow, no translucent border.
+ * The border is the fill color, so the base hover (border to text color) still shows.
+ * Uses the accent until the button token (--color-button) exists in tokens.css.
+ */
+.button--pill {
+  box-sizing: border-box;
+  min-block-size: 58px;
+  padding: 0 36px;
+  border: 2px solid var(--color-accent);
+  background: var(--color-accent);
+  font-family: var(--font-title);
+  font-size: 1.25rem;
+  font-weight: 300;
+}
+
+@media (max-width: 780px) {
+  .button--pill {
+    inline-size: 100%;
+  }
+}
+
 @media (prefers-reduced-motion: reduce) {
   .button {
     transition: none;

@@ -2,7 +2,13 @@
 # Approved by Rafael on 2026-11-05. A new name needs his approval first.
 # Citation, code and table are styled by element selectors, without classes.
 button
+button--pill
 card
+hero
+hero__title
+hero__accent
+hero__lead
+hero__symbol
 site-header
 site-footer
 prose

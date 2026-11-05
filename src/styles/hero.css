@@ -1,0 +1,111 @@
+/*
+ * Hero: the first block of the home page. Title, lead and the two channel buttons on the
+ * left; the symbol, decorative, on the right and cut by the edges of the hero.
+ * Sizes follow the mockup; the title font is the identity font (--font-title).
+ * Rationale: see DESIGN.md.
+ */
+
+/*
+ * The hero spans the whole page so the symbol can run past the right edge and be cut there.
+ * Its content is the 1280 px column (or the page minus 32 px a side on a narrower screen).
+ */
+.hero {
+  position: relative;
+  display: grid;
+  grid-template-columns: 47% 1fr;
+  align-content: center;
+  min-block-size: calc(100svh - 145px);
+  padding-inline: max(32px, calc((100% - 1280px) / 2));
+  overflow: hidden;
+}
+
+/* Title, lead and buttons share the first column; the symbol is placed on its own. */
+.hero > * {
+  grid-column: 1;
+}
+
+.hero__title {
+  position: relative;
+  z-index: 1;
+  max-inline-size: 650px;
+  margin: 0;
+  font-family: var(--font-title);
+  font-size: clamp(64px, 5.4vw, 88px);
+  font-weight: 500;
+  line-height: 0.9;
+  letter-spacing: -4px;
+  color: var(--color-text);
+}
+
+.hero__accent {
+  color: var(--color-accent);
+}
+
+.hero__lead {
+  position: relative;
+  z-index: 1;
+  margin: 34px 0 28px;
+  font-family: var(--font-title);
+  font-size: clamp(24px, 2.2vw, 31px);
+  font-weight: 300;
+  line-height: 1.27;
+  letter-spacing: -0.7px;
+  color: var(--color-text);
+}
+
+/* The two buttons sit side by side; the group is the only plain div in the hero. */
+.hero > div {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16px;
+}
+
+/* Desktop: a flat accent disc with the AT cut out, at 7% from the top of the hero, rotated. */
+.hero__symbol {
+  position: absolute;
+  top: 7%;
+  left: calc(max(32px, (100% - 1280px) / 2) + min(1280px, 100% - 64px) * 0.47);
+  z-index: 0;
+  width: clamp(690px, 61vw, 950px);
+  height: auto;
+  color: var(--color-accent);
+  transform: rotate(-1.5deg);
+  pointer-events: none;
+}
+
+@media (max-width: 780px) {
+  .hero {
+    display: block;
+    padding-inline: 20px;
+    padding-block: 11vh 90px;
+    min-block-size: calc(100svh - 100px);
+  }
+
+  .hero__title {
+    font-size: clamp(51px, 14vw, 76px);
+    line-height: 0.91;
+    letter-spacing: -3px;
+  }
+
+  .hero__lead {
+    margin: 28px 0 26px;
+    font-size: clamp(21px, 6vw, 27px);
+  }
+
+  .hero > div {
+    flex-direction: column;
+  }
+
+  /* Phone: the symbol goes behind the text, faded and cut at the right and bottom. */
+  .hero__symbol {
+    top: auto;
+    left: auto;
+    right: -54%;
+    bottom: -19%;
+    width: 115%;
+    opacity: 0.34;
+    z-index: 0;
+  }
+}
