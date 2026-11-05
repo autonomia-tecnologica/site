@@ -6,6 +6,15 @@
   "locale": {
     "name": "Português (Brasil)"
   },
+  "home": {
+    "hero": {
+      "title_start": "[a escrever]",
+      "title_accent": "[a escrever]",
+      "lead": "[a escrever]",
+      "substack": "[a escrever]",
+      "youtube": "[a escrever]"
+    }
+  },
   "nav": {
     "manifesto": "Manifesto",
     "articles": "Artigos",

@@ -12,6 +12,7 @@ STYLESHEETS = (
     "prose.css",
     "button.css",
     "card.css",
+    "hero.css",
     "site-header.css",
     "site-footer.css",
 )
@@ -24,6 +25,12 @@ PERSON_PROFILES = {
     "linkedin": "https://www.linkedin.com/in/rafael-correia/",
     "github": "https://github.com/faelcorreia",
     "substack": "https://substack.com/@faelcorreia",
+}
+
+# Channels of the home hero: the buttons link to them. Their labels are in i18n/<locale>.json, under home.hero.
+CHANNEL_PROFILES = {
+    "substack": "https://substack.com/@faelcorreia",
+    "youtube": "https://www.youtube.com/@autonomiatecnologica",
 }
 
 # Profiles of the author, used as schema.org sameAs links in the JSON-LD.

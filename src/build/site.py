@@ -27,7 +27,14 @@ from markdown_it.common.utils import escapeHtml
 from markdown_it.token import Token
 from mdit_py_plugins.footnote import footnote_plugin
 
-from .config import IDENTITY_AUTHOR_URL, PERSON_PROFILES, PERSON_SAME_AS, PHOTO_FILE_NAME, STYLESHEETS
+from .config import (
+    CHANNEL_PROFILES,
+    IDENTITY_AUTHOR_URL,
+    PERSON_PROFILES,
+    PERSON_SAME_AS,
+    PHOTO_FILE_NAME,
+    STYLESHEETS,
+)
 from .content import HOME_PAGE_KEY, BuildError, Entry
 
 OUTPUT_DIR = "dist"
@@ -488,21 +495,12 @@ def build_site(
             reverse=True,
         )
         home_entry = next((e for e in locale_entries if e.kind == "page" and e.key == HOME_PAGE_KEY), None)
-        page_entries = sorted(
-            (e for e in locale_entries if e.kind == "page" and e.key != HOME_PAGE_KEY), key=lambda e: e.key
-        )
         feed = feed_href(locale)
 
         render(
             "index.html", locale, ("index", locale, ""), locale_tag,
             alternates=alternates("index", ""),
-            home=None if home_entry is None else {
-                "title": home_entry.meta["title"],
-                "body": render_body(markdown, home_entry, root, warnings, strings, locale),
-            },
-            pages=[{"title": e.meta["title"], "href": routes[("page", locale, e.key)]} for e in page_entries],
-            has_articles=bool(articles),
-            articles_href=routes.get(("articles", locale, "")),
+            channels=CHANNEL_PROFILES,
             seo=page_seo(
                 title=site_name,
                 description=description if home_entry is None else home_entry.meta["summary"],
