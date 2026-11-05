@@ -1,6 +1,6 @@
 """Build settings that are not interface text.
 
-Interface text lives in i18n/<lang>.json. The site address comes from the
+Interface text lives in i18n/<locale>.json. The site address comes from the
 SITE_URL environment variable, read by __main__.py.
 """
 
@@ -19,7 +19,7 @@ STYLESHEETS = (
 # Profile of the person who made the logo and visual identity, linked from the footer credits.
 IDENTITY_AUTHOR_URL = "https://www.instagram.com/teeuscorreia/"
 
-# Profiles of the author, by name. The labels of each link are in i18n/<lang>.json, under about.profiles.
+# Profiles of the author, by name. The labels of each link are in i18n/<locale>.json, under about.profiles.
 PERSON_PROFILES = {
     "linkedin": "https://www.linkedin.com/in/rafael-correia/",
     "github": "https://github.com/faelcorreia",

@@ -3,11 +3,10 @@
     "name": "Autonomia Tecnológica",
     "description": "[a escrever]"
   },
-  "language": {
+  "locale": {
     "name": "Português (Brasil)"
   },
   "nav": {
-    "home": "Início",
     "manifesto": "Manifesto",
     "articles": "Artigos",
     "consulting": "Consultoria",
@@ -22,7 +21,8 @@
     }
   },
   "ui": {
-    "languages": "[a escrever]",
+    "locales": "[a escrever]",
+    "redirect": "[a escrever]",
     "published": "[a escrever]",
     "updated": "[a escrever]",
     "skip_to_content": "[a escrever]",

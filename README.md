@@ -1,10 +1,10 @@
 # Autonomia Tecnológica — site
 
 Source of the static site of Autonomia Tecnológica. Content is written in Brazilian Portuguese (`pt_BR`),
-the only language for now.
+the only locale for now.
 
 Status: early. The build turns Markdown with YAML front matter into static HTML, with translated
-URLs read from `i18n/<lang>.json`, and reports pending text markers (`[a escrever]`).
+URLs read from `i18n/<locale>.json`, and reports pending text markers (`[a escrever]`).
 
 ## Layout
 

@@ -1,5 +1,5 @@
 <!doctype html>
-<html{% if lang_tag %} lang="{{ lang_tag }}"{% endif %}>
+<html{% if locale_tag %} lang="{{ locale_tag }}"{% endif %}>
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
@@ -54,7 +54,7 @@
 <body>
 <a id="skip-link" href="#main">{{ t("ui.skip_to_content") }}</a>
 <header class="site-header">
-<a href="/">{{ t("site.name") }}</a>
+<a href="{{ home_href }}">{{ t("site.name") }}</a>
 {% block header_nav %}
 <nav aria-label="{{ t('ui.main_nav') }}">
 <ul>
@@ -63,8 +63,8 @@
 </ul>
 </nav>
 {% if alternates|length > 1 %}
-<nav aria-labelledby="languages-name">
-<p id="languages-name">{{ t("ui.languages") }}</p>
+<nav aria-labelledby="locales-name">
+<p id="locales-name">{{ t("ui.locales") }}</p>
 <ul>
 {% for alt in alternates %}<li><a href="{{ alt.href }}" lang="{{ alt.tag }}">{{ alt.name }}</a></li>
 {% endfor %}
