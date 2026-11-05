@@ -59,12 +59,40 @@
   });
 })();
 </script>
+<script>
+/* Menu button: below 780 px it opens and closes the navigation panel. Without script the
+   button stays hidden and the links stay in the header row. Esc closes the panel and
+   gives the focus back to the button. */
+(function () {
+  function setOpen(button, open) {
+    button.setAttribute("aria-expanded", String(open));
+    button.setAttribute("aria-label", button.getAttribute(open ? "data-close-label" : "data-open-label"));
+  }
+  document.addEventListener("DOMContentLoaded", function () {
+    var button = document.getElementById("menu-toggle");
+    if (!button) { return; }
+    setOpen(button, false);
+    button.hidden = false;
+    button.addEventListener("click", function () {
+      setOpen(button, button.getAttribute("aria-expanded") !== "true");
+    });
+    document.addEventListener("keydown", function (event) {
+      if (event.key === "Escape" && button.getAttribute("aria-expanded") === "true") {
+        setOpen(button, false);
+        button.focus();
+      }
+    });
+  });
+})();
+</script>
 </head>
 <body>
 <a id="skip-link" href="#main">{{ t("ui.skip_to_content") }}</a>
 <header class="site-header">
 <a href="{{ home_href }}"><img src="/assets/logo/logo-on-dark.svg" alt="{{ t('ui.home_link') }}" width="1042" height="296"><img src="/assets/logo/logo-on-light.svg" alt="{{ t('ui.home_link') }}" width="1042" height="296"></a>
 {% block header_nav %}
+<button type="button" class="site-header__toggle" id="menu-toggle" aria-controls="menu-panel" aria-label="{{ t('ui.menu_open') }}" data-open-label="{{ t('ui.menu_open') }}" data-close-label="{{ t('ui.menu_close') }}" hidden><span></span><span></span></button>
+<div class="site-header__panel" id="menu-panel">
 <nav aria-label="{{ t('ui.main_nav') }}">
 <ul>
 {% for item in nav %}<li><a href="{{ item.href }}"{% if item.href == current_href %} aria-current="page"{% endif %}>{{ item.label }}</a></li>
@@ -80,6 +108,7 @@
 </ul>
 </nav>
 {% endif %}
+</div>
 {% endblock %}
 <button type="button" id="theme-toggle" aria-label="{{ t('ui.theme_toggle') }}" aria-pressed="false" hidden>
 <svg data-icon="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>

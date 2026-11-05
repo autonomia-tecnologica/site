@@ -1,18 +1,22 @@
 /*
  * Site header: the logotype, the main navigation, the locale choice (only with
- * more than one locale) and the theme button, in a row under a thin rule.
- * Each link and the theme button are at least 44 px high, for touch.
- * The theme button is a round icon, hidden without script. It shows the icon of
- * the theme it switches to: the moon on the light page, the sun on the dark one.
+ * more than one locale) and the theme button, in one row. Sticky at the top,
+ * on a solid --color-bg bar: no divider line, no shadow, no blur.
+ * Measures follow the approved mockup: a centered column of min(1280px, 100% - 64px),
+ * 58 px of top padding (28 px on phones), the logotype 65 px high (48 px on phones).
+ * Each link and button is at least 44 px high, for touch.
+ * Below 780 px the links fold into a round button that opens a panel (see the
+ * script in base.html). Without script the links stay in the row, and the theme
+ * button stays hidden, as it always does without script.
  */
 
 .site-header {
+  position: sticky;
+  top: 0;
+  z-index: 0;
   display: flex;
-  flex-wrap: wrap;
   align-items: center;
-  gap: 0.5rem 1.5rem;
-  padding: 0.5rem 1rem;
-  border-block-end: 1px solid var(--color-border);
+  padding: 58px max(32px, calc((100% - 1280px) / 2)) 20px;
   background: var(--color-bg);
   color: var(--color-text);
 }
@@ -32,7 +36,7 @@
  */
 .site-header a img {
   display: block;
-  block-size: 2.75rem;
+  block-size: 4.0625rem;
   inline-size: auto;
 }
 
@@ -58,23 +62,84 @@
   }
 }
 
-.site-header nav ul {
+/* The panel holds the navigation. On a wide screen it sits at the right, before the theme button. */
+.site-header__panel {
+  display: flex;
+  align-items: center;
+  margin-inline: auto clamp(55px, 7vw, 105px);
+}
+
+.site-header__panel ul {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem 1.25rem;
+  gap: 0.5rem clamp(42px, 5.4vw, 82px);
   margin: 0;
   padding: 0;
   list-style: none;
 }
 
-.site-header nav p {
+.site-header__panel nav p {
   margin: 0;
 }
 
-.site-header a[aria-current="page"] {
+/* Links: light title font, white, no underline at rest. The purple underline shows on hover and focus. */
+.site-header__panel a,
+.site-header__panel a:visited {
+  color: var(--color-text);
+  font-family: var(--font-title);
+  font-size: 20px;
+  font-weight: 300;
+  text-decoration: none;
+}
+
+.site-header__panel a:hover,
+.site-header__panel a:focus-visible {
+  color: var(--color-text);
+  text-decoration: underline;
+  text-decoration-color: var(--color-accent);
+  text-decoration-thickness: 1px;
+  text-underline-offset: 0.3em;
+}
+
+.site-header__panel a[aria-current="page"] {
   font-weight: 700;
 }
 
+/* Round button: 46 px, thin border. Two lines, hidden on wide screens and without script. */
+.site-header .site-header__toggle {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: none;
+  gap: 7px;
+  inline-size: 46px;
+  block-size: 46px;
+  margin: 0;
+  padding: 0;
+  border: 1px solid var(--color-border-strong);
+  border-radius: 50%;
+  background: var(--color-bg);
+  color: var(--color-text);
+  cursor: pointer;
+}
+
+.site-header .site-header__toggle:hover {
+  border-color: var(--color-text);
+}
+
+.site-header .site-header__toggle span {
+  display: block;
+  inline-size: 19px;
+  block-size: 1px;
+  background: currentColor;
+}
+
+.site-header .site-header__toggle[hidden] {
+  display: none;
+}
+
+/* Theme button: round, 44 px. */
 .site-header button {
   display: inline-flex;
   align-items: center;
@@ -113,4 +178,81 @@
 .site-header button[aria-pressed="false"] svg[data-icon="moon"],
 .site-header button[aria-pressed="true"] svg[data-icon="sun"] {
   display: block;
+}
+
+/* Below 1020 px: smaller links and gap, as in the mockup. */
+@media (max-width: 1020px) {
+  .site-header {
+    padding-inline: max(22px, calc((100% - 900px) / 2));
+  }
+
+  .site-header__panel {
+    margin-inline: auto 38px;
+  }
+
+  .site-header__panel ul {
+    gap: 0.5rem 28px;
+  }
+
+  .site-header__panel a,
+  .site-header__panel a:visited {
+    font-size: 17px;
+  }
+}
+
+/* Below 780 px: the links fold into the panel, opened by the round button. */
+@media (max-width: 780px) {
+  .site-header {
+    flex-wrap: wrap;
+    padding-top: 28px;
+    padding-inline: 20px;
+  }
+
+  .site-header a img {
+    block-size: 3rem;
+  }
+
+  .site-header .site-header__toggle {
+    display: inline-flex;
+    margin-inline-start: auto;
+  }
+
+  .site-header__panel {
+    order: 1;
+    flex-basis: 100%;
+    flex-direction: column;
+    align-items: stretch;
+    margin: 0;
+  }
+
+  .site-header__panel ul {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .site-header__panel a,
+  .site-header__panel a:visited {
+    font-size: 20px;
+  }
+
+  /* With script (the button is shown) the panel floats over the page, in a solid card. */
+  .site-header .site-header__toggle:not([hidden]) + .site-header__panel {
+    position: absolute;
+    inset-block-start: 100%;
+    inset-inline: 20px;
+    margin-block-start: 16px;
+    padding: 28px;
+    border: 1px solid var(--color-border);
+    border-radius: 24px;
+    background: var(--color-surface);
+    z-index: 1;
+  }
+
+  .site-header .site-header__toggle:not([hidden]) + .site-header__panel ul {
+    gap: 20px;
+  }
+
+  .site-header .site-header__toggle[aria-expanded="false"] + .site-header__panel {
+    display: none;
+  }
 }
