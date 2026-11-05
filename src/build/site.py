@@ -23,7 +23,7 @@ from jinja2 import Environment, FileSystemLoader, StrictUndefined, select_autoes
 from markdown_it import MarkdownIt
 
 from .config import IDENTITY_AUTHOR_URL, PERSON_PROFILES, PERSON_SAME_AS, PHOTO_FILE_NAME, STYLESHEETS
-from .content import BuildError, Entry
+from .content import HOME_PAGE_KEY, BuildError, Entry
 
 OUTPUT_DIR = "dist"
 SCHEMA_CONTEXT = "https://schema.org"
@@ -213,6 +213,8 @@ def build_site(
             segment = lookup(languages[lang], "url.articles", lang)
             add(("article", lang, entry.key), f"/{slug(lang)}/{segment}/{entry.key}/")
         else:
+            if entry.key == HOME_PAGE_KEY:  # shown on the language index, no page of its own
+                continue
             segment = lookup(languages[lang], f"url.pages.{entry.key}", lang)
             add(("page", lang, entry.key), f"/{slug(lang)}/{segment}/")
 
@@ -336,18 +338,25 @@ def build_site(
             key=lambda e: (e.meta["date"], int(e.key)),
             reverse=True,
         )
-        page_entries = sorted((e for e in lang_entries if e.kind == "page"), key=lambda e: e.key)
+        home_entry = next((e for e in lang_entries if e.kind == "page" and e.key == HOME_PAGE_KEY), None)
+        page_entries = sorted(
+            (e for e in lang_entries if e.kind == "page" and e.key != HOME_PAGE_KEY), key=lambda e: e.key
+        )
         feed = feed_href(lang)
 
         render(
             "index.html", lang, ("index", lang, ""), lang_tag,
             alternates=alternates("index", ""),
+            home=None if home_entry is None else {
+                "title": home_entry.meta["title"],
+                "body": render_body(markdown, home_entry, root, warnings),
+            },
             pages=[{"title": e.meta["title"], "href": routes[("page", lang, e.key)]} for e in page_entries],
             has_articles=bool(articles),
             articles_href=routes.get(("articles", lang, "")),
             seo=page_seo(
                 title=site_name,
-                description=description,
+                description=description if home_entry is None else home_entry.meta["summary"],
                 url=routes[("index", lang, "")],
                 site_name=site_name,
                 lang=lang,
@@ -393,6 +402,8 @@ def build_site(
                 },
             )
         for entry in lang_entries:
+            if entry.kind == "page" and entry.key == HOME_PAGE_KEY:
+                continue
             url = routes[(entry.kind, lang, entry.key)]
             is_article = entry.kind == "article"
             title = entry.meta["title"]
@@ -447,7 +458,9 @@ def build_site(
             key=lambda e: (e.meta["date"], int(e.key)),
             reverse=True,
         )
-        pages_in_lang = sorted((e for e in lang_entries if e.kind == "page"), key=lambda e: e.key)
+        pages_in_lang = sorted(
+            (e for e in lang_entries if e.kind == "page" and e.key != HOME_PAGE_KEY), key=lambda e: e.key
+        )
         if articles:
             llms_sections.append({
                 "heading": lookup(strings, "nav.articles", lang),

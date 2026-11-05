@@ -15,6 +15,8 @@ import yaml
 
 PENDING_MARKER = "[a escrever]"
 TEXT_SCAN_DIRS = ["content", "i18n"]
+# The home page body: it is shown on the language index (/<lang>/) and has no URL segment of its own.
+HOME_PAGE_KEY = "home"
 
 LANGUAGE_RE = re.compile(r"^[a-z]{2}_[A-Z]{2}$")
 ARTICLE_ID_RE = re.compile(r"^[0-9]+$")
@@ -91,7 +93,7 @@ def load_entries(root: Path, languages: dict[str, dict], errors: list[str]) -> l
                     if not PAGE_NAME_RE.match(key):
                         errors.append(f"{where}: page file name must be lowercase English, like home.md")
                         continue
-                    if key not in languages[lang].get("url", {}).get("pages", {}):
+                    if key != HOME_PAGE_KEY and key not in languages[lang].get("url", {}).get("pages", {}):
                         errors.append(f"{where}: i18n/{lang}.json has no url.pages.{key} segment")
                         continue
                 parsed = read_entry(path, where, kind, errors)
