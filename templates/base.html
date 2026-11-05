@@ -6,6 +6,8 @@
 <title>{{ seo.title }}</title>
 <meta name="description" content="{{ seo.description }}">
 <link rel="canonical" href="{{ seo.canonical }}">
+<link rel="icon" href="/assets/logo/symbol.svg" type="image/svg+xml">
+<link rel="icon" href="/assets/logo/favicon-32.png" type="image/png" sizes="32x32">
 {% for alt in seo.hreflang %}<link rel="alternate" hreflang="{{ alt.tag }}" href="{{ alt.href }}">
 {% endfor %}{% if seo.feed_href %}<link rel="alternate" type="application/rss+xml" title="{{ seo.site_name }}" href="{{ seo.feed_href }}">
 {% endif %}{% for href in stylesheets %}<link rel="stylesheet" href="{{ href }}">
@@ -54,7 +56,7 @@
 <body>
 <a id="skip-link" href="#main">{{ t("ui.skip_to_content") }}</a>
 <header class="site-header">
-<a href="/">{{ t("site.name") }}</a>
+<a href="{{ home_href }}"><img src="/assets/logo/logo-on-dark.svg" alt="{{ t('ui.home_link') }}" width="1042" height="296"><img src="/assets/logo/logo-on-light.svg" alt="{{ t('ui.home_link') }}" width="1042" height="296"></a>
 {% block header_nav %}
 <nav aria-label="{{ t('ui.main_nav') }}">
 <ul>
