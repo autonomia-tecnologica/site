@@ -13,7 +13,7 @@
 
 @font-face {
   font-family: "Quicksand";
-  src: url("../assets/fonts/quicksand-variable.ttf") format("truetype");
+  src: url("../assets/fonts/quicksand-variable.woff2") format("woff2");
   font-weight: 300 700;
   font-style: normal;
   font-display: swap;
@@ -21,7 +21,7 @@
 
 @font-face {
   font-family: "Nunito Sans";
-  src: url("../assets/fonts/nunito-sans-variable.ttf") format("truetype");
+  src: url("../assets/fonts/nunito-sans-variable.woff2") format("woff2");
   font-weight: 200 1000;
   font-style: normal;
   font-display: swap;
