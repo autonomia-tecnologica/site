@@ -24,3 +24,47 @@
   margin-block-start: 1.5em;
   font-size: 1.25rem;
 }
+
+/* Lists: the index of a long text is a list of links. */
+.prose ul,
+.prose ol {
+  padding-inline-start: 1.5em;
+}
+
+.prose li + li {
+  margin-block-start: 0.35em;
+}
+
+/* Images fit the measure; a figure caption is smaller and muted. */
+.prose img {
+  display: block;
+  max-inline-size: 100%;
+  block-size: auto;
+  margin-inline: auto;
+}
+
+.prose figure {
+  margin-inline: 0;
+}
+
+.prose figcaption {
+  margin-block-start: 0.5em;
+  color: var(--color-text-muted);
+  font-size: 0.9375rem;
+}
+
+/* Footnote reference, and the notes section after a rule. */
+.prose sup {
+  font-size: 0.75em;
+  line-height: 0;
+}
+
+.prose hr {
+  margin-block: 2em;
+  border: 0;
+  border-block-start: 1px solid var(--color-border);
+}
+
+.prose section {
+  font-size: 0.9375rem;
+}
