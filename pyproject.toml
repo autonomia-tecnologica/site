@@ -1,8 +1,12 @@
 [project]
 name = "autonomia-site"
 version = "0.1.0"
-description = "Static site of Autonomia Tecnológica (development build stub)."
+description = "Static site builder of Autonomia Tecnológica."
 readme = "README.md"
 license = "MIT"
 requires-python = ">=3.11"
-dependencies = []
+dependencies = [
+    "markdown-it-py>=4.2",
+    "Jinja2>=3.1",
+    "PyYAML>=6.0",
+]

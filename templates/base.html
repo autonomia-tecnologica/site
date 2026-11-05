@@ -1,0 +1,27 @@
+<!doctype html>
+<html{% if lang_tag %} lang="{{ lang_tag }}"{% endif %}>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>{% block title %}{% endblock %}</title>
+</head>
+<body>
+<header>
+<p><a href="/">{{ t("site.name") }}</a></p>
+{% block selector %}
+{% if alternates|length > 1 %}
+<nav>
+<p>{{ t("ui.languages") }}</p>
+<ul>
+{% for alt in alternates %}<li><a href="{{ alt.href }}">{{ alt.name }}</a></li>
+{% endfor %}
+</ul>
+</nav>
+{% endif %}
+{% endblock %}
+</header>
+<main>
+{% block content %}{% endblock %}
+</main>
+</body>
+</html>

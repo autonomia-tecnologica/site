@@ -3,8 +3,8 @@
 Source of the static site of Autonomia Tecnológica. Content is written in Brazilian Portuguese (`pt_BR`),
 the only language for now.
 
-Status: skeleton. The build is a development stub that checks the repository layout and reports
-pending text markers (`[a escrever]`).
+Status: early. The build turns Markdown with YAML front matter into static HTML, with translated
+URLs read from `i18n/<lang>.json`, and reports pending text markers (`[a escrever]`).
 
 ## Layout
 
@@ -12,12 +12,14 @@ pending text markers (`[a escrever]`).
 content/articles/pt_BR/   articles (Markdown)
 content/pages/pt_BR/      pages (Markdown)
 i18n/pt_BR.json           interface text and translated URL segments
-src/build/                build (development stub for now)
+src/build/                static site builder
+templates/                Jinja2 templates
 ```
 
 ## Development build
 
-Requires Python 3.11 or newer. No dependencies.
+Requires Python 3.11 or newer and the dependencies in `pyproject.toml`
+(`markdown-it-py`, `Jinja2`, `PyYAML`).
 
 ```
 python -m src.build          # development

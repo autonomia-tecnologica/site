@@ -1,0 +1,9 @@
+{% extends "base.html" %}
+{% block title %}{{ t("site.name") }}{% endblock %}
+{% block selector %}{% endblock %}
+{% block content %}
+<ul>
+{% for alt in alternates %}<li><a href="{{ alt.href }}">{{ alt.name }}</a></li>
+{% endfor %}
+</ul>
+{% endblock %}

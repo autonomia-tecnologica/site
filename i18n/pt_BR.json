@@ -1,1 +1,20 @@
-{}
+{
+  "site": {
+    "name": "Autonomia Tecnológica"
+  },
+  "language": {
+    "name": "Português (Brasil)"
+  },
+  "nav": {
+    "articles": "Artigos"
+  },
+  "url": {
+    "articles": "artigos",
+    "pages": {}
+  },
+  "ui": {
+    "languages": "[a escrever]",
+    "published": "[a escrever]",
+    "updated": "[a escrever]"
+  }
+}

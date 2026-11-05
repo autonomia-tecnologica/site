@@ -1,0 +1,12 @@
+{% extends "base.html" %}
+{% block title %}{{ entry.title }}{% endblock %}
+{% block content %}
+<article>
+<h1>{{ entry.title }}</h1>
+<p>{{ entry.summary }}</p>
+{% if entry.kind == "article" %}
+<p>{{ t("ui.published") }} <time datetime="{{ entry.date }}">{{ entry.date }}</time>{% if entry.updated != entry.date %}, {{ t("ui.updated") }} <time datetime="{{ entry.updated }}">{{ entry.updated }}</time>{% endif %}</p>
+{% endif %}
+{{ entry.body|safe }}
+</article>
+{% endblock %}

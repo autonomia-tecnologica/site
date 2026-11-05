@@ -1,3 +1,4 @@
 /BACKLOG.md
 __pycache__/
 *.pyc
+/dist/
