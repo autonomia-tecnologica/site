@@ -26,6 +26,20 @@ python -m src.build          # development
 python -m src.build --prod   # production: fails while any [a escrever] marker remains
 ```
 
+## Private photo
+
+The site photo is not part of this repository and must never be committed to Git. It lives in a
+private folder outside the repository, and the environment variable `SITE_PRIVATE_DIR` points to
+that folder:
+
+```
+export SITE_PRIVATE_DIR="$HOME/Produtividade/Biblioteca/Autonomia Tecnológica/Foto"
+```
+
+The folder holds `busto-C.png`, the only approved photo. The development build does not require
+`SITE_PRIVATE_DIR` or the folder. Because the folder is outside the repository, `.gitignore` needs
+no entry for the photo; do not copy the photo into the repository.
+
 ## Licenses
 
 - Code: [MIT](LICENSE).
