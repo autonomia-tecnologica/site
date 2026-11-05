@@ -15,7 +15,9 @@
   },
   "url": {
     "articles": "artigos",
-    "pages": {}
+    "pages": {
+      "consulting": "consultoria"
+    }
   },
   "ui": {
     "languages": "[a escrever]",
