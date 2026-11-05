@@ -16,7 +16,8 @@
   "url": {
     "articles": "artigos",
     "pages": {
-      "about": "quem-somos"
+      "about": "quem-somos",
+      "consulting": "consultoria"
     }
   },
   "ui": {
