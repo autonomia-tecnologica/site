@@ -11,6 +11,12 @@ main ol > li > a {
   min-block-size: 44px;
 }
 
+/* Images keep their proportions and never run wider than the page. */
+main img {
+  max-inline-size: 100%;
+  block-size: auto;
+}
+
 blockquote {
   margin-inline: 0;
   padding-inline-start: 1rem;

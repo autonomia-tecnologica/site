@@ -8,6 +8,9 @@ Besides the pages, the build writes sitemap.xml, robots.txt, llms.txt, one RSS
 feed per language with articles, and the original Markdown file of every article
 next to its page. Canonical URLs, sitemap entries and feeds are absolute and use
 the site address given to build_site.
+
+The About page (key "about") shows the private photo, when the build has it, and
+the author's profile links. The photo is copied to dist/ only when it is given.
 """
 
 import shutil
@@ -18,13 +21,15 @@ from pathlib import Path
 from jinja2 import Environment, FileSystemLoader, StrictUndefined, select_autoescape
 from markdown_it import MarkdownIt
 
-from .config import IDENTITY_AUTHOR_URL, PERSON_SAME_AS, STYLESHEETS
+from .config import IDENTITY_AUTHOR_URL, PERSON_PROFILES, PERSON_SAME_AS, PHOTO_FILE_NAME, STYLESHEETS
 from .content import BuildError, Entry
 
 OUTPUT_DIR = "dist"
 SCHEMA_CONTEXT = "https://schema.org"
 STYLES_DIR = "src/styles"
 FONTS_DIR = "src/assets/fonts"
+PHOTO_DIR = "assets/photo"
+ABOUT_PAGE = "about"
 
 
 def lookup(strings: dict, dotted: str, lang: str) -> str:
@@ -98,8 +103,21 @@ def article_json_ld(strings: dict, lang: str, meta: dict, url: str, home: str) -
     }
 
 
-def build_site(root: Path, languages: dict[str, dict], entries: list[Entry], site_url: str) -> int:
-    """Writes the site to dist/ and returns the number of HTML pages written."""
+def about_profiles(strings: dict, lang: str) -> list[dict]:
+    """The author's profile links, in the order of PERSON_PROFILES."""
+    return [
+        {"label": lookup(strings, f"about.profiles.{name}", lang), "href": href}
+        for name, href in PERSON_PROFILES.items()
+    ]
+
+
+def build_site(
+    root: Path, languages: dict[str, dict], entries: list[Entry], site_url: str, photo: Path | None
+) -> int:
+    """Writes the site to dist/ and returns the number of HTML pages written.
+
+    photo is the file of the About page photo, or None when the build goes on without it.
+    """
     active = sorted({entry.lang for entry in entries})
     routes: dict[tuple[str, str, str], str] = {}
     used_urls: set[str] = set()
@@ -313,6 +331,7 @@ def build_site(root: Path, languages: dict[str, dict], entries: list[Entry], sit
             else:
                 lastmod = None
                 json_ld = []
+            is_about = entry.kind == "page" and entry.key == ABOUT_PAGE
             render(
                 "entry.html", lang, (entry.kind, lang, entry.key), lang_tag,
                 lastmod=lastmod,
@@ -324,6 +343,11 @@ def build_site(root: Path, languages: dict[str, dict], entries: list[Entry], sit
                     "date": entry.meta.get("date"),
                     "updated": entry.meta.get("updated"),
                     "body": markdown.render(entry.body),
+                    "photo": (
+                        {"href": f"/{PHOTO_DIR}/{PHOTO_FILE_NAME}", "alt": lookup(strings, "about.photo_alt", lang)}
+                        if is_about and photo is not None else None
+                    ),
+                    "profiles": about_profiles(strings, lang) if is_about else [],
                 },
                 seo=page_seo(
                     title=title,
@@ -397,6 +421,8 @@ def build_site(root: Path, languages: dict[str, dict], entries: list[Entry], sit
     for source in sorted((root / FONTS_DIR).iterdir()):
         if source.is_file():
             copies[f"assets/fonts/{source.name}"] = source
+    if photo is not None:
+        copies[f"{PHOTO_DIR}/{PHOTO_FILE_NAME}"] = photo
     for rel, source in copies.items():
         target = out_dir.joinpath(*rel.split("/"))
         target.parent.mkdir(parents=True, exist_ok=True)

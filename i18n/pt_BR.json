@@ -15,7 +15,9 @@
   },
   "url": {
     "articles": "artigos",
-    "pages": {}
+    "pages": {
+      "about": "quem-somos"
+    }
   },
   "ui": {
     "languages": "[a escrever]",
@@ -39,6 +41,14 @@
   },
   "person": {
     "name": "Rafael Correia"
+  },
+  "about": {
+    "photo_alt": "[a escrever]",
+    "profiles": {
+      "linkedin": "LinkedIn",
+      "github": "GitHub",
+      "substack": "Substack"
+    }
   },
   "seo": {
     "llms": {

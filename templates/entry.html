@@ -6,6 +6,13 @@
 {% if entry.kind == "article" %}
 <p>{{ t("ui.published") }} <time datetime="{{ entry.date }}">{{ entry.date }}</time>{% if entry.updated != entry.date %}, {{ t("ui.updated") }} <time datetime="{{ entry.updated }}">{{ entry.updated }}</time>{% endif %}</p>
 {% endif %}
+{% if entry.photo %}<img src="{{ entry.photo.href }}" alt="{{ entry.photo.alt }}">
+{% endif %}
 {{ entry.body|safe }}
+{% if entry.profiles %}<ul>
+{% for profile in entry.profiles %}<li><a href="{{ profile.href }}" rel="me">{{ profile.label }}</a></li>
+{% endfor %}
+</ul>
+{% endif %}
 </article>
 {% endblock %}
