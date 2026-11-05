@@ -46,6 +46,7 @@ class Entry:
     key: str  # article id ("12") or page name ("home")
     meta: dict
     body: str  # Markdown source, without the front matter
+    path: Path  # the original file, copied byte for byte for articles
 
 
 def load_languages(root: Path, errors: list[str]) -> dict[str, dict]:
@@ -96,7 +97,7 @@ def load_entries(root: Path, languages: dict[str, dict], errors: list[str]) -> l
                 parsed = read_entry(path, where, kind, errors)
                 if parsed is not None:
                     meta, body = parsed
-                    entries.append(Entry(kind, lang, key, meta, body))
+                    entries.append(Entry(kind, lang, key, meta, body, path))
     return entries
 
 

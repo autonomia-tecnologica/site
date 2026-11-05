@@ -1,6 +1,7 @@
 {
   "site": {
-    "name": "Autonomia Tecnológica"
+    "name": "Autonomia Tecnológica",
+    "description": "[a escrever]"
   },
   "language": {
     "name": "Português (Brasil)"
@@ -16,5 +17,13 @@
     "languages": "[a escrever]",
     "published": "[a escrever]",
     "updated": "[a escrever]"
+  },
+  "person": {
+    "name": "Rafael Correia"
+  },
+  "seo": {
+    "llms": {
+      "pages": "[a escrever]"
+    }
   }
 }

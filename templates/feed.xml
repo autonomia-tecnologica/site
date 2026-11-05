@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0">
+<channel>
+<title>{{ feed.title }}</title>
+<link>{{ feed.link }}</link>
+<description>{{ feed.description }}</description>
+<language>{{ feed.language }}</language>
+{% for item in feed.entries %}<item>
+<title>{{ item.title }}</title>
+<link>{{ item.link }}</link>
+<guid isPermaLink="true">{{ item.link }}</guid>
+<pubDate>{{ item.pub_date }}</pubDate>
+<description>{{ item.description }}</description>
+</item>
+{% endfor %}</channel>
+</rss>

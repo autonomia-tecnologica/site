@@ -3,8 +3,19 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>{% block title %}{% endblock %}</title>
-</head>
+<title>{{ seo.title }}</title>
+<meta name="description" content="{{ seo.description }}">
+<link rel="canonical" href="{{ seo.canonical }}">
+{% for alt in seo.hreflang %}<link rel="alternate" hreflang="{{ alt.tag }}" href="{{ alt.href }}">
+{% endfor %}{% if seo.feed_href %}<link rel="alternate" type="application/rss+xml" title="{{ seo.site_name }}" href="{{ seo.feed_href }}">
+{% endif %}<meta property="og:type" content="{{ seo.og_type }}">
+<meta property="og:title" content="{{ seo.title }}">
+<meta property="og:description" content="{{ seo.description }}">
+<meta property="og:url" content="{{ seo.canonical }}">
+<meta property="og:site_name" content="{{ seo.site_name }}">
+{% if seo.og_locale %}<meta property="og:locale" content="{{ seo.og_locale }}">
+{% endif %}{% for block in seo.json_ld %}<script type="application/ld+json">{{ block|tojson }}</script>
+{% endfor %}</head>
 <body>
 <header>
 <p><a href="/">{{ t("site.name") }}</a></p>

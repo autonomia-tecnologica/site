@@ -1,0 +1,8 @@
+# {{ site_name }}
+
+> {{ description }}
+{% for section in sections %}
+## {{ section.heading }}
+
+{% for item in section.entries %}- [{{ item.title }}]({{ item.href }}): {{ item.summary }}
+{% endfor %}{% endfor %}
