@@ -21,9 +21,11 @@ scheme change touches one file.
 ## Contrast
 
 - Text: 4.5:1 (WCAG 2.x AA). Graphics and large elements: 3:1. Borders are decorative and exempt.
-- The accent is a graphic color on dark. It is used on dark only for graphics or large text
-  (24 px, or 18.66 px in bold).
-- Brand surface (`--color-surface-brand`) takes white text only.
+- On dark, the accent (`--color-accent`) sits only on `--color-bg`. On a dark surface, use
+  `--color-accent-text` instead (accent on dark surface is 2.73:1, below 3:1). The accent on
+  dark is for graphics or large text only (24 px, or 18.66 px in bold).
+- On light, the accent may also sit on `--color-surface`.
+- Brand surface (`--color-surface-brand`) takes `--color-on-brand` text only (white in both schemes).
 
 ## Dependency colors
 

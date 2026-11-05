@@ -32,10 +32,8 @@ DARK_CHECKS = [
     ("link", "surface", TEXT),
     ("link-hover", "bg", TEXT),
     ("on-accent", "accent", TEXT),
-    # Brand surface takes white text only, in both schemes. No token exists for it yet.
-    ("#ffffff", "surface-brand", TEXT),
+    ("on-brand", "surface-brand", TEXT),
     ("accent", "bg", GRAPHIC),
-    ("accent", "surface", GRAPHIC),
     ("border-strong", "bg", GRAPHIC),
     ("focus", "bg", GRAPHIC),
     ("focus", "surface", GRAPHIC),
@@ -44,7 +42,9 @@ DARK_CHECKS = [
     ("dep-strong", "surface", GRAPHIC),
     ("dep-weak", "surface", GRAPHIC),
 ]
-LIGHT_CHECKS = DARK_CHECKS
+# Rule: on dark, the accent sits only on bg; on surface, accent-text is used instead.
+# On light the accent may also sit on surface.
+LIGHT_CHECKS = DARK_CHECKS + [("accent", "surface", GRAPHIC)]
 
 CVD_KINDS = ["protanopia", "deuteranopia", "tritanopia"]
 MIN_DE76 = 20.0
@@ -148,8 +148,7 @@ def check_scheme(name, tokens, checks):
     failures = 0
     print(f"== {name}")
     for fg, bg, minimum in checks:
-        # A "#rrggbb" entry is a fixed color, not a token (see the brand pair above).
-        fg_hex = fg if fg.startswith("#") else tokens[fg]
+        fg_hex = tokens[fg]
         bg_hex = tokens[bg]
         ratio = wcag_contrast(fg_hex, bg_hex)
         ok = ratio >= minimum
@@ -177,8 +176,7 @@ def main():
         print("FAIL: could not read the dark, light (media) and light (forced) blocks")
         return 1
 
-    required = {fg for fg, _, _ in DARK_CHECKS if not fg.startswith("#")}
-    required |= {bg for _, bg, _ in DARK_CHECKS}
+    required = {fg for fg, _, _ in LIGHT_CHECKS} | {bg for _, bg, _ in LIGHT_CHECKS}
     required |= {"dep-strong", "dep-weak", "border-strong"}
     for label, tokens in (("dark", dark), ("light", light_forced)):
         missing = sorted(f"--color-{name}" for name in required if name not in tokens)
