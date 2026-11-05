@@ -29,7 +29,7 @@ if Path(sys.prefix).resolve() != VENV_DIR.resolve():
     os.execv(str(VENV_PYTHON), [str(VENV_PYTHON), "-m", "src.build", *sys.argv[1:]])
 
 from .config import PHOTO_FILE_NAME
-from .content import BuildError, PENDING_MARKER, find_pending_markers, load_entries, load_languages
+from .content import BuildError, PENDING_MARKER, find_pending_markers, load_entries, load_locales
 from .site import build_site
 
 REQUIRED_DIRS = ["content/articles", "content/pages", "i18n", "templates"]
@@ -88,8 +88,8 @@ def main() -> int:
     check_layout(errors)
     site_url = read_site_url(args.prod, errors)
     photo = find_photo(args.prod, errors, warnings)
-    languages = load_languages(ROOT, errors) if not errors else {}
-    entries = load_entries(ROOT, languages, errors) if not errors else []
+    locales = load_locales(ROOT, errors) if not errors else {}
+    entries = load_entries(ROOT, locales, errors) if not errors else []
     pending = find_pending_markers(ROOT)
 
     if errors or (pending and args.prod):
@@ -105,7 +105,7 @@ def main() -> int:
 
     shown = len(warnings)
     try:
-        page_count = build_site(ROOT, languages, entries, site_url, warnings, photo)
+        page_count = build_site(ROOT, locales, entries, site_url, warnings, photo)
     except BuildError as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 1

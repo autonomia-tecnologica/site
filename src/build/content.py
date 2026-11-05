@@ -1,7 +1,7 @@
-"""Reads languages, articles and pages from the repository and checks them.
+"""Reads locales, articles and pages from the repository and checks them.
 
-Articles live in content/articles/<lang>/<id>.md and pages in
-content/pages/<lang>/<name>.md. Each file starts with a YAML front matter
+Articles live in content/articles/<locale>/<id>.md and pages in
+content/pages/<locale>/<name>.md. Each file starts with a YAML front matter
 block between --- lines.
 """
 
@@ -15,10 +15,10 @@ import yaml
 
 PENDING_MARKER = "[a escrever]"
 TEXT_SCAN_DIRS = ["content", "i18n"]
-# The home page body: it is shown on the language index (/<lang>/) and has no URL segment of its own.
+# The home page body: it is shown on the locale index (/<locale>/) and has no URL segment of its own.
 HOME_PAGE_KEY = "home"
 
-LANGUAGE_RE = re.compile(r"^[a-z]{2}_[A-Z]{2}$")
+LOCALE_RE = re.compile(r"^[a-z]{2}_[A-Z]{2}$")
 ARTICLE_ID_RE = re.compile(r"^[0-9]+$")
 PAGE_NAME_RE = re.compile(r"^[a-z][a-z0-9-]*$")
 FRONT_MATTER_RE = re.compile(r"\A---\n(.*?\n)?---\n?(.*)\Z", re.DOTALL)
@@ -44,20 +44,20 @@ class BuildError(Exception):
 @dataclass(frozen=True)
 class Entry:
     kind: str  # "article" or "page"
-    lang: str  # "pt_BR"
+    locale: str  # "pt_BR"
     key: str  # article id ("12") or page name ("home")
     meta: dict
     body: str  # Markdown source, without the front matter
     path: Path  # the original file, copied byte for byte for articles
 
 
-def load_languages(root: Path, errors: list[str]) -> dict[str, dict]:
-    """Every i18n/<lang>.json is one language; its code is the file name."""
-    languages: dict[str, dict] = {}
+def load_locales(root: Path, errors: list[str]) -> dict[str, dict]:
+    """Every i18n/<locale>.json is one locale; its code is the file name."""
+    locales: dict[str, dict] = {}
     for path in sorted((root / "i18n").glob("*.json")):
         code = path.stem
-        if not LANGUAGE_RE.match(code):
-            errors.append(f"i18n/{path.name}: language code must look like pt_BR")
+        if not LOCALE_RE.match(code):
+            errors.append(f"i18n/{path.name}: locale code must look like pt_BR")
             continue
         try:
             strings = json.loads(path.read_text(encoding="utf-8"))
@@ -67,24 +67,24 @@ def load_languages(root: Path, errors: list[str]) -> dict[str, dict]:
         if not isinstance(strings, dict):
             errors.append(f"i18n/{path.name}: must hold a JSON object")
             continue
-        languages[code] = strings
-    if not languages:
-        errors.append("i18n holds no language file")
-    return languages
+        locales[code] = strings
+    if not locales:
+        errors.append("i18n holds no locale file")
+    return locales
 
 
-def load_entries(root: Path, languages: dict[str, dict], errors: list[str]) -> list[Entry]:
+def load_entries(root: Path, locales: dict[str, dict], errors: list[str]) -> list[Entry]:
     entries: list[Entry] = []
     for section, kind in (("articles", "article"), ("pages", "page")):
-        for lang_dir in sorted((root / "content" / section).iterdir()):
-            if not lang_dir.is_dir():
+        for locale_dir in sorted((root / "content" / section).iterdir()):
+            if not locale_dir.is_dir():
                 continue
-            lang = lang_dir.name
-            if lang not in languages:
-                errors.append(f"content/{section}/{lang}: no i18n/{lang}.json for this language")
+            locale = locale_dir.name
+            if locale not in locales:
+                errors.append(f"content/{section}/{locale}: no i18n/{locale}.json for this locale")
                 continue
-            for path in sorted(lang_dir.glob("*.md")):
-                where = f"content/{section}/{lang}/{path.name}"
+            for path in sorted(locale_dir.glob("*.md")):
+                where = f"content/{section}/{locale}/{path.name}"
                 key = path.stem
                 if kind == "article" and not ARTICLE_ID_RE.match(key):
                     errors.append(f"{where}: article file name must be a numeric id, like 12.md")
@@ -93,13 +93,13 @@ def load_entries(root: Path, languages: dict[str, dict], errors: list[str]) -> l
                     if not PAGE_NAME_RE.match(key):
                         errors.append(f"{where}: page file name must be lowercase English, like home.md")
                         continue
-                    if key != HOME_PAGE_KEY and key not in languages[lang].get("url", {}).get("pages", {}):
-                        errors.append(f"{where}: i18n/{lang}.json has no url.pages.{key} segment")
+                    if key != HOME_PAGE_KEY and key not in locales[locale].get("url", {}).get("pages", {}):
+                        errors.append(f"{where}: i18n/{locale}.json has no url.pages.{key} segment")
                         continue
                 parsed = read_entry(path, where, kind, errors)
                 if parsed is not None:
                     meta, body = parsed
-                    entries.append(Entry(kind, lang, key, meta, body, path))
+                    entries.append(Entry(kind, locale, key, meta, body, path))
     return entries
 
 

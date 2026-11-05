@@ -1,11 +1,12 @@
 """Renders the checked content to static HTML in dist/.
 
-URLs: /<lang>/ (language index), /<lang>/<articles>/ (article list),
-/<lang>/<articles>/<id>/ (article), /<lang>/<page segment>/ (page), and / (site index).
-Every segment comes from i18n/<lang>.json.
+URLs: /<locale>/ (locale index), /<locale>/<articles>/ (article list),
+/<locale>/<articles>/<id>/ (article), /<locale>/<page segment>/ (page), and / (site address:
+a redirect to the home page when there is one locale, else a list of the locales).
+Every segment comes from i18n/<locale>.json.
 
 Besides the pages, the build writes sitemap.xml, robots.txt, llms.txt, one RSS
-feed per language with articles, and the original Markdown file of every article
+feed per locale with articles, and the original Markdown file of every article
 next to its page. Canonical URLs, sitemap entries and feeds are absolute and use
 the site address given to build_site.
 
@@ -208,23 +209,23 @@ PHOTO_DIR = "assets/photo"
 ABOUT_PAGE = "about"
 
 
-def lookup(strings: dict, dotted: str, lang: str) -> str:
+def lookup(strings: dict, dotted: str, locale: str) -> str:
     node: object = strings
     for part in dotted.split("."):
         if not isinstance(node, dict) or part not in node:
-            raise BuildError(f"i18n/{lang}.json has no text key {dotted!r}")
+            raise BuildError(f"i18n/{locale}.json has no text key {dotted!r}")
         node = node[part]
     if not isinstance(node, str):
-        raise BuildError(f"i18n/{lang}.json: text key {dotted!r} must be a string")
+        raise BuildError(f"i18n/{locale}.json: text key {dotted!r} must be a string")
     return node
 
 
-def slug(lang: str) -> str:
-    return lang.lower().replace("_", "-")
+def slug(locale: str) -> str:
+    return locale.lower().replace("_", "-")
 
 
-def tag(lang: str) -> str:
-    return lang.replace("_", "-")
+def tag(locale: str) -> str:
+    return locale.replace("_", "-")
 
 
 def html_path(url: str) -> str:
@@ -242,20 +243,20 @@ def rfc822(value: date) -> str:
     return format_datetime(datetime.combine(value, time(0, 0), tzinfo=UTC), usegmt=True)
 
 
-def identity_json_ld(strings: dict, lang: str, home: str) -> dict:
+def identity_json_ld(strings: dict, locale: str, home: str) -> dict:
     """Organization and Person of the site, as one JSON-LD graph."""
     return {
         "@context": SCHEMA_CONTEXT,
         "@graph": [
             {
                 "@type": "Organization",
-                "name": lookup(strings, "site.name", lang),
-                "description": lookup(strings, "site.description", lang),
+                "name": lookup(strings, "site.name", locale),
+                "description": lookup(strings, "site.description", locale),
                 "url": home,
             },
             {
                 "@type": "Person",
-                "name": lookup(strings, "person.name", lang),
+                "name": lookup(strings, "person.name", locale),
                 "url": home,
                 "sameAs": PERSON_SAME_AS,
             },
@@ -263,19 +264,19 @@ def identity_json_ld(strings: dict, lang: str, home: str) -> dict:
     }
 
 
-def article_json_ld(strings: dict, lang: str, meta: dict, url: str, home: str) -> dict:
+def article_json_ld(strings: dict, locale: str, meta: dict, url: str, home: str) -> dict:
     return {
         "@context": SCHEMA_CONTEXT,
         "@type": "Article",
         "headline": meta["title"],
         "description": meta["summary"],
-        "inLanguage": tag(lang),
+        "inLanguage": tag(locale),
         "datePublished": meta["date"].isoformat(),
         "dateModified": meta["updated"].isoformat(),
         "url": url,
         "mainEntityOfPage": url,
-        "author": {"@type": "Person", "name": lookup(strings, "person.name", lang), "url": home},
-        "publisher": {"@type": "Organization", "name": lookup(strings, "site.name", lang), "url": home},
+        "author": {"@type": "Person", "name": lookup(strings, "person.name", locale), "url": home},
+        "publisher": {"@type": "Organization", "name": lookup(strings, "site.name", locale), "url": home},
     }
 
 
@@ -285,7 +286,7 @@ def render_body(
     root: Path,
     warnings: list[str],
     strings: dict,
-    lang: str,
+    locale: str,
     point_anchors: bool = False,
     article: bool = False,
 ) -> str:
@@ -297,25 +298,25 @@ def render_body(
         "where": entry.path.relative_to(root).as_posix(),
         "warnings": [],
         "point_anchors": point_anchors,
-        "index_label": lookup(strings, "ui.index", lang) if article else None,
-        "footnote_back_label": lookup(strings, "ui.footnote_back", lang),
+        "index_label": lookup(strings, "ui.index", locale) if article else None,
+        "footnote_back_label": lookup(strings, "ui.footnote_back", locale),
     }
     html = markdown.render(entry.body, env)
     warnings.extend(env["warnings"])
     return html
 
 
-def about_profiles(strings: dict, lang: str) -> list[dict]:
+def about_profiles(strings: dict, locale: str) -> list[dict]:
     """The author's profile links, in the order of PERSON_PROFILES."""
     return [
-        {"label": lookup(strings, f"about.profiles.{name}", lang), "href": href}
+        {"label": lookup(strings, f"about.profiles.{name}", locale), "href": href}
         for name, href in PERSON_PROFILES.items()
     ]
 
 
 def build_site(
     root: Path,
-    languages: dict[str, dict],
+    locales: dict[str, dict],
     entries: list[Entry],
     site_url: str,
     warnings: list[str],
@@ -326,7 +327,7 @@ def build_site(
     Problems that do not stop the build (such as Obsidian links) are appended to warnings.
     photo is the file of the About page photo, or None when the build goes on without it.
     """
-    active = sorted({entry.lang for entry in entries})
+    active = sorted({entry.locale for entry in entries})
     routes: dict[tuple[str, str, str], str] = {}
     used_urls: set[str] = set()
 
@@ -337,22 +338,22 @@ def build_site(
         routes[route] = url
 
     add(("root", "", ""), "/")
-    for lang in active:
-        add(("index", lang, ""), f"/{slug(lang)}/")
-        if any(e.lang == lang and e.kind == "article" for e in entries):
-            segment = lookup(languages[lang], "url.articles", lang)
-            add(("articles", lang, ""), f"/{slug(lang)}/{segment}/")
-            add(("feed", lang, ""), f"/{slug(lang)}/feed.xml")
+    for locale in active:
+        add(("index", locale, ""), f"/{slug(locale)}/")
+        if any(e.locale == locale and e.kind == "article" for e in entries):
+            segment = lookup(locales[locale], "url.articles", locale)
+            add(("articles", locale, ""), f"/{slug(locale)}/{segment}/")
+            add(("feed", locale, ""), f"/{slug(locale)}/feed.xml")
     for entry in entries:
-        lang = entry.lang
+        locale = entry.locale
         if entry.kind == "article":
-            segment = lookup(languages[lang], "url.articles", lang)
-            add(("article", lang, entry.key), f"/{slug(lang)}/{segment}/{entry.key}/")
+            segment = lookup(locales[locale], "url.articles", locale)
+            add(("article", locale, entry.key), f"/{slug(locale)}/{segment}/{entry.key}/")
         else:
-            if entry.key == HOME_PAGE_KEY:  # shown on the language index, no page of its own
+            if entry.key == HOME_PAGE_KEY:  # shown on the locale index, no page of its own
                 continue
-            segment = lookup(languages[lang], f"url.pages.{entry.key}", lang)
-            add(("page", lang, entry.key), f"/{slug(lang)}/{segment}/")
+            segment = lookup(locales[locale], f"url.pages.{entry.key}", locale)
+            add(("page", locale, entry.key), f"/{slug(locale)}/{segment}/")
 
     env = Environment(
         loader=FileSystemLoader(root / "templates"),
@@ -362,8 +363,8 @@ def build_site(
     env.globals["stylesheets"] = [f"/styles/{name}" for name in STYLESHEETS]
     env.globals["identity_author_url"] = IDENTITY_AUTHOR_URL
     markdown = make_markdown()
-    # The site index has no language of its own; it uses the first language's interface text.
-    root_lang = sorted(languages)[0]
+    # The site index has no locale of its own; it uses the first locale's interface text.
+    root_locale = sorted(locales)[0]
     home = site_url + "/"
     texts: dict[str, str] = {}  # output path under dist/ -> file text
     copies: dict[str, Path] = {}  # output path under dist/ -> file copied byte for byte
@@ -376,16 +377,16 @@ def build_site(
     def alternates(kind: str, key: str) -> list[dict]:
         return [
             {
-                "name": lookup(languages[lang], "language.name", lang),
-                "tag": tag(lang),
-                "href": routes[(kind, lang, key)],
+                "name": lookup(locales[locale], "locale.name", locale),
+                "tag": tag(locale),
+                "href": routes[(kind, locale, key)],
             }
-            for lang in active
-            if (kind, lang, key) in routes
+            for locale in active
+            if (kind, locale, key) in routes
         ]
 
-    def feed_href(lang: str) -> str | None:
-        return routes.get(("feed", lang, ""))
+    def feed_href(locale: str) -> str | None:
+        return routes.get(("feed", locale, ""))
 
     def page_seo(
         *,
@@ -394,7 +395,7 @@ def build_site(
         url: str,
         site_name: str,
         og_type: str = "website",
-        lang: str | None = None,
+        locale: str | None = None,
         hreflang: list[dict] | None = None,
         json_ld: list[dict] | None = None,
         feed: str | None = None,
@@ -405,117 +406,128 @@ def build_site(
             "canonical": absolute(url),
             "site_name": site_name,
             "og_type": og_type,
-            "og_locale": lang,
+            "og_locale": locale,
             "hreflang": [{"tag": alt["tag"], "href": absolute(alt["href"])} for alt in hreflang or []],
             "json_ld": json_ld or [],
             "feed_href": absolute(feed) if feed else None,
         }
 
-    def nav_items(lang: str) -> list[dict]:
-        """Main navigation of a language: only the pages that exist are listed, in this order."""
-        strings = languages[lang]
+    def nav_items(locale: str) -> list[dict]:
+        """Main navigation of a locale: only the pages that exist are listed, in this order."""
+        strings = locales[locale]
         candidates = (
-            ("nav.home", ("index", lang, "")),
-            ("nav.manifesto", ("page", lang, "manifesto")),
-            ("nav.articles", ("articles", lang, "")),
-            ("nav.consulting", ("page", lang, "consulting")),
-            ("nav.about", ("page", lang, "about")),
+            ("nav.manifesto", ("page", locale, "manifesto")),
+            ("nav.articles", ("articles", locale, "")),
+            ("nav.consulting", ("page", locale, "consulting")),
+            ("nav.about", ("page", locale, "about")),
         )
         return [
-            {"label": lookup(strings, key, lang), "href": routes[route]}
+            {"label": lookup(strings, key, locale), "href": routes[route]}
             for key, route in candidates
             if route in routes
         ]
 
     def render(
         template: str,
-        lang: str,
+        locale: str,
         route: tuple[str, str, str],
-        lang_tag: str | None,
+        locale_tag: str | None,
         lastmod: str | None = None,
+        in_sitemap: bool = True,
         **context,
     ) -> None:
         nonlocal html_count
-        strings = languages[lang]
+        strings = locales[locale]
         url = routes[route]
         html = env.get_template(template).render(
-            t=lambda key: lookup(strings, key, lang),
-            lang_tag=lang_tag,
-            nav=nav_items(lang),
+            t=lambda key: lookup(strings, key, locale),
+            locale_tag=locale_tag,
+            nav=nav_items(locale),
             current_href=url,
-            home_href=routes.get(("index", lang, ""), "/"),
+            home_href=routes.get(("index", locale, ""), "/"),
             **context,
         )
         texts[html_path(url)] = html
-        sitemap.append({"loc": absolute(url), "lastmod": lastmod})
+        if in_sitemap:
+            sitemap.append({"loc": absolute(url), "lastmod": lastmod})
         html_count += 1
 
-    root_strings = languages[root_lang]
-    root_name = lookup(root_strings, "site.name", root_lang)
-    render(
-        "root.html", root_lang, ("root", "", ""), tag(root_lang),
-        alternates=alternates("index", ""),
-        seo=page_seo(
-            title=root_name,
-            description=lookup(root_strings, "site.description", root_lang),
-            url="/",
-            site_name=root_name,
-            json_ld=[identity_json_ld(root_strings, root_lang, home)],
-        ),
-    )
+    root_strings = locales[root_locale]
+    root_name = lookup(root_strings, "site.name", root_locale)
+    root_description = lookup(root_strings, "site.description", root_locale)
+    if active == [root_locale]:
+        # One locale: the site address only redirects to its home page, which is kept out of the sitemap.
+        home_url = routes[("index", root_locale, "")]
+        render(
+            "redirect.html", root_locale, ("root", "", ""), tag(root_locale), in_sitemap=False,
+            href=home_url,
+            seo=page_seo(title=root_name, description=root_description, url=home_url, site_name=root_name),
+        )
+    else:
+        render(
+            "root.html", root_locale, ("root", "", ""), tag(root_locale), in_sitemap=False,
+            alternates=alternates("index", ""),
+            seo=page_seo(
+                title=root_name,
+                description=root_description,
+                url="/",
+                site_name=root_name,
+                json_ld=[identity_json_ld(root_strings, root_locale, home)],
+            ),
+        )
 
-    for lang in active:
-        strings = languages[lang]
-        site_name = lookup(strings, "site.name", lang)
-        description = lookup(strings, "site.description", lang)
-        lang_tag = tag(lang)
-        lang_entries = [e for e in entries if e.lang == lang]
+    for locale in active:
+        strings = locales[locale]
+        site_name = lookup(strings, "site.name", locale)
+        description = lookup(strings, "site.description", locale)
+        locale_tag = tag(locale)
+        locale_entries = [e for e in entries if e.locale == locale]
         articles = sorted(
-            (e for e in lang_entries if e.kind == "article"),
+            (e for e in locale_entries if e.kind == "article"),
             key=lambda e: (e.meta["date"], int(e.key)),
             reverse=True,
         )
-        home_entry = next((e for e in lang_entries if e.kind == "page" and e.key == HOME_PAGE_KEY), None)
+        home_entry = next((e for e in locale_entries if e.kind == "page" and e.key == HOME_PAGE_KEY), None)
         page_entries = sorted(
-            (e for e in lang_entries if e.kind == "page" and e.key != HOME_PAGE_KEY), key=lambda e: e.key
+            (e for e in locale_entries if e.kind == "page" and e.key != HOME_PAGE_KEY), key=lambda e: e.key
         )
-        feed = feed_href(lang)
+        feed = feed_href(locale)
 
         render(
-            "index.html", lang, ("index", lang, ""), lang_tag,
+            "index.html", locale, ("index", locale, ""), locale_tag,
             alternates=alternates("index", ""),
             home=None if home_entry is None else {
                 "title": home_entry.meta["title"],
-                "body": render_body(markdown, home_entry, root, warnings, strings, lang),
+                "body": render_body(markdown, home_entry, root, warnings, strings, locale),
             },
-            pages=[{"title": e.meta["title"], "href": routes[("page", lang, e.key)]} for e in page_entries],
+            pages=[{"title": e.meta["title"], "href": routes[("page", locale, e.key)]} for e in page_entries],
             has_articles=bool(articles),
-            articles_href=routes.get(("articles", lang, "")),
+            articles_href=routes.get(("articles", locale, "")),
             seo=page_seo(
                 title=site_name,
                 description=description if home_entry is None else home_entry.meta["summary"],
-                url=routes[("index", lang, "")],
+                url=routes[("index", locale, "")],
                 site_name=site_name,
-                lang=lang,
+                locale=locale,
                 hreflang=alternates("index", ""),
-                json_ld=[identity_json_ld(strings, lang, home)],
+                json_ld=[identity_json_ld(strings, locale, home)],
                 feed=feed,
             ),
         )
         if articles:
             render(
-                "articles.html", lang, ("articles", lang, ""), lang_tag,
+                "articles.html", locale, ("articles", locale, ""), locale_tag,
                 alternates=alternates("articles", ""),
                 articles=[
-                    {"title": e.meta["title"], "href": routes[("article", lang, e.key)], "date": e.meta["date"]}
+                    {"title": e.meta["title"], "href": routes[("article", locale, e.key)], "date": e.meta["date"]}
                     for e in articles
                 ],
                 seo=page_seo(
-                    title=lookup(strings, "nav.articles", lang),
+                    title=lookup(strings, "nav.articles", locale),
                     description=description,
-                    url=routes[("articles", lang, "")],
+                    url=routes[("articles", locale, "")],
                     site_name=site_name,
-                    lang=lang,
+                    locale=locale,
                     hreflang=alternates("articles", ""),
                     feed=feed,
                 ),
@@ -523,37 +535,37 @@ def build_site(
             feed_items = [
                 {
                     "title": e.meta["title"],
-                    "link": absolute(routes[("article", lang, e.key)]),
+                    "link": absolute(routes[("article", locale, e.key)]),
                     "description": e.meta["summary"],
                     "pub_date": rfc822(e.meta["date"]),
                 }
                 for e in articles
             ]
-            texts[f"{slug(lang)}/feed.xml"] = env.get_template("feed.xml").render(
+            texts[f"{slug(locale)}/feed.xml"] = env.get_template("feed.xml").render(
                 feed={
                     "title": site_name,
-                    "link": absolute(routes[("index", lang, "")]),
+                    "link": absolute(routes[("index", locale, "")]),
                     "description": description,
-                    "language": slug(lang),
+                    "language": slug(locale),
                     "entries": feed_items,
                 },
             )
-        for entry in lang_entries:
+        for entry in locale_entries:
             if entry.kind == "page" and entry.key == HOME_PAGE_KEY:
                 continue
-            url = routes[(entry.kind, lang, entry.key)]
+            url = routes[(entry.kind, locale, entry.key)]
             is_article = entry.kind == "article"
             title = entry.meta["title"]
             if is_article:
                 lastmod = entry.meta["updated"].isoformat()
-                json_ld = [article_json_ld(strings, lang, entry.meta, absolute(url), home)]
+                json_ld = [article_json_ld(strings, locale, entry.meta, absolute(url), home)]
                 copies[md_path(url)] = entry.path
             else:
                 lastmod = None
                 json_ld = []
             is_about = entry.kind == "page" and entry.key == ABOUT_PAGE
             render(
-                "entry.html", lang, (entry.kind, lang, entry.key), lang_tag,
+                "entry.html", locale, (entry.kind, locale, entry.key), locale_tag,
                 lastmod=lastmod,
                 alternates=alternates(entry.kind, entry.key),
                 entry={
@@ -563,15 +575,15 @@ def build_site(
                     "date": entry.meta.get("date"),
                     "updated": entry.meta.get("updated"),
                     "body": render_body(
-                        markdown, entry, root, warnings, strings, lang,
+                        markdown, entry, root, warnings, strings, locale,
                         point_anchors=entry.kind == "page" and entry.key == MANIFESTO_PAGE,
                         article=is_article,
                     ),
                     "photo": (
-                        {"href": f"/{PHOTO_DIR}/{PHOTO_FILE_NAME}", "alt": lookup(strings, "about.photo_alt", lang)}
+                        {"href": f"/{PHOTO_DIR}/{PHOTO_FILE_NAME}", "alt": lookup(strings, "about.photo_alt", locale)}
                         if is_about and photo is not None else None
                     ),
-                    "profiles": about_profiles(strings, lang) if is_about else [],
+                    "profiles": about_profiles(strings, locale) if is_about else [],
                 },
                 seo=page_seo(
                     title=title,
@@ -579,7 +591,7 @@ def build_site(
                     url=url,
                     site_name=site_name,
                     og_type="article" if is_article else "website",
-                    lang=lang,
+                    locale=locale,
                     hreflang=alternates(entry.kind, entry.key),
                     json_ld=json_ld,
                     feed=feed,
@@ -588,24 +600,24 @@ def build_site(
 
     # Machine-readable files. llms.txt is built from the front matter only, without a model.
     llms_sections = []
-    for lang in active:
-        strings = languages[lang]
-        lang_entries = [e for e in entries if e.lang == lang]
+    for locale in active:
+        strings = locales[locale]
+        locale_entries = [e for e in entries if e.locale == locale]
         articles = sorted(
-            (e for e in lang_entries if e.kind == "article"),
+            (e for e in locale_entries if e.kind == "article"),
             key=lambda e: (e.meta["date"], int(e.key)),
             reverse=True,
         )
         pages_in_lang = sorted(
-            (e for e in lang_entries if e.kind == "page" and e.key != HOME_PAGE_KEY), key=lambda e: e.key
+            (e for e in locale_entries if e.kind == "page" and e.key != HOME_PAGE_KEY), key=lambda e: e.key
         )
         if articles:
             llms_sections.append({
-                "heading": lookup(strings, "nav.articles", lang),
+                "heading": lookup(strings, "nav.articles", locale),
                 "entries": [
                     {
                         "title": e.meta["title"],
-                        "href": absolute("/" + md_path(routes[("article", lang, e.key)])),
+                        "href": absolute("/" + md_path(routes[("article", locale, e.key)])),
                         "summary": e.meta["summary"],
                     }
                     for e in articles
@@ -613,11 +625,11 @@ def build_site(
             })
         if pages_in_lang:
             llms_sections.append({
-                "heading": lookup(strings, "seo.llms.pages", lang),
+                "heading": lookup(strings, "seo.llms.pages", locale),
                 "entries": [
                     {
                         "title": e.meta["title"],
-                        "href": absolute(routes[("page", lang, e.key)]),
+                        "href": absolute(routes[("page", locale, e.key)]),
                         "summary": e.meta["summary"],
                     }
                     for e in pages_in_lang
@@ -625,7 +637,7 @@ def build_site(
             })
     texts["llms.txt"] = env.get_template("llms.txt").render(
         site_name=root_name,
-        description=lookup(root_strings, "site.description", root_lang),
+        description=lookup(root_strings, "site.description", root_locale),
         sections=llms_sections,
     )
     texts["robots.txt"] = env.get_template("robots.txt").render(sitemap_url=absolute("/sitemap.xml"))
