@@ -1,0 +1,18 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Token aninhado com defeito</title>
+<style>
+/* The nested token: --ink-tone exists only on the dark body, so --ink is
+   guaranteed-invalid on :root and the browser drops it without a message. */
+:root { --ink: var(--ink-tone); --paper: #1a1a1a; }
+body.scheme-dark { --ink-tone: #ffffff; background: var(--paper); }
+body { color: var(--ink); }
+</style>
+</head>
+<body class="scheme-dark">
+<main><p>Texto que deveria ser claro.</p></main>
+</body>
+</html>

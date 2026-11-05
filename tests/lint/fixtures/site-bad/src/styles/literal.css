@@ -1,0 +1,5 @@
+/* Violation: a literal color outside the tokens file. */
+.card {
+  background: var(--color-bg);
+  color: #fff;
+}

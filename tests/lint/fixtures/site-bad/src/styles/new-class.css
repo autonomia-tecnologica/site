@@ -1,0 +1,4 @@
+/* Violation: a class that is not in the vocabulary. */
+.nova {
+  color: var(--color-text);
+}

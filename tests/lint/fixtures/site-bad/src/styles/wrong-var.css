@@ -1,0 +1,4 @@
+/* Violation: a variable that no token defines. */
+.card {
+  color: var(--color-txt);
+}

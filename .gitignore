@@ -2,3 +2,6 @@
 __pycache__/
 *.pyc
 /dist/
+/node_modules/
+/.venv/
+/tests/visual/out/

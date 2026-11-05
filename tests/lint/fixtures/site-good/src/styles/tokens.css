@@ -1,0 +1,6 @@
+/* Fixture tokens: the only place where literal colors are allowed. */
+:root {
+  --color-bg: #1a1a1a;
+  --color-text: #ffffff;
+  --color-accent: rgb(124 58 237);
+}

@@ -1,0 +1,13 @@
+{
+  "name": "autonomia-site",
+  "version": "0.1.0",
+  "private": true,
+  "description": "Development tooling for the Autonomia Tecnológica site (not used by the build).",
+  "license": "MIT",
+  "scripts": {
+    "lint": "stylelint \"src/styles/**/*.css\" --allow-empty-input && python3 scripts/lint/check_html_classes.py"
+  },
+  "devDependencies": {
+    "stylelint": "17.16.0"
+  }
+}

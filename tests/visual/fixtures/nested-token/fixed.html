@@ -1,0 +1,17 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Token aninhado corrigido</title>
+<style>
+/* Fixed: the nested token is declared on the same element as the token that uses it. */
+:root { --paper: #1a1a1a; }
+body.scheme-dark { --ink-tone: #ffffff; --ink: var(--ink-tone); background: var(--paper); }
+body { color: var(--ink); }
+</style>
+</head>
+<body class="scheme-dark">
+<main><p>Texto que deveria ser claro.</p></main>
+</body>
+</html>

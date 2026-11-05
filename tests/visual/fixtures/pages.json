@@ -1,0 +1,4 @@
+[
+  {"path": "index.html", "components": ["header", "main", "footer"]},
+  {"path": "about.html", "components": ["header", "main", "footer"]}
+]
