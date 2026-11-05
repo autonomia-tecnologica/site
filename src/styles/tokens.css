@@ -31,6 +31,7 @@
   /* Fonts. Titles are provisional (Quicksand); swap the variable to change them. */
   --font-title: "Quicksand", system-ui, sans-serif;
   --font-text: "Nunito Sans", system-ui, sans-serif;
+  --font-code: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
 
   /* Dark scheme (default and reference). */
   color-scheme: dark;
