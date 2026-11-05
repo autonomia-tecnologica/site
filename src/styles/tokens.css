@@ -1,0 +1,94 @@
+/*
+ * Design tokens. The only place where colors and font families are written.
+ * Everything else reads them with var(--token).
+ *
+ * Schemes:
+ *   - dark is the default and the reference: the values on :root below.
+ *   - light applies when the visitor's system asks for it, unless the visitor
+ *     forced dark with data-theme="dark" on :root.
+ *   - data-theme="light" on :root forces light, whatever the system says.
+ *
+ * Rationale for each rule: see DESIGN.md.
+ */
+
+@font-face {
+  font-family: "Quicksand";
+  src: url("../assets/fonts/quicksand-variable.ttf") format("truetype");
+  font-weight: 300 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Nunito Sans";
+  src: url("../assets/fonts/nunito-sans-variable.ttf") format("truetype");
+  font-weight: 200 1000;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  /* Fonts. Titles are provisional (Quicksand); swap the variable to change them. */
+  --font-title: "Quicksand", system-ui, sans-serif;
+  --font-text: "Nunito Sans", system-ui, sans-serif;
+
+  /* Dark scheme (default and reference). */
+  color-scheme: dark;
+  --color-bg: #1a1a1a;
+  --color-surface: #26222c;
+  --color-surface-brand: #4c1d95;
+  --color-text: #ffffff;
+  --color-text-muted: #9ca3af;
+  --color-accent: #7c3aed;
+  --color-on-accent: #ffffff;
+  --color-accent-text: #a476ff;
+  --color-link: #a476ff;
+  --color-link-hover: #bb9aff;
+  --color-border: #353c46;
+  --color-border-strong: #9ca3af;
+  --color-focus: #a476ff;
+  --color-dep-strong: #d2bbff;
+  --color-dep-weak: #816daa;
+}
+
+/* Light scheme, when the system asks for it and the visitor did not force dark. */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    color-scheme: light;
+    --color-bg: #ffffff;
+    --color-surface: #fbf5fb;
+    --color-surface-brand: #4c1d95;
+    --color-text: #1a1a1a;
+    --color-text-muted: #69707b;
+    --color-accent: #7c3aed;
+    --color-on-accent: #ffffff;
+    --color-accent-text: #7c3aed;
+    --color-link: #7c3aed;
+    --color-link-hover: #4c1d95;
+    --color-border: #dce3f0;
+    --color-border-strong: #8a919d;
+    --color-focus: #7c3aed;
+    --color-dep-strong: #4c00a9;
+    --color-dep-weak: #9767f7;
+  }
+}
+
+/* Light scheme, forced by the visitor. */
+:root[data-theme="light"] {
+  color-scheme: light;
+  --color-bg: #ffffff;
+  --color-surface: #fbf5fb;
+  --color-surface-brand: #4c1d95;
+  --color-text: #1a1a1a;
+  --color-text-muted: #69707b;
+  --color-accent: #7c3aed;
+  --color-on-accent: #ffffff;
+  --color-accent-text: #7c3aed;
+  --color-link: #7c3aed;
+  --color-link-hover: #4c1d95;
+  --color-border: #dce3f0;
+  --color-border-strong: #8a919d;
+  --color-focus: #7c3aed;
+  --color-dep-strong: #4c00a9;
+  --color-dep-weak: #9767f7;
+}
