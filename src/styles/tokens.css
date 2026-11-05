@@ -54,9 +54,8 @@
   --color-focus: #a476ff;
   --color-dep-strong: #d2bbff;
   --color-dep-weak: #816daa;
-  /* Pill button: vertical gradient from start (top) to end (bottom), no shadow. */
-  --color-button-start: #7838e5;
-  --color-button-end: #5321a0;
+  /* Pill button: one solid fill, no gradient, no shadow. Its text is --color-on-accent. */
+  --color-button: #7b39ec;
 }
 
 /* Light scheme (PROPOSAL, not approved yet), when the system asks for it and the visitor did not force dark. */
@@ -80,8 +79,7 @@
     --color-focus: #7b39ec;
     --color-dep-strong: #4c00a9;
     --color-dep-weak: #9767f7;
-    --color-button-start: #7838e5;
-    --color-button-end: #5321a0;
+    --color-button: #7b39ec;
   }
 }
 
@@ -105,6 +103,5 @@
   --color-focus: #7b39ec;
   --color-dep-strong: #4c00a9;
   --color-dep-weak: #9767f7;
-  --color-button-start: #7838e5;
-  --color-button-end: #5321a0;
+  --color-button: #7b39ec;
 }
