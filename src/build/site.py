@@ -18,11 +18,13 @@ from pathlib import Path
 from jinja2 import Environment, FileSystemLoader, StrictUndefined, select_autoescape
 from markdown_it import MarkdownIt
 
-from .config import PERSON_SAME_AS
+from .config import PERSON_SAME_AS, STYLESHEETS
 from .content import BuildError, Entry
 
 OUTPUT_DIR = "dist"
 SCHEMA_CONTEXT = "https://schema.org"
+STYLES_DIR = "src/styles"
+FONTS_DIR = "src/assets/fonts"
 
 
 def lookup(strings: dict, dotted: str, lang: str) -> str:
@@ -129,6 +131,7 @@ def build_site(root: Path, languages: dict[str, dict], entries: list[Entry], sit
         autoescape=select_autoescape(["html", "xml"]),
         undefined=StrictUndefined,
     )
+    env.globals["stylesheets"] = [f"/styles/{name}" for name in STYLESHEETS]
     markdown = MarkdownIt("commonmark", {"html": False})
     # The site index has no language of its own; it uses the first language's interface text.
     root_lang = sorted(languages)[0]
@@ -179,6 +182,22 @@ def build_site(root: Path, languages: dict[str, dict], entries: list[Entry], sit
             "feed_href": absolute(feed) if feed else None,
         }
 
+    def nav_items(lang: str) -> list[dict]:
+        """Main navigation of a language: only the pages that exist are listed, in this order."""
+        strings = languages[lang]
+        candidates = (
+            ("nav.home", ("index", lang, "")),
+            ("nav.manifesto", ("page", lang, "manifesto")),
+            ("nav.articles", ("articles", lang, "")),
+            ("nav.consulting", ("page", lang, "consulting")),
+            ("nav.about", ("page", lang, "about")),
+        )
+        return [
+            {"label": lookup(strings, key, lang), "href": routes[route]}
+            for key, route in candidates
+            if route in routes
+        ]
+
     def render(
         template: str,
         lang: str,
@@ -189,12 +208,14 @@ def build_site(root: Path, languages: dict[str, dict], entries: list[Entry], sit
     ) -> None:
         nonlocal html_count
         strings = languages[lang]
+        url = routes[route]
         html = env.get_template(template).render(
             t=lambda key: lookup(strings, key, lang),
             lang_tag=lang_tag,
+            nav=nav_items(lang),
+            current_href=url,
             **context,
         )
-        url = routes[route]
         texts[html_path(url)] = html
         sitemap.append({"loc": absolute(url), "lastmod": lastmod})
         html_count += 1
@@ -366,6 +387,15 @@ def build_site(root: Path, languages: dict[str, dict], entries: list[Entry], sit
         target = out_dir.joinpath(*rel.split("/"))
         target.parent.mkdir(parents=True, exist_ok=True)
         target.write_text(text, encoding="utf-8")
+    # Stylesheets and fonts are copied as they are; tokens.css reads the fonts from ../assets/.
+    for name in STYLESHEETS:
+        source = root / STYLES_DIR / name
+        if not source.is_file():
+            raise BuildError(f"{STYLES_DIR}/{name} is listed in STYLESHEETS but does not exist")
+        copies[f"styles/{name}"] = source
+    for source in sorted((root / FONTS_DIR).iterdir()):
+        if source.is_file():
+            copies[f"assets/fonts/{source.name}"] = source
     for rel, source in copies.items():
         target = out_dir.joinpath(*rel.split("/"))
         target.parent.mkdir(parents=True, exist_ok=True)

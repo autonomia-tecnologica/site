@@ -7,7 +7,11 @@
     "name": "Português (Brasil)"
   },
   "nav": {
-    "articles": "Artigos"
+    "home": "Início",
+    "manifesto": "Manifesto",
+    "articles": "Artigos",
+    "consulting": "Consultoria",
+    "about": "Quem somos"
   },
   "url": {
     "articles": "artigos",
@@ -16,7 +20,15 @@
   "ui": {
     "languages": "[a escrever]",
     "published": "[a escrever]",
-    "updated": "[a escrever]"
+    "updated": "[a escrever]",
+    "skip_to_content": "[a escrever]",
+    "main_nav": "[a escrever]",
+    "theme": "Tema",
+    "theme_system": "[a escrever]",
+    "theme_dark": "[a escrever]",
+    "theme_light": "[a escrever]",
+    "feed": "[a escrever]",
+    "footer": "[a escrever]"
   },
   "person": {
     "name": "Rafael Correia"
