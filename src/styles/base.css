@@ -1,0 +1,48 @@
+/*
+ * Base: page background, text, headings, links and focus.
+ * Element selectors only. Colors and font families come from tokens.css.
+ * Rationale: see DESIGN.md.
+ */
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--color-bg);
+  color: var(--color-text);
+  font-family: var(--font-text);
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-title);
+  line-height: 1.25;
+}
+
+/* Links keep their underline. Visited links use the muted text color, not red. */
+a {
+  color: var(--color-link);
+  text-decoration: underline;
+  text-underline-offset: 0.15em;
+}
+
+a:visited {
+  color: var(--color-text-muted);
+}
+
+a:hover {
+  color: var(--color-link-hover);
+}
+
+/* One focus ring for every interactive element. */
+:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+}

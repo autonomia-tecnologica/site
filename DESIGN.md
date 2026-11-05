@@ -37,7 +37,28 @@ item, not to the tokens.
 
 ## Links
 
-Links keep their underline. Color alone does not mark a link.
+Links keep their underline. Color alone does not mark a link. Visited links use
+`--color-text-muted`, never red. Hover uses `--color-link-hover`.
+
+## Classes
+
+- Only the classes in `src/styles/class-vocabulary` exist: `button`, `card`, `site-header`,
+  `site-footer`, `prose`. A new name needs Rafael's approval; the lint checks the list.
+- Citation (`blockquote`), code (`pre`, `code`) and table (`table`) are styled by element
+  selectors in `elements.css`, with no class.
+- The reading block (`prose`) is 66 characters wide, inside the 60 to 70 range.
+- Each component has its own stylesheet, under 300 lines.
+
+## Components
+
+- Focus: one ring for every interactive element, `--color-focus`, set in `base.css`.
+- Touch: links and buttons in the header and footer, and buttons, are at least 44 px high and
+  wide.
+- Motion: the button's only transition is turned off under `prefers-reduced-motion`.
+- Button hover changes the border to `--color-text`, not the fill. A dark brand fill has
+  too little contrast with the dark page to show a change alone.
+- Button error (`aria-invalid="true"`) is a dashed border, not red. The message text comes
+  from i18n, next to the control.
 
 ## Fonts
 

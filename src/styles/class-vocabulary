@@ -1,0 +1,8 @@
+# Class vocabulary: the only class names the site uses, one per line.
+# Approved by Rafael on 2026-11-05. A new name needs his approval first.
+# Citation, code and table are styled by element selectors, without classes.
+button
+card
+site-header
+site-footer
+prose

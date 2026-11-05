@@ -1,0 +1,26 @@
+/*
+ * Prose: the reading block. The measure is 66ch, inside the 60 to 70 character range.
+ */
+
+.prose {
+  max-inline-size: 66ch;
+  margin-inline: auto;
+  padding-inline: 1rem;
+  font-size: 1.0625rem;
+  line-height: 1.7;
+  text-wrap: pretty;
+}
+
+.prose > * + * {
+  margin-block-start: 1em;
+}
+
+.prose h2 {
+  margin-block-start: 2em;
+  font-size: 1.5rem;
+}
+
+.prose h3 {
+  margin-block-start: 1.5em;
+  font-size: 1.25rem;
+}

@@ -1,0 +1,51 @@
+/*
+ * Element styles with no class: block quotes, code and tables.
+ * Rationale: see DESIGN.md.
+ */
+
+blockquote {
+  margin-inline: 0;
+  padding-inline-start: 1rem;
+  border-inline-start: 4px solid var(--color-border-strong);
+  color: var(--color-text);
+}
+
+code {
+  padding: 0.1em 0.3em;
+  border-radius: 4px;
+  background: var(--color-surface);
+  font-family: var(--font-code);
+  font-size: 0.95em;
+}
+
+pre {
+  overflow-x: auto;
+  padding: 1rem;
+  border: 1px solid var(--color-border);
+  border-radius: 8px;
+  background: var(--color-surface);
+  line-height: 1.5;
+}
+
+pre code {
+  padding: 0;
+  border-radius: 0;
+  background: none;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+th,
+td {
+  padding: 0.5rem 0.75rem;
+  border-block-end: 1px solid var(--color-border);
+  text-align: start;
+  vertical-align: top;
+}
+
+th {
+  font-weight: 700;
+}
