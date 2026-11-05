@@ -20,6 +20,11 @@ import os
 import sys
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent))
+from project_python import relaunch_in_venv  # noqa: E402
+
+relaunch_in_venv()
+
 
 def load_run(run_dir):
     manifest_path = run_dir / "manifest.json"

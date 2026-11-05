@@ -1,9 +1,12 @@
 """Static site builder: checks the content and writes the site to dist/.
 
-Usage (from the repository root):
+Usage (from the repository root, after `npm run setup`):
 
-    python -m src.build          # development: report pending markers, build anyway
-    python -m src.build --prod   # production: fail if any pending marker remains
+    .venv/bin/python -m src.build          # development: report pending markers, build anyway
+    .venv/bin/python -m src.build --prod   # production: fail if any pending marker remains
+
+The build needs the packages installed in `.venv/`. Started with another interpreter, it
+runs again with the `.venv/` one; without `.venv/`, it stops and asks to run `npm run setup`.
 """
 
 import argparse
@@ -12,11 +15,23 @@ import sys
 from pathlib import Path
 from urllib.parse import urlsplit
 
+ROOT = Path(__file__).resolve().parents[2]
+VENV_DIR = ROOT / ".venv"
+VENV_PYTHON = VENV_DIR / "bin" / "python"
+
+# Same rule as scripts/project_python.py, which the scripts use. Runs before the imports
+# below, because they need the packages of .venv/.
+if Path(sys.prefix).resolve() != VENV_DIR.resolve():
+    if not VENV_PYTHON.is_file():
+        print(f"error: the project environment is missing ({VENV_DIR}); run `npm run setup` to create it",
+              file=sys.stderr)
+        sys.exit(1)
+    os.execv(str(VENV_PYTHON), [str(VENV_PYTHON), "-m", "src.build", *sys.argv[1:]])
+
 from .config import PHOTO_FILE_NAME
 from .content import BuildError, PENDING_MARKER, find_pending_markers, load_entries, load_languages
 from .site import build_site
 
-ROOT = Path(__file__).resolve().parents[2]
 REQUIRED_DIRS = ["content/articles", "content/pages", "i18n", "templates"]
 DEV_SITE_URL = "http://localhost"
 PHOTO_ENV = "SITE_PRIVATE_DIR"

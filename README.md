@@ -16,22 +16,50 @@ src/build/                static site builder
 templates/                Jinja2 templates
 ```
 
+## Setup
+
+Requires Python 3.11 or newer, and Node.js with npm for the lint step. Python packages live
+only in `.venv/`, inside the project; nothing is installed in the operating system.
+
+```
+npm run setup
+```
+
+The setup creates `.venv/`, installs `requirements.txt` (the build) and `requirements-dev.txt`
+(Playwright, for the visual checks) with hash verification, and downloads the Chromium build
+that Playwright uses. It can be run again. To remove the environment, delete the `.venv/` folder
+and run the setup again. The lint step also needs the npm packages: run `npm ci` once.
+
+Without `.venv/`, the commands below stop with a message that asks to run `npm run setup`.
+
 ## Development build
 
-Requires Python 3.11 or newer and the dependencies in `pyproject.toml`
-(`markdown-it-py`, `mdit-py-plugins`, `Jinja2`, `PyYAML`).
+```
+.venv/bin/python -m src.build          # development
+.venv/bin/python -m src.build --prod   # production: fails while any [a escrever] marker remains
+```
 
-```
-python -m src.build          # development
-python -m src.build --prod   # production: fails while any [a escrever] marker remains
-```
+`python -m src.build` also works: it runs again with the `.venv/` interpreter.
 
 ## Development server
 
 ```
-npm run dev                  # builds, serves dist/ at http://localhost:8000 and rebuilds on changes
-python3 scripts/dev.py --port 8080   # same, on another port
+npm run dev                          # builds, serves dist/ at http://localhost:8000 and rebuilds on changes
+npm run dev -- --port 8080           # same, on another port
 ```
+
+## Lint and tests
+
+```
+npm run lint                         # stylelint and the HTML class check, with the .venv interpreter
+python3 scripts/project_python.py -m unittest discover -s tests/build -t tests/build
+python3 scripts/project_python.py -m unittest discover -s tests/lint -t tests/lint
+python3 scripts/project_python.py -m unittest discover -s tests/visual -t tests/visual -p "test_report.py"
+python3 scripts/project_python.py -m unittest discover -s tests/visual -t tests/visual -p "test_nested_token.py"
+```
+
+`scripts/project_python.py` runs its arguments with the `.venv/` interpreter. The visual tests
+need the Chromium build from `npm run setup`.
 
 The server watches `content/`, `templates/`, `src/` and `i18n/` (checked every half second) and runs
 the development build again when a file there changes. A build error is printed in the terminal and

@@ -7,10 +7,9 @@ text falls back to black on the dark background. No console error is printed.
 The test reproduces that fallback and checks that the detector in
 scripts/browser_checks.py reports it, then checks the fixed fixture is clean.
 
-Run from the repository root, after `pip install --require-hashes -r requirements-dev.txt`
-and `python -m playwright install chromium`:
+Run from the repository root, after `npm run setup`:
 
-    .venv/bin/python -m unittest discover -s tests/visual -t tests/visual -p "test_nested_token.py"
+    python3 scripts/project_python.py -m unittest discover -s tests/visual -t tests/visual -p "test_nested_token.py"
 """
 
 import sys
