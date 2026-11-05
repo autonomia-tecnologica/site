@@ -26,6 +26,19 @@ python -m src.build          # development
 python -m src.build --prod   # production: fails while any [a escrever] marker remains
 ```
 
+## Development server
+
+```
+npm run dev                  # builds, serves dist/ at http://localhost:8000 and rebuilds on changes
+python3 scripts/dev.py --port 8080   # same, on another port
+```
+
+The server watches `content/`, `templates/`, `src/` and `i18n/` (checked every half second) and runs
+the development build again when a file there changes. A build error is printed in the terminal and
+the server keeps running. The server listens on `127.0.0.1` only, uses only the Python standard
+library, and stops with Ctrl+C. `SITE_URL` and `SITE_PRIVATE_DIR` are read from the environment, the
+same as for the build.
+
 ## Private photo
 
 The site photo is not part of this repository and must never be committed to Git. It lives in a
