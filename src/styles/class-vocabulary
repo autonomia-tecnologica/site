@@ -6,3 +6,5 @@ card
 site-header
 site-footer
 prose
+site-header__toggle
+site-header__panel
