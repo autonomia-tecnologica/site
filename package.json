@@ -5,6 +5,7 @@
   "description": "Development tooling for the Autonomia Tecnológica site (not used by the build).",
   "license": "MIT",
   "scripts": {
+    "dev": "python3 scripts/dev.py",
     "lint": "stylelint \"src/styles/**/*.css\" --allow-empty-input && python3 scripts/lint/check_html_classes.py"
   },
   "devDependencies": {
