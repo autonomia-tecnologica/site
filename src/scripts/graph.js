@@ -16,6 +16,10 @@
   // The link that opened the open topic: Esc gives the focus back to it.
   var opener = null;
 
+  // The trail filter: "strong" shows only the required steps, "all" every step. Kept in memory only.
+  var trailFilter = graph.querySelector("[data-trail-filter]");
+  var trailMode = "all";
+
   // Extension point of the next version (the reader's progress per topic). Nothing is stored yet.
   function nodeState(id) {
     return null;
@@ -80,18 +84,45 @@
     node.appendChild(label);
   }
 
+  // The filter hides the weak steps of the trail (and the whole trail when none is required).
+  function applyTrail(topic) {
+    var block = topic.querySelector("[data-trail-block]");
+    if (!block) { return; }
+    var steps = block.querySelectorAll("ol[data-trail] > li");
+    var shown = 0;
+    for (var i = 0; i < steps.length; i++) {
+      if (trailMode === "strong" && steps[i].getAttribute("data-strength") !== "strong") {
+        steps[i].setAttribute("hidden", "");
+      } else {
+        steps[i].removeAttribute("hidden");
+        shown++;
+      }
+    }
+    if (shown > 0) { block.removeAttribute("hidden"); } else { block.setAttribute("hidden", ""); }
+  }
+
+  // The filter is offered only when the open topic has a trail.
+  function showTrailFilter(topic) {
+    if (!trailFilter) { return; }
+    if (topic.querySelector("[data-trail-block]")) { trailFilter.removeAttribute("hidden"); } else { trailFilter.setAttribute("hidden", ""); }
+  }
+
   // The trail is read from the list of the topic: its order is the order of the badges.
+  // Hidden steps get no badge, so the numbers follow the steps that are shown.
   function markTrail(topic) {
     clearTrail();
     var steps = topic.querySelectorAll("ol[data-trail] > li");
     var nodes = nodeLinks();
+    var order = 0;
     for (var i = 0; i < steps.length; i++) {
+      if (steps[i].hidden) { continue; }
       var link = steps[i].querySelector("a[href^='#']");
       if (!link) { continue; }
+      order++;
       for (var j = 0; j < nodes.length; j++) {
         if (nodes[j].getAttribute("href") === link.getAttribute("href")) {
-          nodes[j].setAttribute("data-trail", String(i + 1));
-          drawBadge(nodes[j], i + 1);
+          nodes[j].setAttribute("data-trail", String(order));
+          drawBadge(nodes[j], order);
           break;
         }
       }
@@ -104,6 +135,8 @@
     topic.setAttribute("data-current", "");
     var state = nodeState(topic.id);
     if (state !== null) { topic.setAttribute("data-state", state); }
+    showTrailFilter(topic);
+    applyTrail(topic);
     markTrail(topic);
     if (options.link) { opener = options.link; }
     if (options.push && window.location.hash !== "#" + topic.id) {
@@ -180,7 +213,25 @@
     }
   });
 
+  // The checked radio is read, not assumed: browsers restore form state on back and reload.
+  function checkedTrailMode() {
+    var checked = trailFilter ? trailFilter.querySelector("input:checked") : null;
+    return checked ? checked.value : "all";
+  }
+
+  if (trailFilter) {
+    trailFilter.addEventListener("change", function () {
+      trailMode = checkedTrailMode();
+      var current = openTopic();
+      if (current) {
+        applyTrail(current);
+        markTrail(current);
+      }
+    });
+  }
+
   graph.setAttribute("data-js", "");
+  trailMode = checkedTrailMode();
   var initial = topicFromHash(window.location.hash);
   if (initial) { open(initial, { push: false, focus: false }); }
 })();

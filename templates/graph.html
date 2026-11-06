@@ -41,14 +41,21 @@
 </div>
 {% endif %}
 <div data-panel>
+<fieldset data-trail-filter hidden>
+<legend>{{ t("graph.trail_filter") }}</legend>
+<label><input type="radio" name="trail-filter" value="strong"> {{ t("graph.trail_filter_strong") }}</label>
+<label><input type="radio" name="trail-filter" value="all" checked> {{ t("graph.trail_filter_all") }}</label>
+</fieldset>
 {% for node in nodes %}<article id="{{ node.id }}" data-node>
 <h2>{{ node.title }}</h2>
 <p>{{ node.description }}</p>
-{% if node.trail %}<h3>{{ t("graph.trail") }}</h3>
+{% if node.trail %}<div data-trail-block>
+<h3>{{ t("graph.trail") }}</h3>
 <ol data-trail>
-{% for step in node.trail %}<li><a href="#{{ step.id }}">{{ step.title }}</a>, {% if step.required %}{{ t("graph.trail_required") }}{% else %}{{ t("graph.trail_recommended") }}{% endif %}</li>
+{% for step in node.trail %}<li data-strength="{{ 'strong' if step.required else 'weak' }}"><a href="#{{ step.id }}">{{ step.title }}</a>, {% if step.required %}{{ t("graph.trail_required") }}{% else %}{{ t("graph.trail_recommended") }}{% endif %}</li>
 {% endfor %}
 </ol>
+</div>
 {% endif %}
 {% if node.leads_to %}<h3>{{ t("graph.leads_to") }}</h3>
 <ul>

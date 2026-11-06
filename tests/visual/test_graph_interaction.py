@@ -128,10 +128,49 @@ class GraphInteractionTest(unittest.TestCase):
         page.screenshot(path=str(OUT / "desktop-light-topic-3.png"), full_page=True)
 
     def test_trail_with_several_steps_is_numbered_in_list_order(self):
-        # Topic 1 has several steps (2, 6, 3, 4 in the fixture): the badges follow the list.
+        # Topic 1 has several steps (4, 3, 2, 6 in the fixture): the badges follow the list.
         page = self.open(PAGE + "#1")
         self.assertEqual(self.visible_topics(page), ["1"])
         self.assert_trail_marked(page, "1", minimum=3)
+
+    def test_trail_filter_shows_only_required_steps_and_marks_them(self):
+        # Topic 1 in the fixture: the trail is 4, 3 (recommended), 2, 6 (required), in that order.
+        page = self.open(PAGE + "#1")
+        self.assertTrue(page.locator("[data-trail-filter]").is_visible())
+        steps = "article[id='1'] ol[data-trail] > li"
+        self.assertEqual(
+            page.eval_on_selector_all(steps, "els => els.map(e => e.getAttribute('data-strength'))"),
+            ["weak", "weak", "strong", "strong"],
+        )
+        page.locator("[data-trail-filter] input[value='strong']").check()
+        shown = page.eval_on_selector_all(
+            steps, "els => els.filter(e => !e.hidden).map(e => e.querySelector('a').getAttribute('href'))",
+        )
+        self.assertEqual(shown, ["#2", "#6"])
+        marked = page.eval_on_selector_all(
+            "[data-node-link][data-trail]",
+            "els => els.map(e => [e.getAttribute('href'), e.getAttribute('data-trail')])",
+        )
+        self.assertEqual(sorted(marked, key=lambda pair: int(pair[1])), [["#2", "1"], ["#6", "2"]])
+        badges = page.eval_on_selector_all("[data-trail-badge='label']", "els => els.map(e => e.textContent)")
+        self.assertEqual(sorted(badges, key=int), ["1", "2"])
+        self.assertEqual(page.evaluate(STORAGE_COUNT), [0, 0])
+        page.screenshot(path=str(OUT / "desktop-light-topic-1-strong.png"), full_page=True)
+
+        page.locator("[data-trail-filter] input[value='all']").check()
+        self.assertEqual(len(page.eval_on_selector_all(steps, "els => els.filter(e => !e.hidden)")), 4)
+        self.assert_trail_marked(page, "1", minimum=4)
+        self.assertEqual(page.evaluate(STORAGE_COUNT), [0, 0])
+
+    def test_trail_filter_hides_the_trail_when_no_step_is_required(self):
+        # Topic 2 only has recommended steps; topic 4 has no trail, so the filter is not offered.
+        page = self.open(PAGE + "#2")
+        page.locator("[data-trail-filter] input[value='strong']").check()
+        self.assertTrue(page.eval_on_selector("article[id='2'] [data-trail-block]", "e => e.hidden"))
+        self.assertEqual(page.eval_on_selector_all("[data-node-link][data-trail]", "els => els.length"), 0)
+        page.locator("[data-trail-filter] input[value='all']").check()
+        self.assertFalse(page.eval_on_selector("article[id='2'] [data-trail-block]", "e => e.hidden"))
+        self.open(PAGE + "#4").locator("[data-trail-filter]").wait_for(state="hidden")
 
     def test_click_selects_without_jump_and_pushes_history(self):
         page = self.open(PAGE)
@@ -207,6 +246,11 @@ class GraphInteractionTest(unittest.TestCase):
         self.assertEqual(self.visible_topics(page), ["3"])
         self.assertEqual(page.eval_on_selector("[data-panel]", "e => getComputedStyle(e).display"), "block")
         self.assertEqual(page.eval_on_selector_all("[data-node-link][data-trail]", "els => els.length"), 0)
+        # The filter is script only: without it every step of the trail is shown.
+        self.assertTrue(page.locator("[data-trail-filter]").is_hidden())
+        self.assertEqual(page.eval_on_selector_all(
+            "ol[data-trail] > li", "els => els.filter(e => e.hidden).length",
+        ), 0)
 
 
 if __name__ == "__main__":

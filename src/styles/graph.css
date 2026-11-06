@@ -110,6 +110,24 @@ article[data-node][data-current],
   font-weight: 700;
 }
 
+/* The trail filter: a native fieldset in the panel. Script shows it, only when the open topic has a trail. */
+[data-trail-filter] {
+  margin: 0 0 1rem;
+  padding: 0;
+  border: 0;
+  font-size: 0.875rem;
+}
+
+[data-trail-filter] legend {
+  padding: 0;
+  margin-block-end: 0.25rem;
+  font-weight: 700;
+}
+
+[data-trail-filter] label {
+  margin-inline-end: 1rem;
+}
+
 [data-node-link] {
   cursor: pointer;
 }

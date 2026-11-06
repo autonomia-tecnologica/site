@@ -96,7 +96,14 @@ plain titles.
 - Below 780 px the list by levels is the main view and the canvas is hidden. From 780 px the
   canvas is the main view, and the open topic sits in a panel beside it. The list stays for
   screen readers only.
-- A topic opens by its fragment (`:target`). Below 780 px it is a bottom sheet.
+- A topic opens by `data-current`, which `graph.js` sets, with `pushState` for the URL. Without
+  script the fragment decides, through `:target` alone (the fallback). Below 780 px it is a bottom
+  sheet.
+- The trail filter is a radio group at the top of the panel: "only required" shows the strong
+  steps, "all" shows every step (the default, and what the page shows without script). Hidden
+  steps leave the list and get no mark on the canvas, and the numbers follow the steps shown.
+  A trail with no required step is hidden in "only required". The filter keeps no state in
+  the browser storage and is shown only when the open topic has a trail.
 - Transitions run only under `prefers-reduced-motion: no-preference`.
 
 ## Logo, symbol and favicon
