@@ -134,6 +134,19 @@ class GraphPageTest(unittest.TestCase):
         with self.assertRaisesRegex(BuildError, "grafo:9"):
             build_dist(FIXTURE.read_text(encoding="utf-8"), "[x](grafo:9)")
 
+    def test_article_lists_the_topics_that_link_to_it(self):
+        article = self.dist["pt-br/artigos/1/index.html"]
+        block = article.split('<section data-kind="graph-nodes">')[1].split("</section>")[0]
+        self.assertIn(f"<h2>{self.strings['ui']['graph_nodes']}</h2>", block)
+        self.assertEqual(re.findall(r'<a href="([^"]*)">([^<]*)</a>', block), [("/pt-br/grafo/#1", "LLM")])
+        self.assertLess(article.index("Texto."), article.index('<section data-kind="graph-nodes">'))
+
+    def test_article_without_topics_has_no_block(self):
+        graph = json.loads(FIXTURE.read_text(encoding="utf-8"))
+        graph["nodes"][0]["refs"] = [ref for ref in graph["nodes"][0]["refs"] if not ref["link"].startswith("artigo:")]
+        dist = build_dist(json.dumps(graph))
+        self.assertNotIn('data-kind="graph-nodes"', dist["pt-br/artigos/1/index.html"])
+
     def test_empty_graph_makes_no_page(self):
         dist = build_dist(EMPTY_GRAPH)
         self.assertNotIn("pt-br/grafo/index.html", dist)

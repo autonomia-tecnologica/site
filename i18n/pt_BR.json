@@ -50,7 +50,8 @@
     "feed": "RSS",
     "index": "Índice",
     "footnote_back": "Voltar ao texto",
-    "new_tab": "abre em nova aba"
+    "new_tab": "abre em nova aba",
+    "graph_nodes": "No grafo"
   },
   "footer": {
     "credits": {

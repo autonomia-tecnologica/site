@@ -532,6 +532,20 @@ def graph_nodes(graph: Graph, locale: str, routes: dict) -> list[dict]:
     return nodes
 
 
+def article_graph_nodes(graph: Graph, article: str, locale: str, routes: dict) -> list[dict]:
+    """The topics whose refs link to an article (artigo:<id>), in the order of the graph, each topic once.
+
+    A fragment of the link does not count, and an outside address never matches. Each topic links to its
+    entry on the graph page.
+    """
+    target = f"artigo:{article}"  # the kind of CONTENT_LINK_KINDS that maps to "article"
+    return [
+        {"id": node.id, "title": node.title, "href": routes[("graph", locale, str(node.id))]}
+        for node in graph.nodes.values()
+        if any(ref.link.partition("#")[0] == target for ref in node.refs)
+    ]
+
+
 def build_site(
     root: Path,
     locales: dict[str, dict],
@@ -802,6 +816,7 @@ def build_site(
                     "body": render_body(
                         markdown, entry, root, warnings, strings, locale, article=True, routes=routes
                     ),
+                    "graph_nodes": article_graph_nodes(graph, entry.key, locale, routes),
                 },
                 seo=page_seo(
                     title=entry.meta["title"],
