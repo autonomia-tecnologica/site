@@ -1,8 +1,8 @@
 """The published copy of the graph data, and its entry in llms.txt.
 
 The build copies content/graph/grafo.json to /<lang>/grafo/grafo.json, next to the graph page, and
-llms.txt lists the page and the copy. With no topics there is no graph page, so there is no copy
-and no entry. The real graph is empty; these tests use the fixture.
+llms.txt lists the page and the copy. The graph page always exists, even with no topics, so the copy and the entry do too.
+The real graph is empty; most of these tests use the fixture.
 
 Each test builds a small site in a temporary folder, so the repository's dist/ is never touched.
 
@@ -82,11 +82,11 @@ class EmptyGraphTest(unittest.TestCase):
     def setUpClass(cls):
         cls.files = build_dist(EMPTY_GRAPH)
 
-    def test_no_copy_without_topics(self):
-        self.assertNotIn(PUBLISHED, self.files)
+    def test_empty_graph_is_published_next_to_its_page(self):
+        self.assertIn(PUBLISHED, self.files)
 
-    def test_llms_has_no_graph_entry_without_topics(self):
-        self.assertNotIn("grafo", self.files["llms.txt"].decode("utf-8"))
+    def test_llms_lists_the_graph_page_even_when_empty(self):
+        self.assertIn("/pt-br/grafo/", self.files["llms.txt"].decode("utf-8"))
 
 
 if __name__ == "__main__":

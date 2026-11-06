@@ -586,16 +586,15 @@ def build_site(
             add(("page", locale, key), f"/{slug(locale)}/{segment}/")
     # The hidden screensaver: no language, not in the navigation, the sitemap or the feed.
     add(("screensaver", "", ""), "/screensaver/")
-    # The knowledge graph: no page when it has no topics. Each topic has its own route, a fragment of the page.
+    # The knowledge graph page always exists, empty while the graph has no topics. Each topic has its own route, a fragment of the page.
     graph = read_graph(root / GRAPH_RELATIVE_PATH, {e.key for e in entries}, set(PAGES))
-    if graph.nodes:
-        for locale in active:
-            segment = lookup(locales[locale], "url.graph", locale)
-            add(("graph", locale, ""), f"/{slug(locale)}/{segment}/")
-            for node_id in graph.nodes:
-                routes[("graph", locale, str(node_id))] = f"{routes[('graph', locale, '')]}#{node_id}"
-        layout = layout_graph(graph)
-        graph_svg = graph_canvas(layout, graph)
+    for locale in active:
+        segment = lookup(locales[locale], "url.graph", locale)
+        add(("graph", locale, ""), f"/{slug(locale)}/{segment}/")
+        for node_id in graph.nodes:
+            routes[("graph", locale, str(node_id))] = f"{routes[('graph', locale, '')]}#{node_id}"
+    layout = layout_graph(graph)
+    graph_svg = graph_canvas(layout, graph)
 
     env = Environment(
         loader=FileSystemLoader(root / "templates"),
@@ -853,24 +852,23 @@ def build_site(
                     feed=feed,
                 ),
             )
-        if graph.nodes:
-            title = lookup(strings, "pages.graph.title", locale)
-            render(
-                "graph.html", locale, ("graph", locale, ""), locale_tag,
-                alternates=alternates("graph", ""),
+        title = lookup(strings, "pages.graph.title", locale)
+        render(
+            "graph.html", locale, ("graph", locale, ""), locale_tag,
+            alternates=alternates("graph", ""),
+            title=title,
+            canvas=graph_svg,
+            nodes=graph_nodes(graph, locale, routes),
+            seo=page_seo(
                 title=title,
-                canvas=graph_svg,
-                nodes=graph_nodes(graph, locale, routes),
-                seo=page_seo(
-                    title=title,
-                    description=lookup(strings, "pages.graph.summary", locale),
-                    url=routes[("graph", locale, "")],
-                    site_name=site_name,
-                    locale=locale,
-                    hreflang=alternates("graph", ""),
-                    feed=feed,
-                ),
-            )
+                description=lookup(strings, "pages.graph.summary", locale),
+                url=routes[("graph", locale, "")],
+                site_name=site_name,
+                locale=locale,
+                hreflang=alternates("graph", ""),
+                feed=feed,
+            ),
+        )
 
     # Machine-readable files. llms.txt is built from the front matter only, without a model.
     llms_sections = []
@@ -881,24 +879,23 @@ def build_site(
             key=lambda e: (e.meta["date"], int(e.key)),
             reverse=True,
         )
-        if graph.nodes:
-            # The graph page and its published copy of grafo.json, next to the page.
-            graph_url = routes[("graph", locale, "")]
-            llms_sections.append({
-                "heading": lookup(strings, "seo.llms.graph", locale),
-                "entries": [
-                    {
-                        "title": lookup(strings, "nav.graph", locale),
-                        "href": absolute(graph_url),
-                        "summary": lookup(strings, "pages.graph.summary", locale),
-                    },
-                    {
-                        "title": lookup(strings, "seo.llms.graph_data", locale),
-                        "href": absolute(graph_url + GRAPH_FILE_NAME),
-                        "summary": lookup(strings, "seo.llms.graph_data_summary", locale),
-                    },
-                ],
-            })
+        # The graph page and its published copy of grafo.json, next to the page.
+        graph_url = routes[("graph", locale, "")]
+        llms_sections.append({
+            "heading": lookup(strings, "seo.llms.graph", locale),
+            "entries": [
+                {
+                    "title": lookup(strings, "nav.graph", locale),
+                    "href": absolute(graph_url),
+                    "summary": lookup(strings, "pages.graph.summary", locale),
+                },
+                {
+                    "title": lookup(strings, "seo.llms.graph_data", locale),
+                    "href": absolute(graph_url + GRAPH_FILE_NAME),
+                    "summary": lookup(strings, "seo.llms.graph_data_summary", locale),
+                },
+            ],
+        })
         if articles:
             llms_sections.append({
                 "heading": lookup(strings, "nav.articles", locale),
@@ -959,10 +956,9 @@ def build_site(
             copies[f"assets/logo/{source.name}"] = source
     if photo is not None:
         copies[f"{PHOTO_DIR}/{PHOTO_FILE_NAME}"] = photo
-    # The published copy of the graph data, next to the graph page, only when that page exists.
-    if graph.nodes:
-        for locale in active:
-            copies[routes[("graph", locale, "")].strip("/") + "/" + GRAPH_FILE_NAME] = root / GRAPH_RELATIVE_PATH
+    # The published copy of the graph data, next to the graph page, next to the page.
+    for locale in active:
+        copies[routes[("graph", locale, "")].strip("/") + "/" + GRAPH_FILE_NAME] = root / GRAPH_RELATIVE_PATH
     broken = find_broken_links(texts, set(copies), site_url)
     if broken:
         raise BuildError("broken internal links:\n  " + "\n  ".join(broken))

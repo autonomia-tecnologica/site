@@ -147,10 +147,11 @@ class GraphPageTest(unittest.TestCase):
         dist = build_dist(json.dumps(graph))
         self.assertNotIn('data-kind="graph-nodes"', dist["pt-br/artigos/1/index.html"])
 
-    def test_empty_graph_makes_no_page(self):
+    def test_empty_graph_still_makes_the_page(self):
         dist = build_dist(EMPTY_GRAPH)
-        self.assertNotIn("pt-br/grafo/index.html", dist)
-        self.assertNotIn("/pt-br/grafo/", dist["sitemap.xml"])
+        self.assertIn("pt-br/grafo/index.html", dist)
+        self.assertIn("/pt-br/grafo/", dist["sitemap.xml"])
+        self.assertNotIn("<svg data-canvas", dist["pt-br/grafo/index.html"])
 
     def test_text_link_to_a_topic_of_an_empty_graph_stops_the_build(self):
         with self.assertRaisesRegex(BuildError, "grafo:1"):
