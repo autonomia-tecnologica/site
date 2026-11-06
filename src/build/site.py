@@ -35,6 +35,7 @@ from .config import (
     PERSON_SAME_AS,
     PHOTO_FILE_NAME,
     SCRIPTS,
+    STANDALONE_STYLESHEETS,
     STYLESHEETS,
 )
 from .content import BuildError, Entry
@@ -567,6 +568,8 @@ def build_site(
         for key in PAGES:
             segment = lookup(locales[locale], f"url.pages.{key}", locale)
             add(("page", locale, key), f"/{slug(locale)}/{segment}/")
+    # The hidden screensaver: no language, not in the navigation, the sitemap or the feed.
+    add(("screensaver", "", ""), "/screensaver/")
     # The knowledge graph: no page when it has no topics. Each topic has its own route, a fragment of the page.
     graph = read_graph(root / GRAPH_RELATIVE_PATH, {e.key for e in entries}, set(PAGES))
     if graph.nodes:
@@ -676,6 +679,15 @@ def build_site(
         html_count += 1
 
     root_strings = locales[root_locale]
+    render(
+        "screensaver.html", root_locale, ("screensaver", "", ""), None, in_sitemap=False,
+        seo=page_seo(
+            title=lookup(root_strings, "site.name", root_locale),
+            description="",
+            url=routes[("screensaver", "", "")],
+            site_name="",
+        ),
+    )
     root_name = lookup(root_strings, "site.name", root_locale)
     root_description = lookup(root_strings, "site.description", root_locale)
     if active == [root_locale]:
@@ -896,6 +908,8 @@ def build_site(
         if not source.is_file():
             raise BuildError(f"{STYLES_DIR}/{name} is listed in STYLESHEETS but does not exist")
         copies[f"styles/{name}"] = source
+    for name in STANDALONE_STYLESHEETS:
+        copies[f"styles/{name}"] = root / STYLES_DIR / name
     for name in SCRIPTS:
         source = root / SCRIPTS_DIR / name
         if not source.is_file():

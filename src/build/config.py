@@ -22,6 +22,12 @@ STYLESHEETS = (
 # Scripts of src/scripts/, copied to /scripts/. Only the page that uses one links it (see its template).
 SCRIPTS = (
     "graph.js",
+    "screensaver.js",
+)
+
+# Stylesheets of src/styles/ used only by the hidden screensaver page, copied to /styles/ but not linked elsewhere.
+STANDALONE_STYLESHEETS = (
+    "screensaver.css",
 )
 
 # Pages of the site, in navigation order (Articles sits between them, see nav_items in site.py).

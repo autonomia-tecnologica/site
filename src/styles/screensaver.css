@@ -1,0 +1,14 @@
+/* Screensaver page: a canvas that fills the window. Nothing else is on the page. */
+html, body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: var(--color-bg);
+}
+
+canvas {
+  display: block;
+  width: 100vw;
+  height: 100vh;
+  cursor: none;
+}
