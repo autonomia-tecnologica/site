@@ -5,5 +5,15 @@
 <p>{{ entry.summary }}</p>
 <p><a href="{{ entry.author.href }}" rel="author">{{ entry.author.name }}</a> · {{ t("ui.published") }} <time datetime="{{ entry.date }}">{{ entry.date_label }}</time>{% if entry.updated != entry.date %}, {{ t("ui.updated") }} <time datetime="{{ entry.updated }}">{{ entry.updated_label }}</time>{% endif %}</p>
 {{ entry.body|safe }}
+{% if entry.graph_nodes %}
+<section data-kind="graph-nodes">
+<h2>{{ t("ui.graph_nodes") }}</h2>
+<ul>
+{% for node in entry.graph_nodes %}
+<li><a href="{{ node.href }}">{{ node.title }}</a></li>
+{% endfor %}
+</ul>
+</section>
+{% endif %}
 </article>
 {% endblock %}
