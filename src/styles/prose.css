@@ -67,4 +67,72 @@
 
 .prose section {
   font-size: 0.9375rem;
+  text-align: start;
+}
+
+/* Manifesto: a column centered on the page, text justified, left edge aligned, each point's number on its line, before the text, filling the height of the screen. */
+.prose[data-page="manifesto"] {
+  min-block-size: calc(100svh - 145px);
+  text-align: justify;
+  hyphens: auto;
+}
+
+.prose[data-page="manifesto"] ol {
+  padding: 0;
+  list-style: none;
+  counter-reset: point;
+}
+
+.prose[data-page="manifesto"] li {
+  counter-increment: point;
+}
+
+/* The text of a point is a paragraph; it runs inline so the number stays on the same line. */
+.prose[data-page="manifesto"] li p {
+  display: inline;
+  margin: 0;
+}
+
+.prose[data-page="manifesto"] li::before {
+  content: counter(point) ".";
+  margin-inline-end: 0.35em;
+  color: var(--color-accent-text);
+  font-weight: 700;
+}
+
+/* Links in the text: no underline, so they are told apart by color and weight. */
+.prose a {
+  font-weight: 600;
+}
+
+/* The title of an article in the feed is a link to it, but looks like any other title.
+   It is an h2 (the feed's h1 is screen-reader only), drawn at the size of an h1. */
+.prose[data-feed-item] > h2 {
+  margin-block: 0.67em;
+  font-size: 2em;
+}
+
+.prose[data-feed-item] > h2 a,
+.prose[data-feed-item] > h2 a:visited {
+  color: inherit;
+  font-weight: inherit;
+}
+
+/* Articles: justified text, both edges straight, hyphenated so the spaces stay even. */
+.prose[data-kind="article"],
+.prose[data-feed-item] {
+  text-align: justify;
+  hyphens: auto;
+  overflow-wrap: anywhere;
+}
+
+/* The articles feed: one article under the other, a rule between them. */
+main > .prose + .prose {
+  margin-block-start: 3rem;
+  padding-block-start: 3rem;
+  border-block-start: 1px solid var(--color-border);
+}
+
+main > .prose[hidden] {
+  display: none;
 }

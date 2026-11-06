@@ -13,7 +13,7 @@
 .site-header {
   position: sticky;
   top: 0;
-  z-index: 0;
+  z-index: 2;
   display: flex;
   align-items: center;
   padding: 58px max(32px, calc((100% - 1280px) / 2)) 20px;
@@ -82,7 +82,7 @@
   margin: 0;
 }
 
-/* Links: light title font, white, no underline at rest. The purple underline shows on hover and focus. */
+/* Links: light title font, white, no underline at rest. Hover and focus turn the text purple; no underline. */
 .site-header__panel a,
 .site-header__panel a:visited {
   color: var(--color-text);
@@ -94,25 +94,21 @@
 
 .site-header__panel a:hover,
 .site-header__panel a:focus-visible {
-  color: var(--color-text);
-  text-decoration: underline;
-  text-decoration-color: var(--color-accent);
-  text-decoration-thickness: 1px;
-  text-underline-offset: 0.3em;
+  color: var(--color-accent-text);
 }
 
 .site-header__panel a[aria-current="page"] {
   font-weight: 700;
 }
 
-/* Round button: 46 px, thin border. Two lines, hidden on wide screens and without script. */
+/* Round button: 46 px, thin border. Three lines, hidden on wide screens and without script. */
 .site-header .site-header__toggle {
   display: none;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   flex: none;
-  gap: 7px;
+  gap: 5px;
   inline-size: 46px;
   block-size: 46px;
   margin: 0;
@@ -212,9 +208,21 @@
     block-size: 3rem;
   }
 
+  /* The menu button loses its ring on phones: a bare icon next to the round theme button, 20 px apart. */
   .site-header .site-header__toggle {
     display: inline-flex;
-    margin-inline-start: auto;
+    margin-inline: auto 20px;
+    border-color: transparent;
+    background: transparent;
+  }
+
+  .site-header .site-header__toggle:hover {
+    border-color: transparent;
+  }
+
+  .site-header .site-header__toggle span {
+    inline-size: 26px;
+    block-size: 2px;
   }
 
   .site-header__panel {

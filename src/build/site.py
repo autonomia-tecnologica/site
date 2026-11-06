@@ -10,7 +10,7 @@ feed per locale with articles, and the original Markdown file of every article
 next to its page. Canonical URLs, sitemap entries and feeds are absolute and use
 the site address given to build_site.
 
-The About page (key "about") shows the private photo, when the build has it, and
+The About page (templates/pages/about.html) shows the private photo, when the build has it, and
 the author's profile links. The photo is copied to dist/ only when it is given.
 """
 
@@ -29,13 +29,14 @@ from mdit_py_plugins.footnote import footnote_plugin
 
 from .config import (
     CHANNEL_PROFILES,
+    PAGES,
     IDENTITY_AUTHOR_URL,
     PERSON_PROFILES,
     PERSON_SAME_AS,
     PHOTO_FILE_NAME,
     STYLESHEETS,
 )
-from .content import HOME_PAGE_KEY, BuildError, Entry
+from .content import BuildError, Entry
 
 OUTPUT_DIR = "dist"
 SCHEMA_CONTEXT = "https://schema.org"
@@ -45,7 +46,12 @@ LOGO_DIR = "src/assets/logo"
 LOGO_SUFFIXES = (".svg", ".png")
 WIKI_LINK_RE = re.compile(r"\[\[([^\[\]\n]+)\]\]")
 MANIFESTO_PAGE = "manifesto"
-POINT_ANCHOR_PREFIX = "ponto-"
+# Short links of the text, [text](kind:id). Each kind is the route kind of the page it points to.
+CONTENT_LINK_KINDS = {"artigo": "article", "pagina": "page"}
+# Kinds that are reserved but do not exist yet: the text stays, without a link, and the build warns.
+CONTENT_LINK_PENDING = {"grafo"}
+EXTERNAL_SCHEMES = {"http", "https", "mailto", "tel"}
+SCHEME_RE = re.compile(r"^([a-z][a-z0-9+.-]*):(.*)$")
 FOOTNOTE_CLASS_RE = re.compile(r' class="footnote[\w-]*"')
 FOOTNOTE_ID_RE = re.compile(r"fn(?:ref)?[0-9]+")
 INDEX_HEADING_TAGS = ("h2", "h3")
@@ -62,11 +68,69 @@ def make_markdown() -> MarkdownIt:
     for name in ("footnote_ref", "footnote_block_open", "footnote_open"):
         md.add_render_rule(name, without_footnote_classes(md.renderer.rules[name]))
     md.add_render_rule("footnote_anchor", render_footnote_anchor)
+    md.add_render_rule("link_open", open_links_in_new_tab)
+    md.add_render_rule("link_close", close_link)
+    md.core.ruler.push("content_links", resolve_content_links)
     md.core.ruler.push("obsidian_wiki_links", unlink_wiki_links)
-    md.core.ruler.push("point_anchors", add_point_anchors)
     md.core.ruler.push("image_captions", add_image_captions)
     md.core.ruler.push("heading_anchors", add_heading_anchors)
     return md
+
+
+def open_links_in_new_tab(self, tokens, idx, options, env) -> str:
+    """Links of the text open in a new tab; links to a place in the same page (#...) stay.
+
+    A link marked as unlinked (see resolve_content_links) keeps its text and loses the tag.
+    """
+    token = tokens[idx]
+    if token.meta.get("unlinked"):
+        return ""
+    href = token.attrGet("href") or ""
+    if not href.startswith("#"):
+        token.attrSet("target", "_blank")
+        token.attrSet("rel", "noopener")
+    return self.renderToken(tokens, idx, options, env)
+
+
+def close_link(self, tokens, idx, options, env) -> str:
+    """Closing tag of a link, or nothing when the link was unlinked."""
+    return "" if tokens[idx].meta.get("unlinked") else "</a>"
+
+
+def resolve_content_links(state) -> None:
+    """Turns [text](kind:id) into a link to the page of that kind and id, in the language of the text.
+
+    artigo:12 points to article 12; pagina:manifesto to the page with that key; a #fragment may follow the id. A missing target or an unknown kind stops the build;
+    a kind that is reserved but not built yet (grafo) keeps the text and logs a warning.
+    """
+    env = state.env
+    routes, locale = env.get("routes"), env.get("locale")
+    if routes is None:
+        return
+    for token in state.tokens:
+        if token.type != "inline" or not token.children:
+            continue
+        opened = []
+        for child in token.children:
+            if child.type == "link_open":
+                opened.append(child)
+                match = SCHEME_RE.match(child.attrGet("href") or "")
+                if match is None or match.group(1) in EXTERNAL_SCHEMES:
+                    continue
+                kind, ident = match.groups()
+                if kind in CONTENT_LINK_PENDING:
+                    child.meta["unlinked"] = True
+                    env["warnings"].append(f"{env['where']}: link {kind}:{ident} has no page yet, shown as plain text")
+                elif kind in CONTENT_LINK_KINDS:
+                    key, _, fragment = ident.partition("#")
+                    url = routes.get((CONTENT_LINK_KINDS[kind], locale, key))
+                    if url is None:
+                        raise BuildError(f"{env['where']}: link {kind}:{ident} points to a page that does not exist")
+                    child.attrSet("href", f"{url}#{fragment}" if fragment else url)
+                else:
+                    raise BuildError(f"{env['where']}: unknown link kind {kind!r} in {kind}:{ident}")
+            elif child.type == "link_close" and opened:
+                child.meta["unlinked"] = bool(opened.pop().meta.get("unlinked"))
 
 
 def without_footnote_classes(rule):
@@ -174,25 +238,6 @@ def index_tokens(label: str, headings: list[tuple[str, str]]) -> list[Token]:
     return tokens
 
 
-def add_point_anchors(state) -> None:
-    """Gives id="ponto-N" to each item of the top-level ordered list, when the env asks for it.
-
-    Only the manifesto turns this on (env["point_anchors"]), so its points have fixed links.
-    """
-    if not state.env.get("point_anchors"):
-        return
-    number = 0
-    in_list = False
-    for token in state.tokens:
-        if token.level == 0 and token.type == "ordered_list_open":
-            in_list = True
-        elif token.level == 0 and token.type == "ordered_list_close":
-            in_list = False
-        elif in_list and token.level == 1 and token.type == "list_item_open":
-            number += 1
-            token.attrSet("id", f"{POINT_ANCHOR_PREFIX}{number}")
-
-
 def unlink_wiki_links(state) -> None:
     """Obsidian links ([[Note]]) have no target on the site: keep the text, log each one.
 
@@ -224,6 +269,18 @@ def lookup(strings: dict, dotted: str, locale: str) -> str:
         node = node[part]
     if not isinstance(node, str):
         raise BuildError(f"i18n/{locale}.json: text key {dotted!r} must be a string")
+    return node
+
+
+def lookup_list(strings: dict, dotted: str, locale: str) -> list[str]:
+    """A list of texts of i18n/<locale>.json, like the points of the manifesto."""
+    node: object = strings
+    for part in dotted.split("."):
+        if not isinstance(node, dict) or part not in node:
+            raise BuildError(f"i18n/{locale}.json has no text key {dotted!r}")
+        node = node[part]
+    if not isinstance(node, list) or not all(isinstance(item, str) for item in node):
+        raise BuildError(f"i18n/{locale}.json: text key {dotted!r} must be a list of strings")
     return node
 
 
@@ -282,7 +339,7 @@ def article_json_ld(strings: dict, locale: str, meta: dict, url: str, home: str)
         "dateModified": meta["updated"].isoformat(),
         "url": url,
         "mainEntityOfPage": url,
-        "author": {"@type": "Person", "name": lookup(strings, "person.name", locale), "url": home},
+        "author": {"@type": "Person", "name": meta["author"], "url": PERSON_PROFILES["substack"]},
         "publisher": {"@type": "Organization", "name": lookup(strings, "site.name", locale), "url": home},
     }
 
@@ -294,8 +351,8 @@ def render_body(
     warnings: list[str],
     strings: dict,
     locale: str,
-    point_anchors: bool = False,
     article: bool = False,
+    routes: dict | None = None,
 ) -> str:
     """HTML of an entry's Markdown body; the warnings name the file they come from.
 
@@ -304,13 +361,64 @@ def render_body(
     env: dict = {
         "where": entry.path.relative_to(root).as_posix(),
         "warnings": [],
-        "point_anchors": point_anchors,
+        "routes": routes,
+        "locale": locale,
         "index_label": lookup(strings, "ui.index", locale) if article else None,
         "footnote_back_label": lookup(strings, "ui.footnote_back", locale),
     }
     html = markdown.render(entry.body, env)
     warnings.extend(env["warnings"])
     return html
+
+
+HREF_RE = re.compile(r'<a\b[^>]*?\shref="([^"]*)"')
+ID_RE = re.compile(r'\sid="([^"]*)"')
+
+
+def find_broken_links(texts: dict[str, str], files: set[str], site_url: str) -> list[str]:
+    """Internal links and anchors of the built pages that lead nowhere.
+
+    texts maps an output path to its page; files holds the other output paths. A link counts as
+    internal when it starts with / or with the site address. External links are not checked here.
+    """
+    broken = []
+    for path, html in sorted(texts.items()):
+        if not path.endswith(".html"):
+            continue
+        own_ids = set(ID_RE.findall(html))
+        for href in HREF_RE.findall(html):
+            href = href.replace("&amp;", "&")
+            if href.startswith(site_url):
+                href = href[len(site_url):] or "/"
+            if href.startswith("#"):
+                if href[1:] and href[1:] not in own_ids:
+                    broken.append(f"{path}: anchor {href} has no matching id")
+                continue
+            if not href.startswith("/") or href.startswith("//"):
+                continue
+            target, _, fragment = href.partition("#")
+            target = target.partition("?")[0]
+            rel = target.lstrip("/")
+            if rel == "" or rel.endswith("/"):
+                rel += "index.html"
+            if rel not in texts and rel not in files:
+                broken.append(f"{path}: link {href} points to {rel}, which is not in the build")
+            elif fragment and rel in texts and fragment not in set(ID_RE.findall(texts[rel])):
+                broken.append(f"{path}: link {href} points to an id that {rel} does not have")
+    return broken
+
+
+def about_people(strings: dict, locale: str, photo: Path | None) -> list[dict]:
+    """The people of the About page: today only the author, with the photo when the build has it."""
+    return [{
+        "name": lookup(strings, "person.name", locale),
+        "bio": lookup(strings, "about.people.rafael.bio", locale),
+        "photo": (
+            {"href": f"/{PHOTO_DIR}/{PHOTO_FILE_NAME}", "alt": lookup(strings, "about.photo_alt", locale)}
+            if photo is not None else None
+        ),
+        "profiles": about_profiles(strings, locale),
+    }]
 
 
 def about_profiles(strings: dict, locale: str) -> list[dict]:
@@ -334,7 +442,7 @@ def build_site(
     Problems that do not stop the build (such as Obsidian links) are appended to warnings.
     photo is the file of the About page photo, or None when the build goes on without it.
     """
-    active = sorted({entry.locale for entry in entries})
+    active = sorted(locales)
     routes: dict[tuple[str, str, str], str] = {}
     used_urls: set[str] = set()
 
@@ -347,20 +455,18 @@ def build_site(
     add(("root", "", ""), "/")
     for locale in active:
         add(("index", locale, ""), f"/{slug(locale)}/")
-        if any(e.locale == locale and e.kind == "article" for e in entries):
+        if any(e.locale == locale for e in entries):
             segment = lookup(locales[locale], "url.articles", locale)
             add(("articles", locale, ""), f"/{slug(locale)}/{segment}/")
             add(("feed", locale, ""), f"/{slug(locale)}/feed.xml")
     for entry in entries:
         locale = entry.locale
-        if entry.kind == "article":
-            segment = lookup(locales[locale], "url.articles", locale)
-            add(("article", locale, entry.key), f"/{slug(locale)}/{segment}/{entry.key}/")
-        else:
-            if entry.key == HOME_PAGE_KEY:  # shown on the locale index, no page of its own
-                continue
-            segment = lookup(locales[locale], f"url.pages.{entry.key}", locale)
-            add(("page", locale, entry.key), f"/{slug(locale)}/{segment}/")
+        segment = lookup(locales[locale], "url.articles", locale)
+        add(("article", locale, entry.key), f"/{slug(locale)}/{segment}/{entry.key}/")
+    for locale in active:
+        for key in PAGES:
+            segment = lookup(locales[locale], f"url.pages.{key}", locale)
+            add(("page", locale, key), f"/{slug(locale)}/{segment}/")
 
     env = Environment(
         loader=FileSystemLoader(root / "templates"),
@@ -425,7 +531,6 @@ def build_site(
         candidates = (
             ("nav.manifesto", ("page", locale, "manifesto")),
             ("nav.articles", ("articles", locale, "")),
-            ("nav.consulting", ("page", locale, "consulting")),
             ("nav.about", ("page", locale, "about")),
         )
         return [
@@ -488,22 +593,21 @@ def build_site(
         site_name = lookup(strings, "site.name", locale)
         description = lookup(strings, "site.description", locale)
         locale_tag = tag(locale)
-        locale_entries = [e for e in entries if e.locale == locale]
         articles = sorted(
-            (e for e in locale_entries if e.kind == "article"),
+            (e for e in entries if e.locale == locale),
             key=lambda e: (e.meta["date"], int(e.key)),
             reverse=True,
         )
-        home_entry = next((e for e in locale_entries if e.kind == "page" and e.key == HOME_PAGE_KEY), None)
         feed = feed_href(locale)
 
         render(
             "index.html", locale, ("index", locale, ""), locale_tag,
             alternates=alternates("index", ""),
             channels=CHANNEL_PROFILES,
+            manifesto_href=routes.get(("page", locale, MANIFESTO_PAGE)),
             seo=page_seo(
                 title=site_name,
-                description=description if home_entry is None else home_entry.meta["summary"],
+                description=lookup(strings, "pages.home.summary", locale),
                 url=routes[("index", locale, "")],
                 site_name=site_name,
                 locale=locale,
@@ -517,7 +621,14 @@ def build_site(
                 "articles.html", locale, ("articles", locale, ""), locale_tag,
                 alternates=alternates("articles", ""),
                 articles=[
-                    {"title": e.meta["title"], "href": routes[("article", locale, e.key)], "date": e.meta["date"]}
+                    {
+                        "title": e.meta["title"],
+                        "href": routes[("article", locale, e.key)],
+                        "date": e.meta["date"],
+                        "date_label": e.meta["date"].strftime(lookup(strings, "format.date", locale)),
+                        "author": {"name": e.meta["author"], "href": routes[("page", locale, ABOUT_PAGE)]},
+                        "body": render_body(markdown, e, root, warnings, strings, locale, routes=routes),
+                    }
                     for e in articles
                 ],
                 seo=page_seo(
@@ -548,50 +659,57 @@ def build_site(
                     "entries": feed_items,
                 },
             )
-        for entry in locale_entries:
-            if entry.kind == "page" and entry.key == HOME_PAGE_KEY:
-                continue
-            url = routes[(entry.kind, locale, entry.key)]
-            is_article = entry.kind == "article"
-            title = entry.meta["title"]
-            if is_article:
-                lastmod = entry.meta["updated"].isoformat()
-                json_ld = [article_json_ld(strings, locale, entry.meta, absolute(url), home)]
-                copies[md_path(url)] = entry.path
-            else:
-                lastmod = None
-                json_ld = []
-            is_about = entry.kind == "page" and entry.key == ABOUT_PAGE
+        for entry in articles:
+            url = routes[("article", locale, entry.key)]
+            copies[md_path(url)] = entry.path
             render(
-                "entry.html", locale, (entry.kind, locale, entry.key), locale_tag,
-                lastmod=lastmod,
-                alternates=alternates(entry.kind, entry.key),
+                "article.html", locale, ("article", locale, entry.key), locale_tag,
+                lastmod=entry.meta["updated"].isoformat(),
+                alternates=alternates("article", entry.key),
                 entry={
-                    "kind": entry.kind,
-                    "title": title,
+                    "title": entry.meta["title"],
                     "summary": entry.meta["summary"],
-                    "date": entry.meta.get("date"),
-                    "updated": entry.meta.get("updated"),
+                    "date": entry.meta["date"],
+                    "updated": entry.meta["updated"],
+                    "date_label": entry.meta["date"].strftime(lookup(strings, "format.date", locale)),
+                    "updated_label": entry.meta["updated"].strftime(lookup(strings, "format.date", locale)),
+                    "author": {"name": entry.meta["author"], "href": routes[("page", locale, ABOUT_PAGE)]},
                     "body": render_body(
-                        markdown, entry, root, warnings, strings, locale,
-                        point_anchors=entry.kind == "page" and entry.key == MANIFESTO_PAGE,
-                        article=is_article,
+                        markdown, entry, root, warnings, strings, locale, article=True, routes=routes
                     ),
-                    "photo": (
-                        {"href": f"/{PHOTO_DIR}/{PHOTO_FILE_NAME}", "alt": lookup(strings, "about.photo_alt", locale)}
-                        if is_about and photo is not None else None
-                    ),
-                    "profiles": about_profiles(strings, locale) if is_about else [],
                 },
                 seo=page_seo(
-                    title=title,
+                    title=entry.meta["title"],
                     description=entry.meta["summary"],
                     url=url,
                     site_name=site_name,
-                    og_type="article" if is_article else "website",
+                    og_type="article",
                     locale=locale,
-                    hreflang=alternates(entry.kind, entry.key),
-                    json_ld=json_ld,
+                    hreflang=alternates("article", entry.key),
+                    json_ld=[article_json_ld(strings, locale, entry.meta, absolute(url), home)],
+                    feed=feed,
+                ),
+            )
+        for key in PAGES:
+            url = routes[("page", locale, key)]
+            title = lookup(strings, f"pages.{key}.title", locale)
+            extra = {}
+            if key == MANIFESTO_PAGE:
+                extra["points"] = lookup_list(strings, "pages.manifesto.points", locale)
+            elif key == ABOUT_PAGE:
+                extra["people"] = about_people(strings, locale, photo)
+            render(
+                f"pages/{key}.html", locale, ("page", locale, key), locale_tag,
+                alternates=alternates("page", key),
+                title=title,
+                **extra,
+                seo=page_seo(
+                    title=title,
+                    description=lookup(strings, f"pages.{key}.summary", locale),
+                    url=url,
+                    site_name=site_name,
+                    locale=locale,
+                    hreflang=alternates("page", key),
                     feed=feed,
                 ),
             )
@@ -600,14 +718,10 @@ def build_site(
     llms_sections = []
     for locale in active:
         strings = locales[locale]
-        locale_entries = [e for e in entries if e.locale == locale]
         articles = sorted(
-            (e for e in locale_entries if e.kind == "article"),
+            (e for e in entries if e.locale == locale),
             key=lambda e: (e.meta["date"], int(e.key)),
             reverse=True,
-        )
-        pages_in_lang = sorted(
-            (e for e in locale_entries if e.kind == "page" and e.key != HOME_PAGE_KEY), key=lambda e: e.key
         )
         if articles:
             llms_sections.append({
@@ -621,18 +735,17 @@ def build_site(
                     for e in articles
                 ],
             })
-        if pages_in_lang:
-            llms_sections.append({
-                "heading": lookup(strings, "seo.llms.pages", locale),
-                "entries": [
-                    {
-                        "title": e.meta["title"],
-                        "href": absolute(routes[("page", locale, e.key)]),
-                        "summary": e.meta["summary"],
-                    }
-                    for e in pages_in_lang
-                ],
-            })
+        llms_sections.append({
+            "heading": lookup(strings, "seo.llms.pages", locale),
+            "entries": [
+                {
+                    "title": lookup(strings, f"pages.{key}.title", locale),
+                    "href": absolute(routes[("page", locale, key)]),
+                    "summary": lookup(strings, f"pages.{key}.summary", locale),
+                }
+                for key in PAGES
+            ],
+        })
     texts["llms.txt"] = env.get_template("llms.txt").render(
         site_name=root_name,
         description=lookup(root_strings, "site.description", root_locale),
@@ -663,6 +776,9 @@ def build_site(
             copies[f"assets/logo/{source.name}"] = source
     if photo is not None:
         copies[f"{PHOTO_DIR}/{PHOTO_FILE_NAME}"] = photo
+    broken = find_broken_links(texts, set(copies), site_url)
+    if broken:
+        raise BuildError("broken internal links:\n  " + "\n  ".join(broken))
     for rel, source in copies.items():
         target = out_dir.joinpath(*rel.split("/"))
         target.parent.mkdir(parents=True, exist_ok=True)

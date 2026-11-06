@@ -3,17 +3,17 @@
 Source of the static site of Autonomia Tecnológica. Content is written in Brazilian Portuguese (`pt_BR`),
 the only locale for now.
 
-Status: early. The build turns Markdown with YAML front matter into static HTML, with translated
+Status: early. The build turns articles (Markdown with YAML front matter) and page templates into static HTML, with translated
 URLs read from `i18n/<locale>.json`, and reports pending text markers (`[a escrever]`).
 
 ## Layout
 
 ```
 content/articles/pt_BR/   articles (Markdown)
-content/pages/pt_BR/      pages (Markdown)
-i18n/pt_BR.json           interface text and translated URL segments
+i18n/pt_BR.json           all text of pages and interface, and translated URL segments
 src/build/                static site builder
-templates/                Jinja2 templates
+templates/                Jinja2 templates (index.html is the home page)
+templates/pages/          one template per page (manifesto, about)
 ```
 
 ## Setup

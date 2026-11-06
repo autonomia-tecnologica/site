@@ -1,8 +1,39 @@
 {% extends "base.html" %}
 {% block content %}
-<h1>{{ t("nav.articles") }}</h1>
-<ul>
-{% for article in articles %}<li><a href="{{ article.href }}">{{ article.title }}</a> <time datetime="{{ article.date }}">{{ article.date }}</time></li>
+<h1 id="feed-title">{{ t("nav.articles") }}</h1>
+{% for article in articles %}<article class="prose" data-feed-item>
+<h2><a href="{{ article.href }}">{{ article.title }}</a></h2>
+<p><a href="{{ article.author.href }}" rel="author">{{ article.author.name }}</a> · <time datetime="{{ article.date }}">{{ article.date_label }}</time></p>
+{{ article.body|safe }}
+</article>
 {% endfor %}
-</ul>
+<div id="feed-end"></div>
+<script>
+/* Infinite scroll: the page holds every article; the script shows 5 at first and
+   reveals 5 more each time the end of the list nears the screen, or when the keyboard
+   focus reaches the last shown article (Tab would otherwise skip the hidden ones).
+   Without script all show. */
+(function () {
+  var items = Array.prototype.slice.call(document.querySelectorAll("[data-feed-item]"));
+  var step = 5, shown = step;
+  var end = document.getElementById("feed-end");
+  if (items.length <= step || !("IntersectionObserver" in window)) { return; }
+  var observer;
+  function reveal() {
+    shown += step;
+    items.forEach(function (item, i) { item.hidden = i >= shown; });
+    if (shown >= items.length) { observer.disconnect(); }
+  }
+  items.forEach(function (item, i) {
+    item.hidden = i >= shown;
+    item.addEventListener("focusin", function () {
+      if (i >= shown - 1 && shown < items.length) { reveal(); }
+    });
+  });
+  observer = new IntersectionObserver(function (entries) {
+    if (entries[0].isIntersecting) { reveal(); }
+  }, { rootMargin: "600px" });
+  observer.observe(end);
+})();
+</script>
 {% endblock %}

@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+<section data-page="about">
+<h1>{{ title }}</h1>
+<ul>
+{% for person in people %}<li>
+<article>
+{% if person.photo %}<img src="{{ person.photo.href }}" alt="{{ person.photo.alt }}" width="560" height="560">
+{% endif %}<h2>{{ person.name }}</h2>
+<p>{{ person.bio }}</p>
+<ul>
+{% for profile in person.profiles %}<li><a href="{{ profile.href }}" rel="me noopener" target="_blank">{{ profile.label }}</a></li>
+{% endfor %}
+</ul>
+</article>
+</li>
+{% endfor %}
+</ul>
+</section>
+{% endblock %}

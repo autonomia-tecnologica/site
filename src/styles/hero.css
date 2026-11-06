@@ -22,6 +22,7 @@
 /* Title, lead and buttons share the first column; the symbol is placed on its own. */
 .hero > * {
   grid-column: 1;
+  align-self: start;
 }
 
 .hero__title {
@@ -54,7 +55,7 @@
 }
 
 /* The two buttons sit side by side; the group is the only plain div in the hero. */
-.hero > div {
+.hero > div:not(.prose) {
   position: relative;
   z-index: 1;
   display: flex;
@@ -94,7 +95,7 @@
     font-size: clamp(21px, 6vw, 27px);
   }
 
-  .hero > div {
+  .hero > div:not(.prose) {
     flex-direction: column;
   }
 
@@ -107,5 +108,38 @@
     width: 115%;
     opacity: 0.34;
     z-index: 0;
+  }
+}
+
+/* Consulting and About reuse the hero. The body text sits under the lead, as a plain block. */
+.hero > .prose {
+  position: relative;
+  z-index: 1;
+  max-inline-size: none;
+  margin: 0 0 28px;
+  padding: 0;
+}
+
+/* About: the photo fills the second column, as high as the hero. */
+.hero > img {
+  position: absolute;
+  top: 50%;
+  right: max(32px, calc((100% - 1280px) / 2));
+  z-index: 0;
+  inline-size: min(41%, 560px);
+  block-size: auto;
+  aspect-ratio: 1;
+  transform: translateY(-50%);
+  object-fit: cover;
+  border-radius: 24px;
+}
+
+@media (max-width: 780px) {
+  .hero > img {
+    position: static;
+    display: block;
+    margin-block-start: 40px;
+    inline-size: 100%;
+    transform: none;
   }
 }

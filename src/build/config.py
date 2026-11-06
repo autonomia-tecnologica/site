@@ -13,9 +13,15 @@ STYLESHEETS = (
     "button.css",
     "card.css",
     "hero.css",
+    "about.css",
     "site-header.css",
     "site-footer.css",
 )
+
+# Pages of the site, in navigation order (Articles sits between them, see nav_items in site.py).
+# Each page is templates/pages/<key>.html; its text is in i18n/<locale>.json under pages.<key>,
+# and its URL segment under url.pages.<key>. The home page is templates/index.html.
+PAGES = ("manifesto", "about")
 
 # Profile of the person who made the logo and visual identity, linked from the footer credits.
 IDENTITY_AUTHOR_URL = "https://www.instagram.com/teeuscorreia/"

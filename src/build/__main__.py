@@ -32,9 +32,26 @@ from .config import PHOTO_FILE_NAME
 from .content import BuildError, PENDING_MARKER, find_pending_markers, load_entries, load_locales
 from .site import build_site
 
-REQUIRED_DIRS = ["content/articles", "content/pages", "i18n", "templates"]
+REQUIRED_DIRS = ["content/articles", "i18n", "templates", "templates/pages"]
 DEV_SITE_URL = "http://localhost"
 PHOTO_ENV = "SITE_PRIVATE_DIR"
+
+
+def load_dotenv() -> None:
+    """Sets the variables of `.env` (KEY=VALUE lines) that the environment does not have yet.
+
+    The file is not versioned. It lets `npm run dev` find the private photo on every rebuild,
+    whatever shell started it.
+    """
+    path = ROOT / ".env"
+    if not path.is_file():
+        return
+    for line in path.read_text(encoding="utf-8").splitlines():
+        line = line.strip()
+        if not line or line.startswith("#") or "=" not in line:
+            continue
+        key, value = line.split("=", 1)
+        os.environ.setdefault(key.strip(), value.strip().strip('"').strip("'"))
 
 
 def check_layout(errors: list[str]) -> None:
@@ -83,6 +100,7 @@ def main() -> int:
     parser.add_argument("--prod", action="store_true", help="production build: fail on pending markers")
     args = parser.parse_args()
 
+    load_dotenv()
     errors: list[str] = []
     warnings: list[str] = []
     check_layout(errors)

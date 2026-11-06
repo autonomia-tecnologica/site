@@ -61,8 +61,10 @@ item, not to the tokens.
 
 ## Links
 
-Links keep their underline. Color alone does not mark a link. Visited links use
-`--color-text-muted`, never red. Hover uses `--color-link-hover`.
+Links have no underline, anywhere (Rafael's decision). They are told apart by color
+(`--color-link`) and, in the reading block, by weight (600). Visited links use
+`--color-text-muted`, never red. Hover uses `--color-link-hover`. Titles that are links look like
+plain titles.
 
 ## Classes
 
@@ -89,9 +91,9 @@ Links keep their underline. Color alone does not mark a link. Visited links use
 - The files in `src/assets/logo/` are converted from the official vector of the visual identity
   (`pdftocairo -svg`), not drawn again. The symbol (`symbol.svg`) is the first page of that vector
   without the wordmark. Its favicon is `favicon-32.png`, rendered from the symbol.
-- The logotype has two versions, by background: `logo-on-dark.svg` (gradient symbol, white text)
-  and `logo-on-light.svg` (purple outline symbol, black text). Both are the official variants of
-  the presentation's logotype page. The header shows one of them by scheme, with no script.
+- The logotype has two versions, by background, both all in one color (pages 11 and 14 of the
+  vector): `logo-on-light.svg` (purple) and `logo-on-dark.svg` (white). The header shows one of
+  them by scheme, with no script.
 - The colors inside these SVG files are the art's own. They are the exception to the token rule
   above: they are not written in the stylesheets or templates.
 - License: the logo, the symbol, the visual identity and the name "Autonomia Tecnológica" are all

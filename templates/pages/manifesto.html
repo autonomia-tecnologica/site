@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block content %}
+<article class="prose" data-page="manifesto">
+<h1>{{ title }}</h1>
+<ol>
+{% for point in points %}<li id="ponto-{{ loop.index }}">{{ point }}</li>
+{% endfor %}
+</ol>
+</article>
+{% endblock %}

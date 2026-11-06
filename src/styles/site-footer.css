@@ -1,21 +1,36 @@
 /*
- * Site footer: muted text under a thin rule, with the same touch targets as the header.
+ * Site footer: muted text under a thin rule, one line under the other, always at the
+ * bottom of the page (the body is a column and main takes the free height).
  */
 
 .site-footer {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
   align-items: center;
-  gap: 0.5rem 1.5rem;
-  padding: 1rem;
+  gap: 0.25rem;
+  padding: 1.25rem max(32px, calc((100% - 1280px) / 2));
   border-block-start: 1px solid var(--color-border);
   background: var(--color-bg);
   color: var(--color-text-muted);
+  font-size: 0.875rem;
+  line-height: 1.4;
+  text-align: center;
 }
 
+.site-footer p {
+  margin: 0;
+}
+
+/* Touch target of 44 px without loosening the lines: the padding is taken back by the negative margin. */
 .site-footer a {
-  display: inline-flex;
-  align-items: center;
-  min-block-size: 44px;
+  display: inline-block;
   min-inline-size: 44px;
+  padding-block: 0.8rem;
+  margin-block: -0.8rem;
+}
+
+@media (max-width: 780px) {
+  .site-footer {
+    padding-inline: 20px;
+  }
 }
