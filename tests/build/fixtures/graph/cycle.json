@@ -1,0 +1,11 @@
+{
+  "version": 3,
+  "nodes": [
+    {"id": 3, "title": "Três", "description": "Nó do ciclo.", "status": "registrado", "refs": [],
+     "strong_dependencies": [5], "weak_dependencies": []},
+    {"id": 5, "title": "Cinco", "description": "Nó do ciclo.", "status": "registrado", "refs": [],
+     "strong_dependencies": [], "weak_dependencies": [3]},
+    {"id": 7, "title": "Sete", "description": "Fora do ciclo.", "status": "registrado", "refs": [],
+     "strong_dependencies": [], "weak_dependencies": []}
+  ]
+}
