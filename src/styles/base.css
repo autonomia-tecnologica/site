@@ -74,10 +74,11 @@ a:hover {
   transform: none;
 }
 
-/* Titles for screen readers only: the language list's title (the site name is already in the header)
-   and the articles page's h1, since the page shows article titles as h2. */
+/* Text for screen readers only: the language list's title (the site name is already in the header),
+   the articles page's h1 (the page shows article titles as h2) and the "opens in a new tab" note of links. */
 #root-title,
-#feed-title {
+#feed-title,
+[data-sr-only] {
   position: absolute;
   inline-size: 1px;
   block-size: 1px;

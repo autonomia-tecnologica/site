@@ -4,8 +4,8 @@
 <h1 class="hero__title">{{ t("home.hero.title_start") }} <span class="hero__accent">{{ t("home.hero.title_accent") }}</span></h1>
 <p class="hero__lead">{{ t("home.hero.lead_before") }} {% if manifesto_href %}<a href="{{ manifesto_href }}">{{ t("home.hero.lead_link") }}</a>{% else %}{{ t("home.hero.lead_link") }}{% endif %}{{ t("home.hero.lead_after") }}</p>
 <div>
-<a class="button button--pill" href="{{ channels.substack }}" target="_blank" rel="noopener">{{ t("home.hero.substack") }}</a>
-<a class="button button--pill" href="{{ channels.youtube }}" target="_blank" rel="noopener">{{ t("home.hero.youtube") }}</a>
+<a class="button button--pill" href="{{ channels.substack }}" target="_blank" rel="noopener">{{ t("home.hero.substack") }}<span data-sr-only>, {{ t("ui.new_tab") }}</span></a>
+<a class="button button--pill" href="{{ channels.youtube }}" target="_blank" rel="noopener">{{ t("home.hero.youtube") }}<span data-sr-only>, {{ t("ui.new_tab") }}</span></a>
 </div>
 {% include "symbol.html" %}
 </section>

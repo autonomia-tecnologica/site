@@ -47,7 +47,8 @@
     "menu_close": "Fechar menu",
     "feed": "RSS",
     "index": "Índice",
-    "footnote_back": "Voltar ao texto"
+    "footnote_back": "Voltar ao texto",
+    "new_tab": "abre em nova aba"
   },
   "footer": {
     "credits": {

@@ -86,15 +86,24 @@ def open_links_in_new_tab(self, tokens, idx, options, env) -> str:
     if token.meta.get("unlinked"):
         return ""
     href = token.attrGet("href") or ""
-    if not href.startswith("#"):
+    new_tab = not href.startswith("#")
+    if new_tab:
         token.attrSet("target", "_blank")
         token.attrSet("rel", "noopener")
+    env.setdefault("open_links", []).append(new_tab)  # read back by close_link, in document order
     return self.renderToken(tokens, idx, options, env)
 
 
 def close_link(self, tokens, idx, options, env) -> str:
-    """Closing tag of a link, or nothing when the link was unlinked."""
-    return "" if tokens[idx].meta.get("unlinked") else "</a>"
+    """Closing tag of a link, or nothing when the link was unlinked.
+
+    A link that opens in a new tab ends with a hidden note for screen readers.
+    """
+    if tokens[idx].meta.get("unlinked"):
+        return ""
+    new_tab = env["open_links"].pop() if env.get("open_links") else False
+    note = f'<span data-sr-only>, {escapeHtml(env["new_tab_label"])}</span>' if new_tab else ""
+    return f"{note}</a>"
 
 
 def resolve_content_links(state) -> None:
@@ -365,6 +374,7 @@ def render_body(
         "locale": locale,
         "index_label": lookup(strings, "ui.index", locale) if article else None,
         "footnote_back_label": lookup(strings, "ui.footnote_back", locale),
+        "new_tab_label": lookup(strings, "ui.new_tab", locale),
     }
     html = markdown.render(entry.body, env)
     warnings.extend(env["warnings"])

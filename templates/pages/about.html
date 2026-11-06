@@ -9,7 +9,7 @@
 {% endif %}<h2>{{ person.name }}</h2>
 <p>{{ person.bio }}</p>
 <ul>
-{% for profile in person.profiles %}<li><a href="{{ profile.href }}" rel="me noopener" target="_blank">{{ profile.label }}</a></li>
+{% for profile in person.profiles %}<li><a href="{{ profile.href }}" rel="me noopener" target="_blank">{{ profile.label }}<span data-sr-only>, {{ t("ui.new_tab") }}</span></a></li>
 {% endfor %}
 </ul>
 </article>

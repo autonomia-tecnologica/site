@@ -21,7 +21,10 @@ ROUTES = {("page", "pt_BR", "manifesto"): "/pt-br/manifesto/", ("article", "pt_B
 
 def render(text: str):
     """HTML and warnings of one Markdown text, with the routes of two articles."""
-    env = {"where": "content/test.md", "warnings": [], "routes": ROUTES, "locale": "pt_BR"}
+    env = {
+        "where": "content/test.md", "warnings": [], "routes": ROUTES, "locale": "pt_BR",
+        "new_tab_label": "abre em nova aba",
+    }
     return make_markdown().render(text, env), env["warnings"]
 
 
@@ -29,7 +32,7 @@ class ShortLinkTest(unittest.TestCase):
     def test_article_link_becomes_the_url_of_the_article(self):
         html, warnings = render("Veja [a introdução](artigo:2).")
         self.assertIn('href="/pt-br/artigos/2/"', html)
-        self.assertIn(">a introdução</a>", html)
+        self.assertIn(">a introdução<span data-sr-only>", html)
         self.assertEqual(warnings, [])
 
     def test_page_link_and_point_anchor(self):
@@ -54,6 +57,11 @@ class ShortLinkTest(unittest.TestCase):
         self.assertNotIn("<a", html)
         self.assertIn("Veja o grafo depois.", html)
         self.assertEqual(len(warnings), 1)
+
+    def test_new_tab_links_end_with_a_note_for_screen_readers(self):
+        html, _ = render("[site](https://example.com) e [ponto](#ponto-1) e [outro](artigo:1)")
+        self.assertEqual(html.count("<span data-sr-only>, abre em nova aba</span></a>"), 2)
+        self.assertNotIn('#ponto-1" target', html)
 
     def test_external_links_are_left_alone(self):
         html, _ = render("[site](https://example.com) e [mail](mailto:a@b.c)")

@@ -119,8 +119,8 @@
 {% block content %}{% endblock %}
 </main>
 <footer class="site-footer">
-{% if seo.feed_href %}<p><a href="{{ seo.feed_href }}" target="_blank" rel="noopener">{{ t("ui.feed") }}</a></p>{% endif %}
-<p>{{ t("footer.credits.identity") }} <a href="{{ identity_author_url }}" target="_blank" rel="noopener">{{ t("footer.credits.identity_name") }}</a></p>
+{% if seo.feed_href %}<p><a href="{{ seo.feed_href }}" target="_blank" rel="noopener">{{ t("ui.feed") }}<span data-sr-only>, {{ t("ui.new_tab") }}</span></a></p>{% endif %}
+<p>{{ t("footer.credits.identity") }} <a href="{{ identity_author_url }}" target="_blank" rel="noopener">{{ t("footer.credits.identity_name") }}<span data-sr-only>, {{ t("ui.new_tab") }}</span></a></p>
 <p>{{ t("footer.credits.layout") }}</p>
 <p>{{ t("footer.credits.texts") }}</p>
 </footer>
