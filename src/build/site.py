@@ -34,6 +34,7 @@ from .config import (
     PERSON_PROFILES,
     PERSON_SAME_AS,
     PHOTO_FILE_NAME,
+    SCRIPTS,
     STYLESHEETS,
 )
 from .content import BuildError, Entry
@@ -46,6 +47,7 @@ TEXT_INSET = 12.0
 TEXT_BASELINE = 0.7
 SCHEMA_CONTEXT = "https://schema.org"
 STYLES_DIR = "src/styles"
+SCRIPTS_DIR = "src/scripts"
 FONTS_DIR = "src/assets/fonts"
 LOGO_DIR = "src/assets/logo"
 LOGO_SUFFIXES = (".svg", ".png")
@@ -909,6 +911,11 @@ def build_site(
         if not source.is_file():
             raise BuildError(f"{STYLES_DIR}/{name} is listed in STYLESHEETS but does not exist")
         copies[f"styles/{name}"] = source
+    for name in SCRIPTS:
+        source = root / SCRIPTS_DIR / name
+        if not source.is_file():
+            raise BuildError(f"{SCRIPTS_DIR}/{name} is listed in SCRIPTS but does not exist")
+        copies[f"scripts/{name}"] = source
     for source in sorted((root / FONTS_DIR).iterdir()):
         if source.is_file():
             copies[f"assets/fonts/{source.name}"] = source

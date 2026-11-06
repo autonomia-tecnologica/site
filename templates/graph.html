@@ -45,7 +45,7 @@
 <h2>{{ node.title }}</h2>
 <p>{{ node.description }}</p>
 {% if node.trail %}<h3>{{ t("graph.trail") }}</h3>
-<ol>
+<ol data-trail>
 {% for step in node.trail %}<li><a href="#{{ step.id }}">{{ step.title }}</a>, {% if step.required %}{{ t("graph.trail_required") }}{% else %}{{ t("graph.trail_recommended") }}{% endif %}</li>
 {% endfor %}
 </ol>
@@ -69,4 +69,6 @@
 </div>
 </div>
 </article>
+{% endblock %}
+{% block scripts %}<script src="/scripts/graph.js" defer></script>
 {% endblock %}

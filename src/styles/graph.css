@@ -2,6 +2,11 @@
  * The knowledge graph page: the SVG canvas, the list by levels, the topic panel and the bottom sheet.
  * Selectors are data-* attributes and elements only; colors come from tokens.css.
  * Rationale: see DESIGN.md.
+ *
+ * A topic is open in one of two ways. With graph.js the script sets data-current on it (and
+ * data-js on the canvas, which turns the fragment off as a selector: after pushState the fragment
+ * no longer matches :target, so a stale :target must not open a topic). Without script the
+ * fragment decides, through :target alone.
  */
 
 /* Below 780 px the list is the main view and the canvas is hidden. */
@@ -14,17 +19,19 @@
   display: none;
 }
 
-/* A topic shows only when its id is the fragment of the URL. */
+/* A topic shows only when it is open. */
 article[data-node] {
   display: none;
 }
 
-article[data-node]:target {
+article[data-node][data-current],
+[data-graph]:not([data-js]) article[data-node]:target {
   display: block;
 }
 
 /* Below 780 px the open topic is a bottom sheet over the list. */
-[data-panel]:has(article[data-node]:target) {
+[data-panel]:has(article[data-node][data-current]),
+[data-graph]:not([data-js]) [data-panel]:has(article[data-node]:target) {
   position: fixed;
   inset-inline: 0;
   inset-block-end: 0;
@@ -36,7 +43,8 @@ article[data-node]:target {
   border-block-start: 1px solid var(--color-border);
 }
 
-[data-panel]:not(:has(article[data-node]:target)) {
+[data-graph][data-js] [data-panel]:not(:has(article[data-node][data-current])),
+[data-graph]:not([data-js]) [data-panel]:not(:has(article[data-node]:target)) {
   display: none;
 }
 
@@ -85,6 +93,23 @@ article[data-node]:target {
   stroke-dasharray: 4 3;
 }
 
+/* The study trail of the open topic: its boxes in accent, with a badge that gives the order. */
+[data-node-link][data-trail] [data-node-box] {
+  stroke: var(--color-accent);
+  stroke-width: 3;
+}
+
+[data-trail-badge="dot"] {
+  fill: var(--color-accent);
+}
+
+[data-trail-badge="label"] {
+  fill: var(--color-on-accent);
+  font-family: var(--font-text);
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
 [data-node-link] {
   cursor: pointer;
 }
@@ -111,7 +136,8 @@ article[data-node]:target {
     gap: 2rem;
   }
 
-  [data-graph]:has(article[data-node]:target) {
+  [data-graph]:has(article[data-node][data-current]),
+  [data-graph]:not([data-js]):has(article[data-node]:target) {
     grid-template-columns: minmax(0, 1fr) minmax(18rem, 26rem);
   }
 
@@ -131,7 +157,8 @@ article[data-node]:target {
     white-space: nowrap;
   }
 
-  [data-panel]:has(article[data-node]:target) {
+  [data-panel]:has(article[data-node][data-current]),
+  [data-graph]:not([data-js]) [data-panel]:has(article[data-node]:target) {
     position: sticky;
     inset: auto auto auto auto;
     inset-block-start: 0;
@@ -147,7 +174,8 @@ article[data-node]:target {
     transition: stroke 150ms ease-out, stroke-width 150ms ease-out;
   }
 
-  [data-panel] article[data-node]:target {
+  [data-panel] article[data-node][data-current],
+  [data-graph]:not([data-js]) [data-panel] article[data-node]:target {
     animation: graph-topic-in 200ms ease-out;
   }
 }

@@ -19,6 +19,11 @@ STYLESHEETS = (
     "site-footer.css",
 )
 
+# Scripts of src/scripts/, copied to /scripts/. Only the page that uses one links it (see its template).
+SCRIPTS = (
+    "graph.js",
+)
+
 # Pages of the site, in navigation order (Articles sits between them, see nav_items in site.py).
 # Each page is templates/pages/<key>.html; its text is in i18n/<locale>.json under pages.<key>,
 # and its URL segment under url.pages.<key>. The home page is templates/index.html.

@@ -19,7 +19,7 @@
 {% if seo.og_locale %}<meta property="og:locale" content="{{ seo.og_locale }}">
 {% endif %}{% for block in seo.json_ld %}<script type="application/ld+json">{{ block|tojson }}</script>
 {% endfor %}<script>
-/* Theme button: the only script of the site. Without it the page follows the system
+/* Theme button: the only inline script of the site (graph.js is loaded by the graph page). Without it the page follows the system
    and the button stays hidden. The saved choice is applied before the page paints;
    with no saved choice the page follows the system. */
 (function () {
@@ -124,5 +124,6 @@
 <p>{{ t("footer.credits.layout") }}</p>
 <p>{{ t("footer.credits.texts") }}</p>
 </footer>
+{% block scripts %}{% endblock %}
 </body>
 </html>
