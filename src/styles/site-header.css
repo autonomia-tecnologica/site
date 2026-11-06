@@ -1,7 +1,7 @@
 /*
  * Site header: the logotype, the main navigation, the locale choice (only with
- * more than one locale) and the theme button, in one row. Sticky at the top,
- * on a solid --color-bg bar: no divider line, no shadow, no blur.
+ * more than one locale) and the theme button, in one row. Not fixed: it scrolls
+ * away with the page. Solid --color-bg bar: no divider line, no shadow, no blur.
  * Measures follow the approved mockup: a centered column of min(1280px, 100% - 64px),
  * 58 px of top padding (28 px on phones), the logotype 65 px high (48 px on phones).
  * Each link and button is at least 44 px high, for touch.
@@ -11,8 +11,7 @@
  */
 
 .site-header {
-  position: sticky;
-  top: 0;
+  position: relative;
   z-index: 2;
   display: flex;
   align-items: center;
