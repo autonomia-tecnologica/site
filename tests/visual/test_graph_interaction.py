@@ -235,11 +235,89 @@ class GraphInteractionTest(unittest.TestCase):
         self.assertEqual(desktop.eval_on_selector("[data-canvas-wrap]", "e => getComputedStyle(e).display"), "block")
         mobile = self.open(PAGE + "#3", viewport=MOBILE)
         self.assertEqual(mobile.eval_on_selector("[data-panel]", "e => getComputedStyle(e).position"), "fixed")
-        self.assertEqual(mobile.eval_on_selector("[data-canvas-wrap]", "e => getComputedStyle(e).display"), "none")
+        self.assertEqual(mobile.eval_on_selector("[data-canvas-wrap]", "e => getComputedStyle(e).display"), "block")
         mobile.screenshot(path=str(OUT / "mobile-light-topic-3.png"), full_page=True)
-        self.open(PAGE + "#3", viewport=DESKTOP, scheme="dark").screenshot(
+        self.open(PAGE + "#3", viewport=MOBILE, scheme="dark").screenshot(
+            path=str(OUT / "mobile-dark-topic-3.png"), full_page=True,
+        )
+        self.open(PAGE, viewport=MOBILE).screenshot(path=str(OUT / "mobile-light-canvas.png"), full_page=True)
+        self.open(PAGE, viewport=MOBILE, scheme="dark").screenshot(
+            path=str(OUT / "mobile-dark-canvas.png"), full_page=True,
+        )
+        self.open(PAGE, viewport=DESKTOP, scheme="dark").screenshot(
             path=str(OUT / "desktop-dark-topic-3.png"), full_page=True,
         )
+
+    def touch(self, page, kind, pointer_id, x, y):
+        page.evaluate(
+            """([kind, id, x, y]) => document.querySelector('[data-canvas-wrap]').dispatchEvent(
+                new PointerEvent(kind, {pointerId: id, pointerType: 'touch', isPrimary: id === 1,
+                    clientX: x, clientY: y, bubbles: true}))""",
+            [kind, pointer_id, x, y],
+        )
+
+    def test_mobile_canvas_is_shown_at_natural_size_and_scrolls_sideways(self):
+        page = self.open(PAGE, viewport=MOBILE)
+        self.assertTrue(page.locator("[data-canvas-wrap]").is_visible())
+        self.assertTrue(page.locator("[data-list]").is_visible())
+        # Natural size: the canvas is drawn at its width attribute, wider than the phone.
+        drawn = page.eval_on_selector("[data-canvas]", "e => [e.getAttribute('width'), e.getBoundingClientRect().width]")
+        self.assertAlmostEqual(float(drawn[0]), drawn[1], delta=1)
+        self.assertGreater(drawn[1], MOBILE["width"])
+        self.assertGreater(page.eval_on_selector("[data-canvas-wrap]", "e => e.scrollWidth - e.clientWidth"), 0)
+        self.assertLessEqual(page.evaluate("document.documentElement.scrollWidth"), MOBILE["width"])
+        self.assertEqual(page.eval_on_selector("[data-canvas-wrap]", "e => getComputedStyle(e).touchAction"), "none")
+
+    def test_mobile_open_node_is_scrolled_above_the_sheet(self):
+        page = self.open(PAGE, viewport=MOBILE)
+        self.link(page, 3).click()
+        self.assertEqual(self.visible_topics(page), ["3"])
+        box = page.eval_on_selector(
+            "[data-node-link][href='#3'] [data-node-box]",
+            """e => {
+                const r = e.getBoundingClientRect();
+                const wrap = e.closest('[data-canvas-wrap]').getBoundingClientRect();
+                return {top: r.top, bottom: r.bottom, left: r.left, right: r.right,
+                    wrapLeft: wrap.left, wrapRight: wrap.right,
+                    sheet: document.querySelector('[data-panel]').getBoundingClientRect().top};
+            }""",
+        )
+        self.assertGreaterEqual(box["top"], 0)
+        self.assertLessEqual(box["bottom"], box["sheet"])
+        self.assertGreaterEqual(box["left"], box["wrapLeft"])
+        self.assertLessEqual(box["right"], box["wrapRight"])
+        self.assertEqual(page.evaluate("document.activeElement.tagName.toLowerCase()"), "h2")
+
+    def test_mobile_one_finger_pans_the_canvas(self):
+        page = self.open(PAGE, viewport=MOBILE)
+        self.assertGreater(page.eval_on_selector("[data-canvas-wrap]", "e => e.scrollWidth - e.clientWidth"), 50)
+        self.touch(page, "pointerdown", 1, 200, 300)
+        self.touch(page, "pointermove", 1, 150, 200)
+        self.touch(page, "pointerup", 1, 150, 200)
+        self.assertEqual(page.eval_on_selector("[data-canvas-wrap]", "e => e.scrollLeft"), 50)
+        self.assertEqual(page.evaluate("window.scrollY"), 100)
+        self.assertEqual(page.evaluate(STORAGE_COUNT), [0, 0])
+
+    def test_mobile_pinch_zooms_the_canvas_up_to_three_times(self):
+        page = self.open(PAGE, viewport=MOBILE)
+        base = float(page.eval_on_selector("[data-canvas]", "e => e.getAttribute('width')"))
+        self.touch(page, "pointerdown", 1, 100, 300)
+        self.touch(page, "pointerdown", 2, 200, 300)
+        self.touch(page, "pointermove", 2, 250, 300)  # 100 px apart to 150 px: 1.5x
+        self.assertAlmostEqual(float(page.eval_on_selector("[data-canvas]", "e => e.getAttribute('width')")), base * 1.5, delta=1)
+        self.touch(page, "pointermove", 2, 300, 300)  # 200 px: 2x
+        self.assertAlmostEqual(float(page.eval_on_selector("[data-canvas]", "e => e.getAttribute('width')")), base * 2, delta=1)
+        self.touch(page, "pointermove", 2, 1000, 300)  # clamped at 3x
+        self.assertAlmostEqual(float(page.eval_on_selector("[data-canvas]", "e => e.getAttribute('width')")), base * 3, delta=1)
+        self.touch(page, "pointerup", 2, 1000, 300)
+        self.touch(page, "pointerup", 1, 100, 300)
+        self.assertEqual(page.evaluate(STORAGE_COUNT), [0, 0])
+
+    def test_mobile_without_script_scrolls_without_zoom(self):
+        page = self.open(PAGE, viewport=MOBILE, script=False)
+        self.assertTrue(page.locator("[data-canvas-wrap]").is_visible())
+        self.assertEqual(page.eval_on_selector("[data-canvas-wrap]", "e => getComputedStyle(e).touchAction"), "auto")
+        self.assertGreater(page.eval_on_selector("[data-canvas-wrap]", "e => e.scrollWidth - e.clientWidth"), 0)
 
     def test_without_script_the_fragment_still_opens_a_topic(self):
         page = self.open(PAGE + "#3", script=False)

@@ -93,9 +93,16 @@ plain titles.
 - Dependencies: a strong edge is solid, a weak one is dashed (`--color-dep-strong`,
   `--color-dep-weak`). The shape carries the difference too, not only the color.
 - A topic with no refs has a thin dashed border. A topic with refs has a solid one.
-- Below 780 px the list by levels is the main view and the canvas is hidden. From 780 px the
-  canvas is the main view, and the open topic sits in a panel beside it. The list stays for
-  screen readers only.
+- Below 780 px the canvas is shown at its natural size, so the labels keep their size, and it
+  scrolls sideways in its own box while the page scrolls down. The list by levels comes below
+  it as the alternative. From 780 px the canvas is the main view, and the open topic sits in a
+  panel beside it. The list stays for screen readers only.
+- With script, on a touch screen one finger pans the canvas and two fingers zoom it (from 1x to
+  3x, around the point between the fingers). `touch-action: none` is set only then, so the
+  browser does not pan or zoom under the finger. Without script the canvas scrolls natively and
+  does not zoom.
+- Below 780 px the open topic is a bottom sheet over the page. Script scrolls the topic's node
+  into the space above the sheet, so the sheet never covers the node the reader chose.
 - A topic opens by `data-current`, which `graph.js` sets, with `pushState` for the URL. Without
   script the fragment decides, through `:target` alone (the fallback). Below 780 px it is a bottom
   sheet.

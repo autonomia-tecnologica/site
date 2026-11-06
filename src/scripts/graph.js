@@ -1,7 +1,8 @@
 /*
  * Knowledge graph page: a topic opens without the jump of the fragment, the URL keeps the history,
  * the study trail is marked on the canvas with its order, and the focus follows the topic.
- * Without this script the page works by the fragment alone (see graph.css).
+ * On a touch screen one finger pans the canvas and two fingers zoom it; the open topic's node is
+ * scrolled above the bottom sheet. Without this script the page works by the fragment alone (see graph.css).
  * Nothing is stored in the browser: nodeState() is the extension point for the next version.
  */
 (function () {
@@ -9,9 +10,20 @@
 
   var SVG_NS = "http://www.w3.org/2000/svg";
   var BADGE_RADIUS = 9;
+  var MAX_ZOOM = 3;
   var ARROW_STEPS = { ArrowRight: 1, ArrowDown: 1, ArrowLeft: -1, ArrowUp: -1 };
   var graph = document.querySelector("[data-graph]");
   if (!graph) { return; }
+
+  var canvas = graph.querySelector("[data-canvas]");
+  var canvasWrap = graph.querySelector("[data-canvas-wrap]");
+  var baseWidth = canvas ? Number(canvas.getAttribute("width")) : 0;
+  var baseHeight = canvas ? Number(canvas.getAttribute("height")) : 0;
+  var zoom = 1;
+
+  // The touch pointers on the canvas (id to last position) and the distance between two of them.
+  var touches = {};
+  var pinchDistance = 0;
 
   // The link that opened the open topic: Esc gives the focus back to it.
   var opener = null;
@@ -51,6 +63,60 @@
 
   function nodeLinks() {
     return Array.prototype.slice.call(graph.querySelectorAll("[data-node-link]"));
+  }
+
+  // The box of the topic's node on the canvas, or null when there is none.
+  function canvasBox(id) {
+    var links = nodeLinks();
+    for (var i = 0; i < links.length; i++) {
+      if (links[i].getAttribute("href") === "#" + id) { return links[i].querySelector("[data-node-box]"); }
+    }
+    return null;
+  }
+
+  // Below 780 px the open topic is a bottom sheet over the page. Its node must not stay under the
+  // sheet: the canvas scrolls sideways to it and the page scrolls down to it, into the space above the sheet.
+  function revealNode(topic) {
+    var panel = graph.querySelector("[data-panel]");
+    var box = canvasBox(topic.id);
+    if (!box || !panel || !canvasWrap || canvasWrap.getClientRects().length === 0) { return; }
+    if (getComputedStyle(panel).position !== "fixed") { return; }
+
+    var wrap = canvasWrap.getBoundingClientRect();
+    var rect = box.getBoundingClientRect();
+    if (rect.left < wrap.left || rect.right > wrap.right) {
+      canvasWrap.scrollLeft += rect.left + rect.width / 2 - (wrap.left + canvasWrap.clientWidth / 2);
+    }
+    rect = box.getBoundingClientRect();
+    var sheetTop = panel.getBoundingClientRect().top;
+    if (rect.top < 0 || rect.bottom > sheetTop) {
+      window.scrollBy(0, rect.top + rect.height / 2 - sheetTop / 2);
+    }
+  }
+
+  // Touch only: one finger pans, and the canvas scrolls by the page's own position for vertical moves.
+  function panCanvas(dx, dy) {
+    canvasWrap.scrollLeft -= dx;
+    window.scrollBy(0, -dy);
+  }
+
+  // Zooms to the next factor (between 1 and MAX_ZOOM), keeping the point (x, y) under the fingers.
+  function zoomCanvas(next, x, y) {
+    next = Math.min(MAX_ZOOM, Math.max(1, next));
+    if (next === zoom) { return; }
+    var before = canvas.getBoundingClientRect();
+    var fx = (x - before.left) / before.width;
+    var fy = (y - before.top) / before.height;
+    zoom = next;
+    canvas.setAttribute("width", String(baseWidth * zoom));
+    canvas.setAttribute("height", String(baseHeight * zoom));
+    var after = canvas.getBoundingClientRect();
+    canvasWrap.scrollLeft += after.left + fx * after.width - x;
+    window.scrollBy(0, after.top + fy * after.height - y);
+  }
+
+  function touchList() {
+    return Object.keys(touches).map(function (id) { return touches[id]; });
   }
 
   function clearTrail() {
@@ -142,6 +208,7 @@
     if (options.push && window.location.hash !== "#" + topic.id) {
       window.history.pushState(null, "", "#" + topic.id);
     }
+    revealNode(topic);
     if (options.focus) {
       var title = topic.querySelector("h2");
       title.setAttribute("tabindex", "-1");
@@ -228,6 +295,44 @@
         markTrail(current);
       }
     });
+  }
+
+  if (canvas && canvasWrap) {
+    canvasWrap.addEventListener("pointerdown", function (event) {
+      if (event.pointerType !== "touch") { return; }
+      touches[event.pointerId] = { x: event.clientX, y: event.clientY };
+      var active = touchList();
+      if (active.length === 2) { pinchDistance = Math.hypot(active[0].x - active[1].x, active[0].y - active[1].y); }
+    });
+
+    // Move and release are read on the document: a pointer that leaves the canvas keeps its gesture.
+    document.addEventListener("pointermove", function (event) {
+      var point = touches[event.pointerId];
+      if (!point) { return; }
+      var previousX = point.x;
+      var previousY = point.y;
+      point.x = event.clientX;
+      point.y = event.clientY;
+      var active = touchList();
+      if (active.length === 1) {
+        panCanvas(point.x - previousX, point.y - previousY);
+      } else if (active.length === 2) {
+        var distance = Math.hypot(active[0].x - active[1].x, active[0].y - active[1].y);
+        if (pinchDistance > 0 && distance > 0) {
+          zoomCanvas(zoom * distance / pinchDistance,
+            (active[0].x + active[1].x) / 2, (active[0].y + active[1].y) / 2);
+        }
+        pinchDistance = distance;
+      }
+    });
+
+    var release = function (event) {
+      if (!touches[event.pointerId]) { return; }
+      delete touches[event.pointerId];
+      pinchDistance = 0;
+    };
+    document.addEventListener("pointerup", release);
+    document.addEventListener("pointercancel", release);
   }
 
   graph.setAttribute("data-js", "");
