@@ -90,7 +90,10 @@
   },
   "seo": {
     "llms": {
-      "pages": "Páginas"
+      "pages": "Páginas",
+      "graph": "Grafo",
+      "graph_data": "Grafo em JSON",
+      "graph_data_summary": "Tópicos e ligações do grafo de conhecimento, em JSON. Licença CC BY 4.0."
     }
   },
   "pages": {

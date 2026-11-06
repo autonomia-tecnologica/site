@@ -43,6 +43,8 @@ from .graph import EXTERNAL_LINK_PREFIX, GRAPH_RELATIVE_PATH, Graph, compute_tra
 from .graph_layout import LINE_HEIGHT, Layout, layout_graph
 
 OUTPUT_DIR = "dist"
+# Name of the published copy of the graph data, written next to the graph page.
+GRAPH_FILE_NAME = "grafo.json"
 # Text in a graph box: inset from the left edge, and the baseline of a line inside its line height.
 TEXT_INSET = 12.0
 TEXT_BASELINE = 0.7
@@ -864,6 +866,24 @@ def build_site(
             key=lambda e: (e.meta["date"], int(e.key)),
             reverse=True,
         )
+        if graph.nodes:
+            # The graph page and its published copy of grafo.json, next to the page.
+            graph_url = routes[("graph", locale, "")]
+            llms_sections.append({
+                "heading": lookup(strings, "seo.llms.graph", locale),
+                "entries": [
+                    {
+                        "title": lookup(strings, "nav.graph", locale),
+                        "href": absolute(graph_url),
+                        "summary": lookup(strings, "pages.graph.summary", locale),
+                    },
+                    {
+                        "title": lookup(strings, "seo.llms.graph_data", locale),
+                        "href": absolute(graph_url + GRAPH_FILE_NAME),
+                        "summary": lookup(strings, "seo.llms.graph_data_summary", locale),
+                    },
+                ],
+            })
         if articles:
             llms_sections.append({
                 "heading": lookup(strings, "nav.articles", locale),
@@ -924,6 +944,10 @@ def build_site(
             copies[f"assets/logo/{source.name}"] = source
     if photo is not None:
         copies[f"{PHOTO_DIR}/{PHOTO_FILE_NAME}"] = photo
+    # The published copy of the graph data, next to the graph page, only when that page exists.
+    if graph.nodes:
+        for locale in active:
+            copies[routes[("graph", locale, "")].strip("/") + "/" + GRAPH_FILE_NAME] = root / GRAPH_RELATIVE_PATH
     broken = find_broken_links(texts, set(copies), site_url)
     if broken:
         raise BuildError("broken internal links:\n  " + "\n  ".join(broken))

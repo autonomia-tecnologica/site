@@ -85,5 +85,8 @@ no entry for the photo; do not copy the photo into the repository.
 
 - Code: [MIT](LICENSE).
 - Content (articles, pages and `grafo.json`): [CC BY 4.0](LICENSE-CONTENT).
+  The build publishes a copy of `grafo.json` at `/<lang>/grafo/grafo.json` (for `pt-br`, at
+  `/pt-br/grafo/grafo.json`), only when the graph has topics. It is the same file, under the same
+  license; `llms.txt` lists it.
 - Photo, logo, visual identity and the name "Autonomia Tecnológica" are **all rights reserved**.
   They are not covered by the licenses above and may not be reused without permission.
