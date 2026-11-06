@@ -27,7 +27,6 @@ FIELD_TYPES = {
     "summary": str,
     "author": str,
     "substack_url": str,
-    "graph_id": str,
 }
 REQUIRED_FIELDS = ("title", "date", "updated", "summary", "author")
 

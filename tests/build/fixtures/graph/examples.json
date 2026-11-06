@@ -1,0 +1,68 @@
+{
+  "version": 3,
+  "nodes": [
+    {
+      "id": 1,
+      "title": "LLM",
+      "description": "Modelo de linguagem de grande porte.",
+      "status": "registrado",
+      "refs": [
+        {"title": "Verbete de LLM", "link": "artigo:1", "type": "artigo"},
+        {"title": "Vídeo sobre LLM", "link": "https://example.org/llm", "type": "vídeo"}
+      ],
+      "strong_dependencies": [2, 6],
+      "weak_dependencies": [],
+      "domain": ["agent", 1]
+    },
+    {
+      "id": 2,
+      "title": "Matriz (matemática)",
+      "description": "Arranjo retangular de números.",
+      "status": "registrado",
+      "refs": [],
+      "strong_dependencies": [],
+      "weak_dependencies": [3],
+      "domain": ["agent", 1]
+    },
+    {
+      "id": 3,
+      "title": "Cálculo",
+      "description": "Estudo de limites, derivadas e integrais.",
+      "status": "registrado",
+      "refs": [],
+      "strong_dependencies": [4],
+      "weak_dependencies": [],
+      "domain": ["agent", 1]
+    },
+    {
+      "id": 4,
+      "title": "Álgebra",
+      "description": "Estruturas e operações algébricas.",
+      "status": "registrado",
+      "refs": [],
+      "strong_dependencies": [],
+      "weak_dependencies": [],
+      "domain": ["agent", 1]
+    },
+    {
+      "id": 5,
+      "title": "Sandbox de LLM",
+      "description": "Isolamento da execução da LLM do restante do sistema.",
+      "status": "registrado",
+      "refs": [],
+      "strong_dependencies": [1],
+      "weak_dependencies": [6],
+      "domain": ["agent", 1]
+    },
+    {
+      "id": 6,
+      "title": "Linux",
+      "description": "Sistema operacional de código aberto.",
+      "status": "registrado",
+      "refs": [],
+      "strong_dependencies": [],
+      "weak_dependencies": [],
+      "domain": ["agent", 1]
+    }
+  ]
+}
