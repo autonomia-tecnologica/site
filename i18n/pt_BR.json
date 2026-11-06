@@ -1,7 +1,7 @@
 {
   "site": {
     "name": "Autonomia Tecnológica",
-    "description": "[a escrever]"
+    "description": "Autonomia Tecnológica é um projeto em português brasileiro com manifesto, artigos e um grafo de conhecimento para entender tecnologia e escolher as ferramentas com consciência, em vez de ser consumido por elas."
   },
   "locale": {
     "name": "Português (Brasil)"
@@ -14,7 +14,8 @@
       "lead_link": "nosso manifesto",
       "lead_after": " e nos siga no Substack e no YouTube.",
       "substack": "Substack",
-      "youtube": "YouTube"
+      "youtube": "YouTube",
+      "github": "GitHub"
     }
   },
   "nav": {
@@ -65,16 +66,16 @@
     "name": "Rafael Correia"
   },
   "graph": {
-    "trail": "[a escrever]",
-    "trail_required": "[a escrever]",
-    "trail_recommended": "[a escrever]",
-    "trail_filter": "[a escrever]",
-    "trail_filter_strong": "[a escrever]",
-    "trail_filter_all": "[a escrever]",
-    "leads_to": "[a escrever]",
-    "refs": "[a escrever]",
-    "no_content": "[a escrever]",
-    "canvas": "[a escrever]"
+    "trail": "Trilha de estudo",
+    "trail_required": "necessário",
+    "trail_recommended": "recomendado",
+    "trail_filter": "Mostrar na trilha",
+    "trail_filter_strong": "Só os necessários",
+    "trail_filter_all": "Todos",
+    "leads_to": "Leva a",
+    "refs": "Referências",
+    "no_content": "Ainda não há conteúdo para este tópico.",
+    "canvas": "Mapa do grafo de conhecimento"
   },
   "about": {
     "photo_alt": "Rafael Correia sorrindo, com fundo roxo",
@@ -99,11 +100,11 @@
   },
   "pages": {
     "home": {
-      "summary": "[a escrever]"
+      "summary": "Entender tecnologia para não ser consumido por ela: manifesto, artigos e grafo de conhecimento do Autonomia Tecnológica, em português brasileiro."
     },
     "manifesto": {
       "title": "Manifesto",
-      "summary": "[a escrever]",
+      "summary": "Os princípios do Autonomia Tecnológica: o trabalho humano como fonte de valor, conhecimento público, dependências assumidas com justificativa e IA como ferramenta, com limites definidos por pessoas.",
       "points": [
         "O trabalho humano é vital para se criar valor.",
         "Humanos como agentes, não espectadores.",
@@ -123,11 +124,11 @@
     },
     "about": {
       "title": "Quem somos",
-      "summary": "[a escrever]"
+      "summary": "Quem faz o Autonomia Tecnológica: Rafael Correia, profissional de tecnologia desde 2010, com foco em segurança de aplicações e segurança ofensiva."
     },
     "graph": {
       "title": "[a escrever]",
-      "summary": "[a escrever]"
+      "summary": "Mapa de tópicos de tecnologia e das ligações entre eles, com trilha de estudo e referências em cada tópico. Os dados estão em JSON, sob CC BY 4.0."
     }
   }
 }

@@ -6,3 +6,4 @@ __pycache__/
 /.venv/
 /tests/visual/out/
 /.env
+/.claude/worktrees/

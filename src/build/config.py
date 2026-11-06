@@ -49,6 +49,7 @@ PERSON_PROFILES = {
 CHANNEL_PROFILES = {
     "substack": "https://substack.com/@faelcorreia",
     "youtube": "https://www.youtube.com/@autonomiatecnologica",
+    "github": "https://github.com/autonomia-tecnologica/",
 }
 
 # Profiles of the author, used as schema.org sameAs links in the JSON-LD.

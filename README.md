@@ -4,6 +4,7 @@ Source of the static site of Autonomia Tecnológica. Content is written in Brazi
 the only locale for now.
 
 The philosophy of the work environment is in `~/Codes/ambiente-de-trabalho` (`docs/pt_BR/filosofia.md`).
+The work environment philosophy lives in `ambiente-de-trabalho` and takes precedence over this repo.
 The Autonomia Tecnológica manifesto lives primarily on this site (`i18n/pt_BR.json`, `pages.manifesto.points`).
 
 Status: early. The build turns articles (Markdown with YAML front matter) and page templates into static HTML, with translated
@@ -89,7 +90,7 @@ no entry for the photo; do not copy the photo into the repository.
 - Code: [MIT](LICENSE).
 - Content (articles, pages and `grafo.json`): [CC BY 4.0](LICENSE-CONTENT).
   The build publishes a copy of `grafo.json` at `/<lang>/grafo/grafo.json` (for `pt-br`, at
-  `/pt-br/grafo/grafo.json`), only when the graph has topics. It is the same file, under the same
+  `/pt-br/grafo/grafo.json`), even while the graph has no topics. It is the same file, under the same
   license; `llms.txt` lists it.
 - Photo, logo, visual identity and the name "Autonomia Tecnológica" are **all rights reserved**.
-  They are not covered by the licenses above and may not be reused without permission.
+  They are not covered by the licenses above and may not be reused without permission. See [TRADEMARK.md](TRADEMARK.md).
