@@ -16,7 +16,13 @@ from src.build.content import BuildError  # noqa: E402
 from src.build.site import find_broken_links, make_markdown  # noqa: E402
 
 SITE = "http://localhost"
-ROUTES = {("page", "pt_BR", "manifesto"): "/pt-br/manifesto/", ("article", "pt_BR", "1"): "/pt-br/artigos/1/", ("article", "pt_BR", "2"): "/pt-br/artigos/2/"}
+ROUTES = {
+    ("page", "pt_BR", "manifesto"): "/pt-br/manifesto/",
+    ("article", "pt_BR", "1"): "/pt-br/artigos/1/",
+    ("article", "pt_BR", "2"): "/pt-br/artigos/2/",
+    ("graph", "pt_BR", "1"): "/pt-br/grafo/#1",
+    ("graph", "pt_BR", "3"): "/pt-br/grafo/#3",
+}
 
 
 def render(text: str):
@@ -52,11 +58,14 @@ class ShortLinkTest(unittest.TestCase):
         with self.assertRaisesRegex(BuildError, "unknown link kind"):
             render("[x](foo:1)")
 
-    def test_graph_link_keeps_the_text_and_warns(self):
-        html, warnings = render("Veja [o grafo](grafo:5) depois.")
-        self.assertNotIn("<a", html)
-        self.assertIn("Veja o grafo depois.", html)
-        self.assertEqual(len(warnings), 1)
+    def test_graph_link_points_to_the_topic_in_the_graph_page(self):
+        html, warnings = render("Veja [o nó](grafo:3) depois.")
+        self.assertIn('href="/pt-br/grafo/#3"', html)
+        self.assertEqual(warnings, [])
+
+    def test_graph_link_to_a_missing_topic_stops_the_build(self):
+        with self.assertRaisesRegex(BuildError, "grafo:5"):
+            render("[x](grafo:5)")
 
     def test_new_tab_links_end_with_a_note_for_screen_readers(self):
         html, _ = render("[site](https://example.com) e [ponto](#ponto-1) e [outro](artigo:1)")

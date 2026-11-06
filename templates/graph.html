@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block content %}
+<article class="prose" data-page="graph">
+<h1>{{ title }}</h1>
+<ol>
+{% for level in levels %}<li>
+<ul>
+{% for topic in level %}<li><a href="#{{ topic.id }}">{{ topic.title }}</a></li>
+{% endfor %}
+</ul>
+</li>
+{% endfor %}
+</ol>
+{% if independent %}<h2>{{ t("graph.independent") }}</h2>
+<ul>
+{% for topic in independent %}<li><a href="#{{ topic.id }}">{{ topic.title }}</a></li>
+{% endfor %}
+</ul>
+{% endif %}
+{% for node in nodes %}<article id="{{ node.id }}" data-node>
+<h2>{{ node.title }}</h2>
+<p>{{ node.description }}</p>
+{% if node.trail %}<h3>{{ t("graph.trail") }}</h3>
+<ol>
+{% for step in node.trail %}<li><a href="#{{ step.id }}">{{ step.title }}</a>, {% if step.required %}{{ t("graph.trail_required") }}{% else %}{{ t("graph.trail_recommended") }}{% endif %}</li>
+{% endfor %}
+</ol>
+{% endif %}
+{% if node.leads_to %}<h3>{{ t("graph.leads_to") }}</h3>
+<ul>
+{% for target in node.leads_to %}<li><a href="#{{ target.id }}">{{ target.title }}</a></li>
+{% endfor %}
+</ul>
+{% endif %}
+<h3>{{ t("graph.refs") }}</h3>
+{% if node.refs_by_type %}{% for group in node.refs_by_type %}<h4>{{ group.type }}</h4>
+<ul>
+{% for ref in group.refs %}<li><a href="{{ ref.href }}"{% if ref.external %} target="_blank" rel="noopener"{% endif %}>{{ ref.title }}{% if ref.external %}<span data-sr-only>, {{ t("ui.new_tab") }}</span>{% endif %}</a></li>
+{% endfor %}
+</ul>
+{% endfor %}{% else %}<p>{{ t("graph.no_content") }}</p>
+{% endif %}
+</article>
+{% endfor %}
+</article>
+{% endblock %}

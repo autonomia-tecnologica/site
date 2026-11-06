@@ -29,7 +29,8 @@
       "about": "quem-somos",
       "consulting": "consultoria",
       "manifesto": "manifesto"
-    }
+    },
+    "graph": "grafo"
   },
   "format": {
     "date": "%d/%m/%Y"
@@ -60,6 +61,15 @@
   },
   "person": {
     "name": "Rafael Correia"
+  },
+  "graph": {
+    "trail": "[a escrever]",
+    "trail_required": "[a escrever]",
+    "trail_recommended": "[a escrever]",
+    "leads_to": "[a escrever]",
+    "refs": "[a escrever]",
+    "no_content": "[a escrever]",
+    "independent": "[a escrever]"
   },
   "about": {
     "photo_alt": "Rafael Correia sorrindo, com fundo roxo",
@@ -105,6 +115,10 @@
     },
     "about": {
       "title": "Quem somos",
+      "summary": "[a escrever]"
+    },
+    "graph": {
+      "title": "[a escrever]",
       "summary": "[a escrever]"
     }
   }

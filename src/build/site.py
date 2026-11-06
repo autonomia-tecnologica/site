@@ -37,6 +37,8 @@ from .config import (
     STYLESHEETS,
 )
 from .content import BuildError, Entry
+from .graph import EXTERNAL_LINK_PREFIX, GRAPH_RELATIVE_PATH, Graph, compute_trail, dependencies, read_graph
+from .graph_layout import layout_graph
 
 OUTPUT_DIR = "dist"
 SCHEMA_CONTEXT = "https://schema.org"
@@ -47,9 +49,10 @@ LOGO_SUFFIXES = (".svg", ".png")
 WIKI_LINK_RE = re.compile(r"\[\[([^\[\]\n]+)\]\]")
 MANIFESTO_PAGE = "manifesto"
 # Short links of the text, [text](kind:id). Each kind is the route kind of the page it points to.
-CONTENT_LINK_KINDS = {"artigo": "article", "pagina": "page"}
+# grafo:<id> points to the entry of a node in the knowledge graph page.
+CONTENT_LINK_KINDS = {"artigo": "article", "pagina": "page", "grafo": "graph"}
 # Kinds that are reserved but do not exist yet: the text stays, without a link, and the build warns.
-CONTENT_LINK_PENDING = {"grafo"}
+CONTENT_LINK_PENDING: set[str] = set()
 EXTERNAL_SCHEMES = {"http", "https", "mailto", "tel"}
 SCHEME_RE = re.compile(r"^([a-z][a-z0-9+.-]*):(.*)$")
 FOOTNOTE_CLASS_RE = re.compile(r' class="footnote[\w-]*"')
@@ -109,8 +112,9 @@ def close_link(self, tokens, idx, options, env) -> str:
 def resolve_content_links(state) -> None:
     """Turns [text](kind:id) into a link to the page of that kind and id, in the language of the text.
 
-    artigo:12 points to article 12; pagina:manifesto to the page with that key; a #fragment may follow the id. A missing target or an unknown kind stops the build;
-    a kind that is reserved but not built yet (grafo) keeps the text and logs a warning.
+    artigo:12 points to article 12; pagina:manifesto to the page with that key; grafo:3 to the entry of node 3
+    in the graph page. A #fragment may follow the id. A missing target or an unknown kind stops the build;
+    a kind that is reserved but not built yet keeps the text and logs a warning.
     """
     env = state.env
     routes, locale = env.get("routes"), env.get("locale")
@@ -439,6 +443,64 @@ def about_profiles(strings: dict, locale: str) -> list[dict]:
     ]
 
 
+def dependents_of(graph: Graph) -> dict[int, list[int]]:
+    """For each node, the ids of the nodes that depend on it, strong or weak, in id order."""
+    result: dict[int, list[int]] = {node_id: [] for node_id in graph.nodes}
+    for node in graph.nodes.values():
+        for dependency in dependencies(node):
+            result[dependency].append(node.id)
+    return result
+
+
+def graph_levels(graph: Graph) -> tuple[list[list[dict]], list[dict]]:
+    """The topics that have an edge, by level (the layer of the layout), then the independent ones.
+
+    Each topic is {"id", "title"}. The levels are in study order, and the topics of a level in layout order.
+    """
+    layout = layout_graph(graph)
+    levels: dict[int, list[dict]] = {}
+    for placed in sorted(layout.nodes, key=lambda node: (node.layer, node.y)):
+        levels.setdefault(placed.layer, []).append({"id": placed.id, "title": placed.title})
+    independent = [{"id": placed.id, "title": placed.title} for placed in layout.independent]
+    return [levels[layer] for layer in sorted(levels)], independent
+
+
+def graph_link(link: str, where: str, locale: str, routes: dict) -> tuple[str, bool]:
+    """Where a ref of the graph leads, and whether it leaves the site. An internal target must exist."""
+    if link.startswith(EXTERNAL_LINK_PREFIX):
+        return link, True
+    kind, _, rest = link.partition(":")
+    key, _, fragment = rest.partition("#")
+    url = routes.get((CONTENT_LINK_KINDS[kind], locale, key))
+    if url is None:
+        raise BuildError(f"{where}: link {link!r} points to a page that does not exist")
+    return (f"{url}#{fragment}" if fragment else url), False
+
+
+def graph_nodes(graph: Graph, locale: str, routes: dict) -> list[dict]:
+    """The topics of the graph page, by id: text, study trail, topics that lead to it, and refs by type."""
+    dependents = dependents_of(graph)
+    nodes = []
+    for node in graph.nodes.values():
+        trail = compute_trail(graph, node.id)
+        groups: dict[str, list[dict]] = {}
+        for ref in node.refs:
+            href, external = graph_link(ref.link, f"node {node.id}", locale, routes)
+            groups.setdefault(ref.type, []).append({"title": ref.title, "href": href, "external": external})
+        nodes.append({
+            "id": node.id,
+            "title": node.title,
+            "description": node.description,
+            "trail": [
+                {"id": step, "title": graph.nodes[step].title, "required": step in trail.required}
+                for step in trail.order if step != node.id
+            ],
+            "leads_to": [{"id": target, "title": graph.nodes[target].title} for target in dependents[node.id]],
+            "refs_by_type": [{"type": ref_type, "refs": refs} for ref_type, refs in groups.items()],
+        })
+    return nodes
+
+
 def build_site(
     root: Path,
     locales: dict[str, dict],
@@ -477,6 +539,15 @@ def build_site(
         for key in PAGES:
             segment = lookup(locales[locale], f"url.pages.{key}", locale)
             add(("page", locale, key), f"/{slug(locale)}/{segment}/")
+    # The knowledge graph: no page when it has no topics. Each topic has its own route, a fragment of the page.
+    graph = read_graph(root / GRAPH_RELATIVE_PATH, {e.key for e in entries}, set(PAGES))
+    if graph.nodes:
+        for locale in active:
+            segment = lookup(locales[locale], "url.graph", locale)
+            add(("graph", locale, ""), f"/{slug(locale)}/{segment}/")
+            for node_id in graph.nodes:
+                routes[("graph", locale, str(node_id))] = f"{routes[('graph', locale, '')]}#{node_id}"
+        graph_by_level, graph_independent = graph_levels(graph)
 
     env = Environment(
         loader=FileSystemLoader(root / "templates"),
@@ -720,6 +791,25 @@ def build_site(
                     site_name=site_name,
                     locale=locale,
                     hreflang=alternates("page", key),
+                    feed=feed,
+                ),
+            )
+        if graph.nodes:
+            title = lookup(strings, "pages.graph.title", locale)
+            render(
+                "graph.html", locale, ("graph", locale, ""), locale_tag,
+                alternates=alternates("graph", ""),
+                title=title,
+                levels=graph_by_level,
+                independent=graph_independent,
+                nodes=graph_nodes(graph, locale, routes),
+                seo=page_seo(
+                    title=title,
+                    description=lookup(strings, "pages.graph.summary", locale),
+                    url=routes[("graph", locale, "")],
+                    site_name=site_name,
+                    locale=locale,
+                    hreflang=alternates("graph", ""),
                     feed=feed,
                 ),
             )
