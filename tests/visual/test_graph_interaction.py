@@ -247,6 +247,10 @@ class GraphInteractionTest(unittest.TestCase):
         self.open(PAGE, viewport=DESKTOP, scheme="dark").screenshot(
             path=str(OUT / "desktop-dark-topic-3.png"), full_page=True,
         )
+        self.open(PAGE, viewport=DESKTOP).screenshot(path=str(OUT / "desktop-light-canvas.png"), full_page=True)
+        self.open(PAGE, viewport=DESKTOP, scheme="dark").screenshot(
+            path=str(OUT / "desktop-dark-canvas.png"), full_page=True,
+        )
 
     def touch(self, page, kind, pointer_id, x, y):
         page.evaluate(
@@ -259,7 +263,8 @@ class GraphInteractionTest(unittest.TestCase):
     def test_mobile_canvas_is_shown_at_natural_size_and_scrolls_sideways(self):
         page = self.open(PAGE, viewport=MOBILE)
         self.assertTrue(page.locator("[data-canvas-wrap]").is_visible())
-        self.assertTrue(page.locator("[data-list]").is_visible())
+        # The list of topics is for screen readers only: 1 px, clipped out of the view.
+        self.assertEqual(page.eval_on_selector("[data-list]", "e => e.getBoundingClientRect().width"), 1)
         # Natural size: the canvas is drawn at its width attribute, wider than the phone.
         drawn = page.eval_on_selector("[data-canvas]", "e => [e.getAttribute('width'), e.getBoundingClientRect().width]")
         self.assertAlmostEqual(float(drawn[0]), drawn[1], delta=1)
@@ -289,7 +294,8 @@ class GraphInteractionTest(unittest.TestCase):
         self.assertEqual(page.evaluate("document.activeElement.tagName.toLowerCase()"), "h2")
 
     def test_mobile_one_finger_pans_the_canvas(self):
-        page = self.open(PAGE, viewport=MOBILE)
+        # A shorter phone so that the page itself scrolls down: the canvas alone is shorter than the screen.
+        page = self.open(PAGE, viewport={"width": MOBILE["width"], "height": 500})
         self.assertGreater(page.eval_on_selector("[data-canvas-wrap]", "e => e.scrollWidth - e.clientWidth"), 50)
         self.touch(page, "pointerdown", 1, 200, 300)
         self.touch(page, "pointermove", 1, 150, 200)

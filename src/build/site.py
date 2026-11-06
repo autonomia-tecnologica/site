@@ -457,22 +457,10 @@ def dependents_of(graph: Graph) -> dict[int, list[int]]:
     return result
 
 
-def graph_levels(layout: Layout) -> tuple[list[list[dict]], list[dict]]:
-    """The topics that have an edge, by level (the layer of the layout), then the independent ones.
-
-    Each topic is {"id", "title"}. The levels are in study order, and the topics of a level in layout order.
-    """
-    levels: dict[int, list[dict]] = {}
-    for placed in sorted(layout.nodes, key=lambda node: (node.layer, node.y)):
-        levels.setdefault(placed.layer, []).append({"id": placed.id, "title": placed.title})
-    independent = [{"id": placed.id, "title": placed.title} for placed in layout.independent]
-    return [levels[layer] for layer in sorted(levels)], independent
-
-
 def graph_canvas(layout: Layout, graph: Graph) -> dict:
     """The SVG of the graph: canvas size, the topics that have an edge, and the edges.
 
-    The independent topics are not drawn; they are listed below the canvas. Text is placed in lines
+    The independent topics are not drawn; the list under the canvas names them. Text is placed in lines
     of the layout, centred in the box. A topic with no refs gets a thin dashed border (has_refs False).
     """
     nodes = []
@@ -588,7 +576,6 @@ def build_site(
             for node_id in graph.nodes:
                 routes[("graph", locale, str(node_id))] = f"{routes[('graph', locale, '')]}#{node_id}"
         layout = layout_graph(graph)
-        graph_by_level, graph_independent = graph_levels(layout)
         graph_svg = graph_canvas(layout, graph)
 
     env = Environment(
@@ -843,8 +830,6 @@ def build_site(
                 "graph.html", locale, ("graph", locale, ""), locale_tag,
                 alternates=alternates("graph", ""),
                 title=title,
-                levels=graph_by_level,
-                independent=graph_independent,
                 canvas=graph_svg,
                 nodes=graph_nodes(graph, locale, routes),
                 seo=page_seo(

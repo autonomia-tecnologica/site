@@ -1,5 +1,5 @@
 /*
- * The knowledge graph page: the SVG canvas, the list by levels, the topic panel and the bottom sheet.
+ * The knowledge graph page: the SVG canvas, the list for screen readers, the topic panel and the bottom sheet.
  * Selectors are data-* attributes and elements only; colors come from tokens.css.
  * Rationale: see DESIGN.md.
  *
@@ -10,7 +10,7 @@
  */
 
 /* The canvas is at its natural size and scrolls in both directions by itself: sideways in its box,
-   down the page. Below 780 px the list by levels comes below it, as the alternative. */
+   down the page. */
 [data-graph] {
   position: relative;
   display: block;
@@ -55,6 +55,17 @@ article[data-node][data-current],
 [data-graph][data-js] [data-panel]:not(:has(article[data-node][data-current])),
 [data-graph]:not([data-js]) [data-panel]:not(:has(article[data-node]:target)) {
   display: none;
+}
+
+/* The list of topics is for screen readers only, with or without script: the canvas links and the
+   panel reach the same topics for everyone else. */
+[data-list] {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
 }
 
 [data-canvas] {
@@ -166,16 +177,6 @@ article[data-node][data-current],
   [data-graph]:has(article[data-node][data-current]),
   [data-graph]:not([data-js]):has(article[data-node]:target) {
     grid-template-columns: minmax(0, 1fr) minmax(18rem, 26rem);
-  }
-
-  /* The list stays for screen readers only: the canvas links reach the same topics. */
-  [data-list] {
-    position: absolute;
-    inline-size: 1px;
-    block-size: 1px;
-    overflow: hidden;
-    clip-path: inset(50%);
-    white-space: nowrap;
   }
 
   [data-panel]:has(article[data-node][data-current]),

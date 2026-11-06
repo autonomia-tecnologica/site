@@ -1,5 +1,5 @@
 """The knowledge graph page: one entry per topic, the study trail, the topics that lead to it, the
-refs, the list by levels, and the grafo: links of the text.
+refs, the list of topics for screen readers, and the grafo: links of the text.
 
 Each test builds a small site in a temporary folder (the templates, the i18n files and the styles
 are linked from the repository), so the repository's dist/ is never touched. A broken internal
@@ -109,12 +109,14 @@ class GraphPageTest(unittest.TestCase):
         self.assertIn(no_content, article_of(self.page, 2))
         self.assertNotIn(no_content, article_of(self.page, 1))
 
-    def test_levels_list_the_linked_topics_and_then_the_independent_ones(self):
-        before_entries = self.page.split('<article id="1" data-node>')[0]
-        for node_id in (1, 2, 3, 5, 6):
-            self.assertIn(f'<a href="#{node_id}">', before_entries)
-        self.assertIn('<a href="#4">Álgebra</a></li>', before_entries)
-        self.assertIn(self.strings["graph"]["independent"], before_entries)
+    def test_list_has_every_topic_once_without_levels(self):
+        # The list is for screen readers: one flat list of links, the independent topics included.
+        list_html = self.page.split('<div data-list>')[1].split('</div>')[0]
+        self.assertEqual(re.findall(r'<a href="#(\d+)">', list_html), ["1", "2", "3", "4", "5", "6"])
+        self.assertEqual(list_html.count("<ul>"), 1)
+        self.assertNotIn("<ol", list_html)
+        self.assertNotIn("<h2", list_html)
+        self.assertNotIn("data-independent", self.page)
 
     def test_dependents_are_the_inverse_of_the_dependencies(self):
         graph = parse_graph(json.loads(FIXTURE.read_text(encoding="utf-8")), {"1"}, {"manifesto"})

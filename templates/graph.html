@@ -22,24 +22,11 @@
 </svg>
 </div>
 {% endif %}<div data-list>
-<ol>
-{% for level in levels %}<li>
 <ul>
-{% for topic in level %}<li><a href="#{{ topic.id }}">{{ topic.title }}</a></li>
-{% endfor %}
-</ul>
-</li>
-{% endfor %}
-</ol>
-</div>
-{% if independent %}<div data-independent>
-<h2>{{ t("graph.independent") }}</h2>
-<ul>
-{% for topic in independent %}<li><a href="#{{ topic.id }}">{{ topic.title }}</a></li>
+{% for topic in nodes %}<li><a href="#{{ topic.id }}">{{ topic.title }}</a></li>
 {% endfor %}
 </ul>
 </div>
-{% endif %}
 <div data-panel>
 <fieldset data-trail-filter hidden>
 <legend>{{ t("graph.trail_filter") }}</legend>
