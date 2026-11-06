@@ -3,6 +3,9 @@
 Source of the static site of Autonomia Tecnológica. Content is written in Brazilian Portuguese (`pt_BR`),
 the only locale for now.
 
+The philosophy of the work environment is in `~/Codes/ambiente-de-trabalho` (`docs/pt_BR/filosofia.md`).
+The Autonomia Tecnológica manifesto lives primarily on this site (`i18n/pt_BR.json`, `pages.manifesto.points`).
+
 Status: early. The build turns articles (Markdown with YAML front matter) and page templates into static HTML, with translated
 URLs read from `i18n/<locale>.json`, and reports pending text markers (`[a escrever]`).
 

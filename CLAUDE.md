@@ -2,6 +2,9 @@
 
 Project rules for the Autonomia Tecnológica site. Global rules (`~/.claude/CLAUDE.md`) also apply.
 
+The work environment philosophy is in `~/Codes/ambiente-de-trabalho` (`docs/pt_BR/filosofia.md`). The manifesto
+lives primarily on this site, in `i18n/pt_BR.json` (`pages.manifesto.points`); other repos only cite it.
+
 ## Text
 
 - Text for humans is never generated. No model writes articles, pages, bios, manifesto points or
