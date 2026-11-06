@@ -1,0 +1,165 @@
+/*
+ * The knowledge graph page: the SVG canvas, the list by levels, the topic panel and the bottom sheet.
+ * Selectors are data-* attributes and elements only; colors come from tokens.css.
+ * Rationale: see DESIGN.md.
+ */
+
+/* Below 780 px the list is the main view and the canvas is hidden. */
+[data-graph] {
+  position: relative;
+  display: block;
+}
+
+[data-canvas-wrap] {
+  display: none;
+}
+
+/* A topic shows only when its id is the fragment of the URL. */
+article[data-node] {
+  display: none;
+}
+
+article[data-node]:target {
+  display: block;
+}
+
+/* Below 780 px the open topic is a bottom sheet over the list. */
+[data-panel]:has(article[data-node]:target) {
+  position: fixed;
+  inset-inline: 0;
+  inset-block-end: 0;
+  z-index: 1;
+  max-block-size: 60vh;
+  overflow-y: auto;
+  padding: 1rem;
+  background-color: var(--color-surface);
+  border-block-start: 1px solid var(--color-border);
+}
+
+[data-panel]:not(:has(article[data-node]:target)) {
+  display: none;
+}
+
+[data-canvas] {
+  display: block;
+}
+
+[data-canvas] text {
+  fill: var(--color-text);
+  font-family: var(--font-text);
+  font-size: 0.875rem;
+}
+
+/* Edges: strong is solid, weak is dashed, so the two differ by shape as well as by color. */
+[data-edge] {
+  fill: none;
+  stroke-width: 2;
+}
+
+[data-edge="strong"] {
+  stroke: var(--color-dep-strong);
+}
+
+[data-edge="weak"] {
+  stroke: var(--color-dep-weak);
+  stroke-dasharray: 6 4;
+}
+
+[data-arrow="strong"] {
+  fill: var(--color-dep-strong);
+}
+
+[data-arrow="weak"] {
+  fill: var(--color-dep-weak);
+}
+
+/* Topics: a thin dashed border when the topic has no refs yet. */
+[data-node-box] {
+  fill: var(--color-surface);
+  stroke: var(--color-border-strong);
+  stroke-width: 1.5;
+}
+
+[data-node-box][data-refs="no"] {
+  stroke-width: 1;
+  stroke-dasharray: 4 3;
+}
+
+[data-node-link] {
+  cursor: pointer;
+}
+
+[data-node-link]:hover [data-node-box] {
+  stroke: var(--color-link-hover);
+}
+
+[data-node-link]:focus-visible [data-node-box] {
+  stroke: var(--color-focus);
+  stroke-width: 3;
+}
+
+@media (min-width: 780px) {
+  [data-page="graph"] {
+    max-inline-size: 90rem;
+  }
+
+  /* The canvas is the main view, with the panel beside it when a topic is open. */
+  [data-graph] {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    align-items: start;
+    gap: 2rem;
+  }
+
+  [data-graph]:has(article[data-node]:target) {
+    grid-template-columns: minmax(0, 1fr) minmax(18rem, 26rem);
+  }
+
+  [data-canvas-wrap] {
+    display: block;
+    max-inline-size: 100%;
+    overflow-x: auto;
+  }
+
+  /* The list stays for screen readers only: the canvas links reach the same topics. */
+  [data-list] {
+    position: absolute;
+    inline-size: 1px;
+    block-size: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  [data-panel]:has(article[data-node]:target) {
+    position: sticky;
+    inset: auto auto auto auto;
+    inset-block-start: 0;
+    max-block-size: 100vh;
+    padding: 0 0 0 1.5rem;
+    border-block-start: 0;
+    border-inline-start: 1px solid var(--color-border);
+  }
+}
+
+@media (prefers-reduced-motion: no-preference) {
+  [data-node-box] {
+    transition: stroke 150ms ease-out, stroke-width 150ms ease-out;
+  }
+
+  [data-panel] article[data-node]:target {
+    animation: graph-topic-in 200ms ease-out;
+  }
+}
+
+@keyframes graph-topic-in {
+  from {
+    opacity: 0;
+    transform: translateY(0.5rem);
+  }
+
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}

@@ -20,6 +20,7 @@
   "nav": {
     "manifesto": "Manifesto",
     "articles": "Artigos",
+    "graph": "Grafo de Conhecimento",
     "consulting": "Consultoria",
     "about": "Quem somos"
   },
@@ -69,7 +70,8 @@
     "leads_to": "[a escrever]",
     "refs": "[a escrever]",
     "no_content": "[a escrever]",
-    "independent": "[a escrever]"
+    "independent": "[a escrever]",
+    "canvas": "[a escrever]"
   },
   "about": {
     "photo_alt": "Rafael Correia sorrindo, com fundo roxo",

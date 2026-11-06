@@ -1,3 +1,5 @@
 [
-  {"path": "index.html", "components": ["header", "main", "footer"]}
+  {"path": "index.html", "components": ["header", "main", "footer"]},
+  {"path": "pt-br/grafo/index.html", "components": ["[data-graph]"]},
+  {"path": "pt-br/grafo/index.html#3", "components": ["[data-panel]"]}
 ]

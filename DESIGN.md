@@ -86,6 +86,19 @@ plain titles.
 - Button error (`aria-invalid="true"`) is a dashed border, not red. The message text comes
   from i18n, next to the control.
 
+## Knowledge graph
+
+- The page (`graph.css`) selects only by `data-*` attributes and elements: no class, as in the
+  rest of the site.
+- Dependencies: a strong edge is solid, a weak one is dashed (`--color-dep-strong`,
+  `--color-dep-weak`). The shape carries the difference too, not only the color.
+- A topic with no refs has a thin dashed border. A topic with refs has a solid one.
+- Below 780 px the list by levels is the main view and the canvas is hidden. From 780 px the
+  canvas is the main view, and the open topic sits in a panel beside it. The list stays for
+  screen readers only.
+- A topic opens by its fragment (`:target`). Below 780 px it is a bottom sheet.
+- Transitions run only under `prefers-reduced-motion: no-preference`.
+
 ## Logo, symbol and favicon
 
 - The files in `src/assets/logo/` are converted from the official vector of the visual identity

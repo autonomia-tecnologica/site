@@ -38,9 +38,12 @@ from .config import (
 )
 from .content import BuildError, Entry
 from .graph import EXTERNAL_LINK_PREFIX, GRAPH_RELATIVE_PATH, Graph, compute_trail, dependencies, read_graph
-from .graph_layout import layout_graph
+from .graph_layout import LINE_HEIGHT, Layout, layout_graph
 
 OUTPUT_DIR = "dist"
+# Text in a graph box: inset from the left edge, and the baseline of a line inside its line height.
+TEXT_INSET = 12.0
+TEXT_BASELINE = 0.7
 SCHEMA_CONTEXT = "https://schema.org"
 STYLES_DIR = "src/styles"
 FONTS_DIR = "src/assets/fonts"
@@ -452,17 +455,52 @@ def dependents_of(graph: Graph) -> dict[int, list[int]]:
     return result
 
 
-def graph_levels(graph: Graph) -> tuple[list[list[dict]], list[dict]]:
+def graph_levels(layout: Layout) -> tuple[list[list[dict]], list[dict]]:
     """The topics that have an edge, by level (the layer of the layout), then the independent ones.
 
     Each topic is {"id", "title"}. The levels are in study order, and the topics of a level in layout order.
     """
-    layout = layout_graph(graph)
     levels: dict[int, list[dict]] = {}
     for placed in sorted(layout.nodes, key=lambda node: (node.layer, node.y)):
         levels.setdefault(placed.layer, []).append({"id": placed.id, "title": placed.title})
     independent = [{"id": placed.id, "title": placed.title} for placed in layout.independent]
     return [levels[layer] for layer in sorted(levels)], independent
+
+
+def graph_canvas(layout: Layout, graph: Graph) -> dict:
+    """The SVG of the graph: canvas size, the topics that have an edge, and the edges.
+
+    The independent topics are not drawn; they are listed below the canvas. Text is placed in lines
+    of the layout, centred in the box. A topic with no refs gets a thin dashed border (has_refs False).
+    """
+    nodes = []
+    for placed in layout.nodes:
+        first_baseline = placed.y + (placed.height - len(placed.lines) * LINE_HEIGHT) / 2 + LINE_HEIGHT * TEXT_BASELINE
+        nodes.append({
+            "id": placed.id,
+            "title": placed.title,
+            "x": f"{placed.x:g}",
+            "y": f"{placed.y:g}",
+            "width": f"{placed.width:g}",
+            "height": f"{placed.height:g}",
+            "has_refs": bool(graph.nodes[placed.id].refs),
+            "lines": [
+                {"x": f"{placed.x + TEXT_INSET:g}", "y": f"{first_baseline + index * LINE_HEIGHT:g}", "text": line}
+                for index, line in enumerate(placed.lines)
+            ],
+        })
+    edges = [
+        {"strength": edge.strength, "d": "M" + " L".join(f"{x:g} {y:g}" for x, y in edge.points)}
+        for edge in layout.edges
+    ]
+    min_x, min_y, width, height = layout.view_box
+    return {
+        "view_box": f"{min_x:g} {min_y:g} {width:g} {height:g}",
+        "width": f"{width:g}",
+        "height": f"{height:g}",
+        "nodes": nodes,
+        "edges": edges,
+    }
 
 
 def graph_link(link: str, where: str, locale: str, routes: dict) -> tuple[str, bool]:
@@ -547,7 +585,9 @@ def build_site(
             add(("graph", locale, ""), f"/{slug(locale)}/{segment}/")
             for node_id in graph.nodes:
                 routes[("graph", locale, str(node_id))] = f"{routes[('graph', locale, '')]}#{node_id}"
-        graph_by_level, graph_independent = graph_levels(graph)
+        layout = layout_graph(graph)
+        graph_by_level, graph_independent = graph_levels(layout)
+        graph_svg = graph_canvas(layout, graph)
 
     env = Environment(
         loader=FileSystemLoader(root / "templates"),
@@ -612,6 +652,7 @@ def build_site(
         candidates = (
             ("nav.manifesto", ("page", locale, "manifesto")),
             ("nav.articles", ("articles", locale, "")),
+            ("nav.graph", ("graph", locale, "")),
             ("nav.about", ("page", locale, "about")),
         )
         return [
@@ -802,6 +843,7 @@ def build_site(
                 title=title,
                 levels=graph_by_level,
                 independent=graph_independent,
+                canvas=graph_svg,
                 nodes=graph_nodes(graph, locale, routes),
                 seo=page_seo(
                     title=title,

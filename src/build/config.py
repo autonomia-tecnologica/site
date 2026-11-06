@@ -14,6 +14,7 @@ STYLESHEETS = (
     "card.css",
     "hero.css",
     "about.css",
+    "graph.css",
     "site-header.css",
     "site-footer.css",
 )

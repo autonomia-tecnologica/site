@@ -2,6 +2,26 @@
 {% block content %}
 <article class="prose" data-page="graph">
 <h1>{{ title }}</h1>
+<div data-graph>
+{% if canvas.nodes %}<div data-canvas-wrap>
+<svg data-canvas width="{{ canvas.width }}" height="{{ canvas.height }}" viewBox="{{ canvas.view_box }}" role="img" aria-label="{{ t('graph.canvas') }}">
+<defs>
+<marker id="arrow-strong" data-arrow="strong" viewBox="0 0 10 10" refX="10" refY="5" markerUnits="userSpaceOnUse" markerWidth="10" markerHeight="10" orient="auto"><path d="M0 0 L10 5 L0 10 Z"/></marker>
+<marker id="arrow-weak" data-arrow="weak" viewBox="0 0 10 10" refX="10" refY="5" markerUnits="userSpaceOnUse" markerWidth="10" markerHeight="10" orient="auto"><path d="M0 0 L10 5 L0 10 Z"/></marker>
+</defs>
+<g>
+{% for edge in canvas.edges %}<path data-edge="{{ edge.strength }}" d="{{ edge.d }}" marker-end="url(#arrow-{{ edge.strength }})"/>
+{% endfor %}</g>
+<g>
+{% for node in canvas.nodes %}<a href="#{{ node.id }}" data-node-link>
+<title>{{ node.title }}</title>
+<rect data-node-box data-refs="{{ 'yes' if node.has_refs else 'no' }}" x="{{ node.x }}" y="{{ node.y }}" width="{{ node.width }}" height="{{ node.height }}" rx="4"/>
+<text aria-hidden="true">{% for line in node.lines %}<tspan x="{{ line.x }}" y="{{ line.y }}">{{ line.text }}</tspan>{% endfor %}</text>
+</a>
+{% endfor %}</g>
+</svg>
+</div>
+{% endif %}<div data-list>
 <ol>
 {% for level in levels %}<li>
 <ul>
@@ -11,12 +31,16 @@
 </li>
 {% endfor %}
 </ol>
-{% if independent %}<h2>{{ t("graph.independent") }}</h2>
+</div>
+{% if independent %}<div data-independent>
+<h2>{{ t("graph.independent") }}</h2>
 <ul>
 {% for topic in independent %}<li><a href="#{{ topic.id }}">{{ topic.title }}</a></li>
 {% endfor %}
 </ul>
+</div>
 {% endif %}
+<div data-panel>
 {% for node in nodes %}<article id="{{ node.id }}" data-node>
 <h2>{{ node.title }}</h2>
 <p>{{ node.description }}</p>
@@ -42,5 +66,7 @@
 {% endif %}
 </article>
 {% endfor %}
+</div>
+</div>
 </article>
 {% endblock %}
