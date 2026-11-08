@@ -95,15 +95,17 @@ def find_photo(prod: bool, errors: list[str], warnings: list[str]) -> Path | Non
     return None
 
 
-def find_images(prod: bool, errors: list[str], warnings: list[str]) -> dict[str, Path]:
-    """Images of the Projects page, content/projects/<name>.png; every project needs one in production."""
+def find_images(warnings: list[str]) -> dict[str, Path]:
+    """Images of the Projects page, content/projects/<name>.png.
+
+    A project without an image is shown without one (a warning, in development and production)."""
     found = {}
     for name in PROJECTS:
         path = ROOT / PROJECTS_DIR / f"{name}.png"
         if path.is_file():
             found[name] = path
         else:
-            (errors if prod else warnings).append(f"missing image {PROJECTS_DIR}/{name}.png")
+            warnings.append(f"missing image {PROJECTS_DIR}/{name}.png")
     return found
 
 
@@ -118,7 +120,7 @@ def main() -> int:
     check_layout(errors)
     site_url = read_site_url(args.prod, errors)
     photo = find_photo(args.prod, errors, warnings)
-    images = find_images(args.prod, errors, warnings)
+    images = find_images(warnings)
     locales = load_locales(ROOT, errors) if not errors else {}
     entries = load_entries(ROOT, locales, errors) if not errors else []
     pending = find_pending_markers(ROOT)
