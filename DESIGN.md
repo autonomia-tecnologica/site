@@ -58,6 +58,10 @@ shader, no libraries). Approved by Rafael step by step; the light scheme is stil
 - **The AT symbol** on the home page is drawn into the water from its own SVG (a texture), bent
   and lit by the same waves, with 4-tap antialiasing. The SVG stays in the page as the fallback
   and is hidden only after the texture is ready.
+- **Screensaver:** the hidden `/screensaver/` page runs the same `water.js` (`data-screensaver` on
+  `<html>`) with the symbol centered at 62vmin, as a background for videos. One fixed level (about
+  2.1M pixels, 30 fps), no quality ladder and no giving up, no pointer wake or click waves (the cursor stays visible), and
+  reduced motion is ignored (it is recorded, not read). The SVG in that page only gives size and place.
 - **Text stays still.** Text and buttons are not moved or distorted: it made the page heavy.
   Header and footer have no fill while the water runs, so it shows through them.
 - **Grain:** a fixed film of fine noise (`body::after` in `base.css`, a tiled SVG, no script) over

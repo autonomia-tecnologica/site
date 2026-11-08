@@ -19,12 +19,11 @@ STYLESHEETS = (
     "site-footer.css",
 )
 
-# Scripts of src/scripts/, copied to /scripts/. water.js is linked by every page (base.html); the others only by the page that uses them.
+# Scripts of src/scripts/, copied to /scripts/. water.js is linked by every page (base.html) and by the hidden screensaver page; the others only by the page that uses them.
 SCRIPTS = (
     "water.js",
     "router.js",
     "graph.js",
-    "screensaver.js",
 )
 
 # Stylesheets of src/styles/ used only by the hidden screensaver page, copied to /styles/ but not linked elsewhere.

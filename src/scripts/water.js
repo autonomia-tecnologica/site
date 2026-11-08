@@ -19,6 +19,10 @@
     { pixels: 120000, fps: 20 },
     { pixels: 70000, fps: 15 }
   ];
+  // The hidden /screensaver page (a background for videos) runs the same water with the symbol centered: one fixed
+  // level at about 1080p, no ladder and no giving up, no pointer, and it ignores reduced motion (it is never read, only recorded).
+  var SAVER_PAGE = document.documentElement.hasAttribute("data-screensaver");
+  if (SAVER_PAGE) { LEVELS = [{ pixels: 2100000, fps: 30 }]; }
   var MAX_SCALE = 1;
   var SLOW = 1.4; // a level is too much when frames take this many times longer than they should
   var WINDOW = 20; // frames measured before judging a level
@@ -53,9 +57,9 @@
   }
 
   var root = document.documentElement;
-  var reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
+  var reduced = SAVER_PAGE ? { matches: false } : window.matchMedia("(prefers-reduced-motion: reduce)");
   var saver = navigator.connection && navigator.connection.saveData; // the visitor asked for less data and power
-  if (saver) { return; }
+  if (saver && !SAVER_PAGE) { return; }
   var canvas = document.createElement("canvas");
   canvas.setAttribute("aria-hidden", "true");
   var gl = canvas.getContext("webgl", { antialias: false, alpha: false, depth: false, stencil: false, powerPreference: "low-power" });
@@ -72,7 +76,7 @@
     "#endif",
     "uniform vec2 res; uniform float time;",
     "uniform vec4 wake[" + WAKES + "]; uniform vec4 click[" + CLICKS + "];", // x, y, age (negative: unused), amplitude
-    "uniform vec3 cBg, cGlow, cTint, cShade, cPale, cMark;",
+    "uniform vec3 cBg, cGlow, cTint, cShade, cPale, cMark; uniform vec2 glowAt;",
     "uniform sampler2D sym; uniform float symOn, symSize, symRot, symAlpha; uniform vec2 symC, clipLo, clipHi;",
     "",
     "// One group of small ripples traveling along a fixed direction: its slope at p (the height itself is never",
@@ -124,7 +128,7 @@
     "  float diffuse = dot(n, l) - l.z;",
     "  float glint = pow(max(dot(n, normalize(l + vec3(0.0, 0.0, 1.0))), 0.0), 70.0);",
     "  // the same glow as the page, behind where the symbol sits",
-    "  vec2 c = vec2(0.24 * res.x / m, -0.20 * res.y / m);",
+    "  vec2 c = glowAt * res / m;",
     "  float d = length(p - c) / (0.30 * res.x / m);",
     "  vec3 col = mix(cBg, cGlow, exp(-d * d * 1.6));",
     "  col = mix(col, cTint, clamp(diffuse * 3.0, 0.0, 1.0) * 0.22);",
@@ -171,9 +175,11 @@
   gl.vertexAttribPointer(position, 2, gl.FLOAT, false, 0, 0);
 
   var uniform = {};
-  ["res", "time", "wake", "click", "cBg", "cGlow", "cTint", "cShade", "cPale", "cMark", "sym", "symOn", "symSize", "symRot", "symAlpha", "symC", "clipLo", "clipHi"].forEach(function (name) {
+  ["res", "time", "wake", "click", "cBg", "cGlow", "cTint", "cShade", "cPale", "cMark", "sym", "symOn", "symSize", "symRot", "symAlpha", "symC", "clipLo", "clipHi", "glowAt"].forEach(function (name) {
     uniform[name] = gl.getUniformLocation(program, name);
   });
+
+  gl.uniform2f(uniform.glowAt, SAVER_PAGE ? 0 : 0.24, SAVER_PAGE ? 0 : -0.20); // where the page glow sits: behind the symbol
 
   // ---- Colors: read from the tokens, dulled toward their own gray. ----
   function token(name) {
@@ -241,7 +247,7 @@
   }
   var last = null; // the pointer's last wake: {x, y, at}
   function onMove(event) {
-    if (stopped || reduced.matches) { return; }
+    if (SAVER_PAGE || stopped || reduced.matches) { return; }
     var at = seconds();
     var point = place(event);
     if (last) {
@@ -256,7 +262,7 @@
     last = { x: point[0], y: point[1], at: at };
   }
   function onDown(event) {
-    if (stopped || reduced.matches) { return; }
+    if (SAVER_PAGE || stopped || reduced.matches) { return; }
     var point = place(event);
     clicks.set([point[0], point[1], 0, 1], nextClick * 4);
     clickBorn[nextClick] = seconds();
@@ -366,6 +372,7 @@
     var gap = stamp - lastStamp;
     lastStamp = stamp;
     if (warm > 0) { warm -= 1; return; }
+    if (SAVER_PAGE) { return; }
     if (gap > 250) { return; } // the tab was hidden or the page janked for another reason: not the water's fault
     gaps.push(gap);
     if (gaps.length < WINDOW) { return; }
