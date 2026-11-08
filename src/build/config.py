@@ -19,8 +19,9 @@ STYLESHEETS = (
     "site-footer.css",
 )
 
-# Scripts of src/scripts/, copied to /scripts/. Only the page that uses one links it (see its template).
+# Scripts of src/scripts/, copied to /scripts/. water.js is linked by every page (base.html); the others only by the page that uses them.
 SCRIPTS = (
+    "water.js",
     "graph.js",
     "screensaver.js",
 )

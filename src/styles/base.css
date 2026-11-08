@@ -27,6 +27,58 @@ body {
   line-height: 1.6;
 }
 
+/*
+ * Water: the canvas that src/scripts/water.js adds as the first child of the body. It sits behind
+ * everything, never takes a click, and fades in once it has drawn. Without script it does not exist.
+ * 100lvh keeps it from resizing when a phone's address bar comes and goes.
+ */
+body > canvas {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  inline-size: 100%;
+  block-size: 100lvh;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 1.6s ease;
+}
+
+body > canvas[data-ready] {
+  opacity: 1;
+}
+
+/* Once the water draws the home symbol itself, the SVG in the page steps aside (it stays as the fallback). */
+:root[data-water-mark] .hero__symbol {
+  visibility: hidden;
+}
+
+/* Header and footer have no fill while the water runs, so it shows through them (they keep --color-bg otherwise). */
+:root[data-water] .site-header,
+:root[data-water] .site-footer {
+  background: none;
+}
+
+/*
+ * Grain: a fixed film of fine speckles over the whole page while the water runs, so text and buttons are
+ * not perfectly clean against it. A tiled SVG noise (no script, no extra request, never takes a click).
+ */
+:root[data-water] body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 3;
+  pointer-events: none;
+  opacity: 0.28;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n' x='0' y='0' width='100%25' height='100%25'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  1.9 0 0 0 -0.78'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
+  background-size: 220px 220px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body > canvas {
+    transition: none;
+  }
+}
+
 h1,
 h2,
 h3,
