@@ -4,7 +4,7 @@
 <article class="prose" data-kind="article">
 <h1>{{ entry.title }}</h1>
 <p>{{ entry.summary }}</p>
-<p><a href="{{ entry.author.href }}" rel="author">{{ entry.author.name }}</a> · {{ t("ui.published") }} <time datetime="{{ entry.date }}">{{ entry.date_label }}</time>{% if entry.updated != entry.date %}, {{ t("ui.updated") }} <time datetime="{{ entry.updated }}">{{ entry.updated_label }}</time>{% endif %}</p>
+<p><a href="{{ entry.author.href }}" rel="author">{{ entry.author.name }}</a> · {{ t("ui.published") }} <time datetime="{{ entry.date }}">{{ entry.date_label }}</time>{% if entry.updated != entry.date %}, {{ t("ui.updated") }} <time datetime="{{ entry.updated }}">{{ entry.updated_label }}</time>{% endif %} · {{ entry.reading_time }}</p>
 {{ entry.body|safe }}
 {% if entry.graph_nodes %}
 <section data-kind="graph-nodes">

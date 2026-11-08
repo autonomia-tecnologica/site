@@ -41,7 +41,7 @@ from .config import (
     STANDALONE_STYLESHEETS,
     STYLESHEETS,
 )
-from .content import BuildError, Entry
+from .content import BuildError, Entry, reading_minutes
 from .graph import EXTERNAL_LINK_PREFIX, GRAPH_RELATIVE_PATH, Graph, compute_trail, dependencies, read_graph
 from .graph_layout import LINE_HEIGHT, Layout, layout_graph
 
@@ -307,6 +307,11 @@ def lookup_list(strings: dict, dotted: str, locale: str) -> list[str]:
     if not isinstance(node, list) or not all(isinstance(item, str) for item in node):
         raise BuildError(f"i18n/{locale}.json: text key {dotted!r} must be a list of strings")
     return node
+
+
+def reading_time_label(strings: dict, locale: str, body: str) -> str:
+    """The reading time of an article, with the minutes filled into ui.reading_time."""
+    return lookup(strings, "ui.reading_time", locale).format(minutes=reading_minutes(body))
 
 
 def slug(locale: str) -> str:
@@ -787,6 +792,7 @@ def build_site(
                         "date": e.meta["date"],
                         "date_label": e.meta["date"].strftime(lookup(strings, "format.date", locale)),
                         "author": {"name": e.meta["author"], "href": routes[("page", locale, ABOUT_PAGE)]},
+                        "reading_time": reading_time_label(strings, locale, e.body),
                         "body": render_body(markdown, e, root, warnings, strings, locale, routes=routes),
                     }
                     for e in articles
@@ -834,6 +840,7 @@ def build_site(
                     "date_label": entry.meta["date"].strftime(lookup(strings, "format.date", locale)),
                     "updated_label": entry.meta["updated"].strftime(lookup(strings, "format.date", locale)),
                     "author": {"name": entry.meta["author"], "href": routes[("page", locale, ABOUT_PAGE)]},
+                    "reading_time": reading_time_label(strings, locale, entry.body),
                     "body": render_body(
                         markdown, entry, root, warnings, strings, locale, article=True, routes=routes
                     ),

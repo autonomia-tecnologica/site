@@ -4,7 +4,7 @@
 <h1 id="feed-title">{{ t("nav.articles") }}</h1>
 {% for article in articles %}<article class="prose" data-feed-item>
 <h2><a href="{{ article.href }}">{{ article.title }}</a></h2>
-<p><a href="{{ article.author.href }}" rel="author">{{ article.author.name }}</a> · <time datetime="{{ article.date }}">{{ article.date_label }}</time></p>
+<p><a href="{{ article.author.href }}" rel="author">{{ article.author.name }}</a> · <time datetime="{{ article.date }}">{{ article.date_label }}</time> · {{ article.reading_time }}</p>
 {{ article.body|safe }}
 </article>
 {% endfor %}

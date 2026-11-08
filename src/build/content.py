@@ -12,6 +12,7 @@ from datetime import date
 from pathlib import Path
 
 import yaml
+from markdown_it import MarkdownIt
 
 PENDING_MARKER = "[a escrever]"
 TEXT_SCAN_DIRS = ["content", "i18n"]
@@ -19,6 +20,12 @@ TEXT_SCAN_DIRS = ["content", "i18n"]
 LOCALE_RE = re.compile(r"^[a-z]{2}_[A-Z]{2}$")
 ARTICLE_ID_RE = re.compile(r"^[0-9]+$")
 FRONT_MATTER_RE = re.compile(r"\A---\n(.*?\n)?---\n?(.*)\Z", re.DOTALL)
+
+WORDS_PER_MINUTE = 200
+WORD_RE = re.compile(r"\S+")
+# A bare CommonMark parser, enough to read the body text without its markup. The article-only
+# plugins of the site (footnotes, content links) do not change which words the reader sees.
+PLAIN_MARKDOWN = MarkdownIt("commonmark").enable("table")
 
 FIELD_TYPES = {
     "title": str,
@@ -42,6 +49,34 @@ class Entry:
     meta: dict
     body: str  # Markdown source, without the front matter
     path: Path  # the original file, copied byte for byte for articles
+
+
+def reading_minutes(body: str) -> int:
+    """Estimated reading time of a Markdown body, in whole minutes, at WORDS_PER_MINUTE.
+
+    The body already excludes the front matter, and its Markdown markup does not count: only the
+    words rendered in the page do. The result is rounded up and is at least one minute.
+    """
+    words = len(WORD_RE.findall(body_text(body)))
+    return max(1, -(-words // WORDS_PER_MINUTE))
+
+
+def body_text(body: str) -> str:
+    """The text the reader sees in a Markdown body, without the markup.
+
+    Heading markers, emphasis, links, images, list markers and code fences are syntax, not words;
+    the text inside a link and inside a code block is. Image alt text is not read as prose here.
+    """
+    parts: list[str] = []
+    for token in PLAIN_MARKDOWN.parse(body):
+        if token.type == "inline":
+            for child in token.children or []:
+                if child.type in ("text", "code_inline"):
+                    parts.append(child.content)
+        elif token.type in ("fence", "code_block"):
+            parts.append(token.content)
+        parts.append("\n")  # keeps the last word of a block apart from the first of the next
+    return "".join(parts)
 
 
 def load_locales(root: Path, errors: list[str]) -> dict[str, dict]:
