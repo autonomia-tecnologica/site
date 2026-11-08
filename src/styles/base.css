@@ -10,6 +10,30 @@ html {
 }
 
 /*
+ * Page navigation: browsers that support cross-document view transitions crossfade between pages
+ * instead of flashing white. The header keeps its place across pages. Others navigate as usual.
+ */
+@view-transition {
+  navigation: auto;
+}
+
+.site-header {
+  view-transition-name: site-header;
+}
+
+::view-transition-group(root) {
+  animation-duration: 0.25s;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none;
+  }
+}
+
+/*
  * The page is solid --color-bg on the left half. On the right, a radial glow
  * (--color-bg-glow) sits behind where the symbol will be (see DESIGN.md).
  */
@@ -21,6 +45,7 @@ body {
   background-color: var(--color-bg);
   background-image: radial-gradient(circle 26vw at 74% 70%, var(--color-bg-glow), var(--color-bg));
   background-repeat: no-repeat;
+  background-size: 100% 100svh; /* the glow belongs to the first screen, not to the page height: a tall article stays flat below it */
   color: var(--color-text);
   font-family: var(--font-text);
   font-size: 1rem;
@@ -40,7 +65,7 @@ body > canvas {
   block-size: 100lvh;
   pointer-events: none;
   opacity: 0;
-  transition: opacity 1.6s ease;
+  transition: opacity 1s ease;
 }
 
 body > canvas[data-ready] {
@@ -52,10 +77,18 @@ body > canvas[data-ready] {
   visibility: hidden;
 }
 
-/* Header and footer have no fill while the water runs, so it shows through them (they keep --color-bg otherwise). */
+/*
+ * Header and footer have no fill while the water runs, so it shows through them (they keep --color-bg otherwise).
+ * When the router leaves a water page, water.js keeps data-water until the canvas has faded out, so the bar never paints a flat fill over water that is still visible. The fill then fades in softly.
+ */
+.site-header,
+.site-footer {
+  transition: background-color 1s ease;
+}
+
 :root[data-water] .site-header,
 :root[data-water] .site-footer {
-  background: none;
+  background-color: transparent;
 }
 
 /*
@@ -71,10 +104,17 @@ body > canvas[data-ready] {
   opacity: 0.28;
   background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n' x='0' y='0' width='100%25' height='100%25'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  1.9 0 0 0 -0.78'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
   background-size: 220px 220px;
+  transition: opacity 1s ease;
+}
+
+:root[data-water][data-water-out] body::after {
+  opacity: 0;
 }
 
 @media (prefers-reduced-motion: reduce) {
-  body > canvas {
+  body > canvas,
+  .site-header,
+  .site-footer {
     transition: none;
   }
 }

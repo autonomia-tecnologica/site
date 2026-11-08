@@ -25,6 +25,7 @@
   var WARM_UP = 8; // frames ignored after a start or a size change (shader compile, new buffers)
   var level = 0;
   var stopped = false;
+  var paused = false; // the page on screen has no water (the router swapped to an article, say); the canvas stays mounted
   var DULL = 0.38; // how much of each token color is traded for gray: "purple, but duller"
   var WAKES = 10;
   var CLICKS = 4;
@@ -273,8 +274,21 @@
   // ---- The hero symbol: its SVG, drawn once into a texture, placed every frame from where it is on the page. ----
   var mark = document.querySelector(".hero__symbol");
   var markReady = false;
+  var texture = null;
+  var MARK_FADE = 1; // seconds the symbol takes to appear when the water was already on (coming from a page without the symbol)
+  var fadeNext = false;
+  var markBorn = -1e9;
+  function useMark() {
+    markBorn = fadeNext && !reduced.matches ? seconds() : -1e9;
+    fadeNext = false;
+    markReady = true;
+    root.setAttribute("data-water-mark", ""); // hides the SVG: the canvas draws it now
+    dirty = true;
+    if (reduced.matches) { draw(); }
+  }
   function loadMark() {
     if (!mark) { return; }
+    if (texture) { useMark(); return; } // the router brought the home page back: the texture is still good
     var copy = mark.cloneNode(true);
     copy.setAttribute("xmlns", "http://www.w3.org/2000/svg");
     copy.setAttribute("width", "1024");
@@ -287,7 +301,7 @@
         flat.width = 1024;
         flat.height = 1024;
         flat.getContext("2d").drawImage(image, 102, 102, 820, 820);
-        var texture = gl.createTexture();
+        texture = gl.createTexture();
         gl.activeTexture(gl.TEXTURE0);
         gl.bindTexture(gl.TEXTURE_2D, texture);
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, flat);
@@ -297,10 +311,7 @@
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
         gl.uniform1i(uniform.sym, 0);
-        markReady = true;
-        root.setAttribute("data-water-mark", ""); // hides the SVG: the canvas draws it now
-        dirty = true;
-        if (reduced.matches) { draw(); }
+        useMark();
       } catch (error) { /* a browser that taints the canvas: the plain SVG stays */ }
     };
     image.src = "data:image/svg+xml;charset=utf-8," + encodeURIComponent(new XMLSerializer().serializeToString(copy));
@@ -320,7 +331,7 @@
     gl.uniform1f(uniform.symOn, 1);
     gl.uniform1f(uniform.symSize, (parseFloat(style.width) || rect.width) / m);
     gl.uniform1f(uniform.symRot, angle);
-    gl.uniform1f(uniform.symAlpha, parseFloat(style.opacity) || 1);
+    gl.uniform1f(uniform.symAlpha, (parseFloat(style.opacity) || 1) * Math.min(1, (seconds() - markBorn) / MARK_FADE));
     gl.uniform2fv(uniform.symC, center);
     gl.uniform2fv(uniform.clipLo, lo);
     gl.uniform2fv(uniform.clipHi, hi);
@@ -368,7 +379,7 @@
     draw();
   }
   function frame(stamp) {
-    if (stopped || reduced.matches) { running = false; return; }
+    if (stopped || paused || reduced.matches) { running = false; return; }
     requestAnimationFrame(frame); // the browser pauses this while the tab is hidden
     if (stamp - lastDraw < 1000 / LEVELS[level].fps - 2) { return; }
     lastDraw = stamp;
@@ -376,7 +387,7 @@
     judge(stamp);
   }
   function sync() {
-    if (stopped) { return; }
+    if (stopped || paused) { return; }
     resize();
     applyColors();
     if (reduced.matches) {
@@ -387,6 +398,36 @@
       lastStamp = 0;
       warm = WARM_UP;
       requestAnimationFrame(frame);
+    }
+  }
+
+  // The router swaps pages without reloading: it tells the water whether the new page wants it.
+  var settle = null;
+  function toggle(on) {
+    if (stopped) { return; }
+    clearTimeout(settle);
+    if (on) {
+      fadeNext = canvas.hasAttribute("data-ready"); // the water is already on screen: only the symbol is new, so it fades in itself
+      paused = false;
+      mark = document.querySelector(".hero__symbol");
+      markReady = false;
+      gl.uniform1f(uniform.symOn, 0);
+      root.removeAttribute("data-water-mark");
+      root.removeAttribute("data-water-out");
+      sync();
+      loadMark();
+      canvas.setAttribute("data-ready", "");
+      root.setAttribute("data-water", "");
+    } else {
+      markReady = false;
+      root.removeAttribute("data-water-mark");
+      root.setAttribute("data-water-out", ""); // the grain fades with the canvas; header and footer stay see-through until it is gone
+      canvas.removeAttribute("data-ready"); // fades out (1s), then header and footer take their fill and the loop rests
+      settle = setTimeout(function () {
+        paused = true;
+        root.removeAttribute("data-water");
+        root.removeAttribute("data-water-out");
+      }, 1050);
     }
   }
 
@@ -404,6 +445,7 @@
     loadMark();
     canvas.setAttribute("data-ready", "");
     root.setAttribute("data-water", ""); // header and footer let the water through
+    document.addEventListener("water:toggle", function (event) { toggle(event.detail.on); });
     window.addEventListener("resize", sync);
     window.addEventListener("pointermove", onMove, { passive: true });
     window.addEventListener("pointerdown", onDown, { passive: true });

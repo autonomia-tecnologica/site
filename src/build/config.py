@@ -22,6 +22,7 @@ STYLESHEETS = (
 # Scripts of src/scripts/, copied to /scripts/. water.js is linked by every page (base.html); the others only by the page that uses them.
 SCRIPTS = (
     "water.js",
+    "router.js",
     "graph.js",
     "screensaver.js",
 )

@@ -85,6 +85,9 @@
   });
 })();
 </script>
+<script type="speculationrules">
+{"prefetch":[{"where":{"href_matches":"/*"},"eagerness":"moderate"}]}
+</script>
 </head>
 <body>
 <a id="skip-link" href="#main">{{ t("ui.skip_to_content") }}</a>
@@ -124,6 +127,7 @@
 <p>{{ t("footer.credits.layout") }}</p>
 <p>{{ t("footer.credits.texts") }}</p>
 </footer>
+<script src="/scripts/router.js" defer></script>
 {% block scripts %}{% endblock %}
 {% block water %}<script src="/scripts/water.js" defer></script>
 {% endblock %}</body>
