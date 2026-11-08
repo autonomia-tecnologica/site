@@ -98,65 +98,6 @@
   });
 })();
 </script>
-<script>
-/* Footer on the water pages: the page does not scroll. Scrolling down slides the footer up over
-   the page; scrolling up hides it. Tab reaches it (focus opens it), Page Down and Page Up toggle
-   it, Esc closes it, and a click outside closes it. Elsewhere the footer stays in the page flow. */
-(function () {
-  var root = document.documentElement;
-  var body = null;
-  var touchY = null;
-  function isCover() { return body !== null && body.hasAttribute("data-cover"); }
-  function isOpen() { return body.hasAttribute("data-footer-open"); }
-  function setOpen(open) {
-    if (open && isCover()) { body.setAttribute("data-footer-open", ""); } else { body.removeAttribute("data-footer-open"); }
-  }
-  function onWheel(event) {
-    if (!isCover() || event.ctrlKey) { return; }
-    if (event.deltaY > 0 && !isOpen()) { setOpen(true); }
-    else if (event.deltaY < 0 && isOpen()) { setOpen(false); }
-    event.preventDefault();
-  }
-  function onTouchStart(event) {
-    if (!isCover() || !event.touches.length) { return; }
-    touchY = event.touches[0].clientY;
-  }
-  function onTouchMove(event) {
-    if (!isCover() || touchY === null || !event.touches.length) { return; }
-    var y = event.touches[0].clientY;
-    if (y - touchY < -30 && !isOpen()) { setOpen(true); touchY = y; }
-    else if (y - touchY > 30 && isOpen()) { setOpen(false); touchY = y; }
-  }
-  function onKey(event) {
-    if (!isCover()) { return; }
-    if (event.key === "PageDown" && !isOpen()) { setOpen(true); }
-    else if ((event.key === "PageUp" || event.key === "Escape") && isOpen()) { setOpen(false); }
-  }
-  function onClick(event) {
-    if (!isOpen()) { return; }
-    var footer = document.querySelector(".site-footer");
-    if (footer && !footer.contains(event.target)) { setOpen(false); }
-  }
-  function onFocusIn(event) {
-    if (isCover() && event.target.closest && event.target.closest(".site-footer")) { setOpen(true); }
-  }
-  function sync() {
-    root.setAttribute("data-cover-ready", "");
-    setOpen(false);
-  }
-  document.addEventListener("DOMContentLoaded", function () {
-    body = document.body;
-    sync();
-    window.addEventListener("wheel", onWheel, { passive: false });
-    window.addEventListener("touchstart", onTouchStart, { passive: true });
-    window.addEventListener("touchmove", onTouchMove, { passive: true });
-    document.addEventListener("keydown", onKey);
-    document.addEventListener("click", onClick);
-    document.addEventListener("focusin", onFocusIn);
-    document.addEventListener("page:swap", sync);
-  });
-})();
-</script>
 <script type="speculationrules">
 {"prefetch":[{"where":{"href_matches":"/*"},"eagerness":"moderate"}]}
 </script>

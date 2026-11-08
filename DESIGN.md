@@ -95,12 +95,9 @@ shader, no libraries). Approved by Rafael step by step; the light scheme is stil
 - **Phone menu:** below 780 px the panel is a full-width sheet attached under the header row, not
   a floating card: it takes the `--color-bg` fill, one thin rule on top, no radius. A click anywhere
   outside it, a link in it, a page change, Esc or a wider window closes it.
-- **Footer:** credits on the left, feed link on the right, under a thin rule. On the cover pages
-  (`data-cover` on `<body>`) the page does not scroll and the footer is the scroll action: with
-  script (`data-cover-ready` on `<html>`) it waits off screen, scrolling down slides it up over
-  the page and scrolling up hides it (`data-footer-open` on `<body>`). Tab opens it when focus
-  reaches it; Page Down/Page Up toggle it; Esc and a click outside close it. Text pages keep the
-  normal scroll and the footer at the end.
+- **Footer:** credits on the left, feed link on the right, under a thin rule. It sits at the end
+  of the page, in the normal flow, on every page: every page scrolls normally, cover or text.
+  The slide-up-over-the-page behavior was removed on 2026-11-08.
 
 ## Contrast
 

@@ -86,7 +86,7 @@
     var nextPanel = doc.getElementById("menu-panel");
     syncHead(doc);
     if (panel && nextPanel) { panel.innerHTML = nextPanel.innerHTML; }
-    // Cover pages lock the scroll and reveal the footer; text pages keep the normal scroll.
+    // Cover pages swap the water background; every page keeps the normal scroll.
     document.body.toggleAttribute("data-cover", doc.body.hasAttribute("data-cover"));
     main.innerHTML = next.innerHTML;
     runScripts(main);
