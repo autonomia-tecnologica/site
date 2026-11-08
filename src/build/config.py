@@ -14,6 +14,7 @@ STYLESHEETS = (
     "card.css",
     "hero.css",
     "about.css",
+    "projects.css",
     "graph.css",
     "site-header.css",
     "site-footer.css",
@@ -34,7 +35,7 @@ STANDALONE_STYLESHEETS = (
 # Pages of the site, in navigation order (Articles sits between them, see nav_items in site.py).
 # Each page is templates/pages/<key>.html; its text is in i18n/<locale>.json under pages.<key>,
 # and its URL segment under url.pages.<key>. The home page is templates/index.html.
-PAGES = ("manifesto", "about")
+PAGES = ("manifesto", "projects", "about")
 
 # Profile of the person who made the logo and visual identity, linked from the footer credits.
 IDENTITY_AUTHOR_URL = "https://www.instagram.com/teeuscorreia/"
@@ -58,3 +59,11 @@ PERSON_SAME_AS = list(PERSON_PROFILES.values())
 
 # The photo of the About page. It lives outside the repository, in the folder named by SITE_PRIVATE_DIR.
 PHOTO_FILE_NAME = "busto-C.png"
+
+# Public repositories of the GitHub organization, shown on the Projects page. Every public repository of the
+# organization must be listed here. Texts are in i18n/<locale>.json under pages.projects.items.<name>; the
+# image is content/projects/<name>.png.
+PROJECTS_ORG_URL = "https://github.com/autonomia-tecnologica"
+PROJECTS = ("ambiente-de-trabalho", "ai-tmux-workspace")
+PROJECTS_DIR = "content/projects"
+PROJECTS_PHILOSOPHY = "ambiente-de-trabalho"

@@ -28,7 +28,7 @@ if Path(sys.prefix).resolve() != VENV_DIR.resolve():
         sys.exit(1)
     os.execv(str(VENV_PYTHON), [str(VENV_PYTHON), "-m", "src.build", *sys.argv[1:]])
 
-from .config import PHOTO_FILE_NAME
+from .config import PHOTO_FILE_NAME, PROJECTS, PROJECTS_DIR
 from .content import BuildError, PENDING_MARKER, find_pending_markers, load_entries, load_locales
 from .site import build_site
 
@@ -95,6 +95,18 @@ def find_photo(prod: bool, errors: list[str], warnings: list[str]) -> Path | Non
     return None
 
 
+def find_images(prod: bool, errors: list[str], warnings: list[str]) -> dict[str, Path]:
+    """Images of the Projects page, content/projects/<name>.png; every project needs one in production."""
+    found = {}
+    for name in PROJECTS:
+        path = ROOT / PROJECTS_DIR / f"{name}.png"
+        if path.is_file():
+            found[name] = path
+        else:
+            (errors if prod else warnings).append(f"missing image {PROJECTS_DIR}/{name}.png")
+    return found
+
+
 def main() -> int:
     parser = argparse.ArgumentParser(description="Build the static site.")
     parser.add_argument("--prod", action="store_true", help="production build: fail on pending markers")
@@ -106,6 +118,7 @@ def main() -> int:
     check_layout(errors)
     site_url = read_site_url(args.prod, errors)
     photo = find_photo(args.prod, errors, warnings)
+    images = find_images(args.prod, errors, warnings)
     locales = load_locales(ROOT, errors) if not errors else {}
     entries = load_entries(ROOT, locales, errors) if not errors else []
     pending = find_pending_markers(ROOT)
@@ -123,7 +136,7 @@ def main() -> int:
 
     shown = len(warnings)
     try:
-        page_count = build_site(ROOT, locales, entries, site_url, warnings, photo)
+        page_count = build_site(ROOT, locales, entries, site_url, warnings, photo, images)
     except BuildError as exc:
         print(f"error: {exc}", file=sys.stderr)
         return 1

@@ -23,14 +23,16 @@
     "articles": "Artigos",
     "graph": "Grafo de Conhecimento",
     "consulting": "Consultoria",
-    "about": "Quem somos"
+    "about": "Quem somos",
+    "projects": "Projetos"
   },
   "url": {
     "articles": "artigos",
     "pages": {
       "about": "quem-somos",
       "consulting": "consultoria",
-      "manifesto": "manifesto"
+      "manifesto": "manifesto",
+      "projects": "projetos"
     },
     "graph": "grafo"
   },
@@ -121,6 +123,24 @@
         "Toda autonomia tecnológica envolve decisões. Toda decisão envolve custos, financeiros ou não. Buscamos diminuir esses custos sem ferir o resto que acreditamos.",
         "O nosso conhecimento nasce em português brasileiro: o projeto, a marca, o que publicamos. Traduções vão acontecer, não nos limitamos ao Brasil, mas primeiro tem que funcionar no Brasil."
       ]
+    },
+    "projects": {
+      "title": "Projetos",
+      "summary": "Projetos do Autonomia Tecnológica: repositórios abertos no GitHub, todos gerados com IA, para gerar conhecimento aberto com ferramentas que já existem.",
+      "philosophy": "O desenvolvimento segue uma filosofia: o ambiente de trabalho gira em torno do que a pessoa lê, escreve e entende, e as ferramentas servem a isso. Ela está escrita, para humanos e para modelos de IA, no repositório",
+      "ai_notice": "Todos os projetos abaixo são gerados com IA. O objetivo é gerar conhecimento aberto usando ferramentas tecnológicas que já existem, sem reinventar o que está pronto.",
+      "contribution": "Modificações pessoais são totalmente permitidas e fortemente recomendadas: pegue o que for útil e adapte ao seu jeito. Já o que for enviado ao repositório central depende da avaliação da administração do projeto.",
+      "repo_link": "Ver no GitHub",
+      "items": {
+        "ambiente-de-trabalho": {
+          "description": "Não tem código: é o texto da filosofia do ambiente de trabalho, que os outros projetos citam e que vale sobre eles. Define o que é o ambiente e as premissas que todos seguem, e é escrito para ser lido por modelos de IA, mas qualquer pessoa pode lê-lo.",
+          "image_alt": "Captura de tela do repositório ambiente-de-trabalho no GitHub."
+        },
+        "ai-tmux-workspace": {
+          "description": "Um workspace minimalista baseado em tmux, sem pretensão de ser algo novo: um repositório por janela, com um agente de IA ao lado. Mostra o estado de cada sessão, as tarefas do backlog e as mudanças do repositório. Funciona em Linux e macOS, e no Windows pelo WSL2.",
+          "image_alt": "Captura de tela do workspace com a lista de repositórios, o agente de IA e o terminal."
+        }
+      }
     },
     "about": {
       "title": "Quem somos",

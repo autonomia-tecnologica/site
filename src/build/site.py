@@ -34,6 +34,9 @@ from .config import (
     PERSON_PROFILES,
     PERSON_SAME_AS,
     PHOTO_FILE_NAME,
+    PROJECTS,
+    PROJECTS_ORG_URL,
+    PROJECTS_PHILOSOPHY,
     SCRIPTS,
     STANDALONE_STYLESHEETS,
     STYLESHEETS,
@@ -443,6 +446,25 @@ def about_people(strings: dict, locale: str, photo: Path | None) -> list[dict]:
     }]
 
 
+PROJECTS_PAGE = "projects"
+IMAGE_DIR = "assets/projects"
+
+
+def project_items(strings: dict, locale: str, images: dict[str, Path]) -> list[dict]:
+    """The projects of the Projects page, in the order of PROJECTS."""
+    return [{
+        "name": name,
+        "href": f"{PROJECTS_ORG_URL}/{name}",
+        "description": lookup(strings, f"pages.projects.items.{name}.description", locale),
+        "image": (
+            {"href": f"/{IMAGE_DIR}/{name}.png",
+             "alt": lookup(strings, f"pages.projects.items.{name}.image_alt", locale)}
+            if name in images else None
+        ),
+        "is_philosophy": name == PROJECTS_PHILOSOPHY,
+    } for name in PROJECTS]
+
+
 def about_profiles(strings: dict, locale: str) -> list[dict]:
     """The author's profile links, in the order of PERSON_PROFILES."""
     return [
@@ -553,6 +575,7 @@ def build_site(
     site_url: str,
     warnings: list[str],
     photo: Path | None,
+    images: dict[str, Path] | None = None,
 ) -> int:
     """Writes the site to dist/ and returns the number of HTML pages written.
 
@@ -660,6 +683,7 @@ def build_site(
             ("nav.manifesto", ("page", locale, "manifesto")),
             ("nav.articles", ("articles", locale, "")),
             ("nav.graph", ("graph", locale, "")),
+            ("nav.projects", ("page", locale, "projects")),
             ("nav.about", ("page", locale, "about")),
         )
         return [
@@ -835,6 +859,10 @@ def build_site(
             extra = {}
             if key == MANIFESTO_PAGE:
                 extra["points"] = lookup_list(strings, "pages.manifesto.points", locale)
+            elif key == PROJECTS_PAGE:
+                extra["projects"] = project_items(strings, locale, images or {})
+                extra["philosophy_name"] = PROJECTS_PHILOSOPHY
+                extra["philosophy_href"] = f"{PROJECTS_ORG_URL}/{PROJECTS_PHILOSOPHY}"
             elif key == ABOUT_PAGE:
                 extra["people"] = about_people(strings, locale, photo)
             render(
@@ -954,6 +982,8 @@ def build_site(
     for source in sorted((root / LOGO_DIR).iterdir()):
         if source.suffix in LOGO_SUFFIXES:
             copies[f"assets/logo/{source.name}"] = source
+    for name, source in (images or {}).items():
+        copies[f"{IMAGE_DIR}/{name}.png"] = source
     if photo is not None:
         copies[f"{PHOTO_DIR}/{PHOTO_FILE_NAME}"] = photo
     # The published copy of the graph data, next to the graph page, next to the page.

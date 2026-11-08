@@ -1,0 +1,20 @@
+{% extends "base.html" %}
+{% block content %}
+<section data-page="projects">
+<h1>{{ title }}</h1>
+<p>{{ t("pages.projects.philosophy") }} <a href="{{ philosophy_href }}" rel="noopener" target="_blank">{{ philosophy_name }}<span data-sr-only>, {{ t("ui.new_tab") }}</span></a>.</p>
+<p>{{ t("pages.projects.ai_notice") }}</p>
+<p>{{ t("pages.projects.contribution") }}</p>
+<ul>
+{% for project in projects %}<li>
+<article>
+{% if project.image %}<img src="{{ project.image.href }}" alt="{{ project.image.alt }}" loading="lazy">
+{% endif %}<h2>{{ project.name }}</h2>
+<p>{{ project.description }}</p>
+<a href="{{ project.href }}" rel="noopener" target="_blank">{{ t("pages.projects.repo_link") }}<span data-sr-only>, {{ t("ui.new_tab") }}</span></a>
+</article>
+</li>
+{% endfor %}
+</ul>
+</section>
+{% endblock %}
