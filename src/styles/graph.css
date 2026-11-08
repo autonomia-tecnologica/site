@@ -162,7 +162,8 @@ article[data-node][data-current],
 }
 
 @media (min-width: 780px) {
-  [data-page="graph"] {
+  /* Only a graph with a canvas needs the wider column; until then the page keeps the reading measure. */
+  [data-page="graph"]:has([data-canvas]) {
     max-inline-size: 90rem;
   }
 

@@ -3,7 +3,8 @@
 {% block content %}
 <article class="prose" data-page="graph">
 <h1>{{ title }}</h1>
-<div data-graph>
+{% if not nodes %}<p>{{ t("pages.graph.under_construction") }}</p>
+{% endif %}<div data-graph>
 {% if canvas.nodes %}<div data-canvas-wrap>
 <svg data-canvas width="{{ canvas.width }}" height="{{ canvas.height }}" viewBox="{{ canvas.view_box }}" role="img" aria-label="{{ t('graph.canvas') }}">
 <defs>

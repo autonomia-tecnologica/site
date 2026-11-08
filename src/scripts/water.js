@@ -8,7 +8,8 @@
    hidden, and draws one still frame when the visitor asks for reduced motion.
    Colors come from the design tokens (--color-*) and are dulled here, so a palette change in tokens.css reaches it.
    Only the presentation pages load this script (the articles and the graph keep the plain gradient, so nothing moves
-   behind the reading). Without WebGL or script the canvas never appears and the plain page background stays. */
+   behind the reading). Touch screens and narrow windows never start it: they show a frozen frame of the same water
+   (the static background in base.css). Without WebGL or script the canvas never appears and that frame stays. */
 (function () {
   // Quality ladder: the render budget (the browser smooths the rest, which suits soft water) and the frame rate.
   // It starts at the top and only goes down: if frames come out slow, the next step is taken; past the last
@@ -57,9 +58,24 @@
   }
 
   var root = document.documentElement;
+  // The one duration of the page transition, read from the same token the stylesheets use
+  // (--duration-page in tokens.css): the water fades on the same clock as the content. The header
+  // has no background of its own.
+  function pageFade() {
+    var value = getComputedStyle(root).getPropertyValue("--duration-page").trim();
+    var match = /^([\d.]+)(ms|s)$/.exec(value);
+    if (!match) { return 250; }
+    return match[2] === "s" ? parseFloat(match[1]) * 1000 : parseFloat(match[1]);
+  }
+  var PAGE_FADE = pageFade(); // ms
   var reduced = SAVER_PAGE ? { matches: false } : window.matchMedia("(prefers-reduced-motion: reduce)");
   var saver = navigator.connection && navigator.connection.saveData; // the visitor asked for less data and power
   if (saver && !SAVER_PAGE) { return; }
+  // Phones and other touch screens get the static frame (base.css): the shader is heavy for them and can
+  // give up without notice. The screensaver page keeps the shader, because it is recorded.
+  var touch = window.matchMedia("(pointer: coarse)").matches;
+  var narrow = window.matchMedia("(max-width: 780px)").matches;
+  if (!SAVER_PAGE && (touch || narrow)) { return; }
   var canvas = document.createElement("canvas");
   canvas.setAttribute("aria-hidden", "true");
   var gl = canvas.getContext("webgl", { antialias: false, alpha: false, depth: false, stencil: false, powerPreference: "low-power" });
@@ -281,7 +297,7 @@
   var mark = document.querySelector(".hero__symbol");
   var markReady = false;
   var texture = null;
-  var MARK_FADE = 1; // seconds the symbol takes to appear when the water was already on (coming from a page without the symbol)
+  var MARK_FADE = PAGE_FADE / 1000; // seconds the symbol takes to appear when the water was already on (the page-transition time)
   var fadeNext = false;
   var markBorn = -1e9;
   function useMark() {
@@ -363,8 +379,7 @@
   function giveUp() {
     stopped = true;
     running = false;
-    canvas.removeAttribute("data-ready"); // fades out; the page background was underneath all along
-    root.removeAttribute("data-water");
+    canvas.removeAttribute("data-ready"); // fades out; the static frame was underneath all along
     root.removeAttribute("data-water-mark");
     setTimeout(function () { if (canvas.parentNode) { canvas.parentNode.removeChild(canvas); } }, 2500);
   }
@@ -420,21 +435,16 @@
       markReady = false;
       gl.uniform1f(uniform.symOn, 0);
       root.removeAttribute("data-water-mark");
-      root.removeAttribute("data-water-out");
       sync();
       loadMark();
       canvas.setAttribute("data-ready", "");
-      root.setAttribute("data-water", "");
     } else {
       markReady = false;
       root.removeAttribute("data-water-mark");
-      root.setAttribute("data-water-out", ""); // the grain fades with the canvas; header and footer stay see-through until it is gone
-      canvas.removeAttribute("data-ready"); // fades out (1s), then header and footer take their fill and the loop rests
+      canvas.removeAttribute("data-ready"); // fades out over the static frame, then the loop rests
       settle = setTimeout(function () {
         paused = true;
-        root.removeAttribute("data-water");
-        root.removeAttribute("data-water-out");
-      }, 1050);
+      }, PAGE_FADE + 50);
     }
   }
 
@@ -443,7 +453,6 @@
     canvas.addEventListener("webglcontextlost", function (event) {
       event.preventDefault();
       canvas.removeAttribute("data-ready");
-      root.removeAttribute("data-water");
       root.removeAttribute("data-water-mark");
       running = false;
     });
@@ -451,7 +460,6 @@
     sync();
     loadMark();
     canvas.setAttribute("data-ready", "");
-    root.setAttribute("data-water", ""); // header and footer let the water through
     document.addEventListener("water:toggle", function (event) { toggle(event.detail.on); });
     window.addEventListener("resize", sync);
     window.addEventListener("pointermove", onMove, { passive: true });

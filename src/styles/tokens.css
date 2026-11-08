@@ -1,5 +1,5 @@
 /*
- * Design tokens. The only place where colors and font families are written.
+ * Design tokens. The only place where colors, font families and durations are written.
  * Everything else reads them with var(--token).
  *
  * Schemes:
@@ -34,6 +34,11 @@
   --font-title: "Quicksand", system-ui, sans-serif;
   --font-text: "Nunito Sans", system-ui, sans-serif;
   --font-code: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+
+  /* Motion. One duration for the page transition: the content crossfade and the water fade start
+     together and last the same. The router and water.js read this token, so the two can never
+     drift apart. The header has no background of its own. */
+  --duration-page: 0.25s;
 
   /* Dark scheme (default and reference). */
   color-scheme: dark;

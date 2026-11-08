@@ -22,7 +22,7 @@ html {
 }
 
 ::view-transition-group(root) {
-  animation-duration: 0.25s;
+  animation-duration: var(--duration-page);
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -65,7 +65,7 @@ body > canvas {
   block-size: 100lvh;
   pointer-events: none;
   opacity: 0;
-  transition: opacity 1s ease;
+  transition: opacity var(--duration-page) ease;
 }
 
 body > canvas[data-ready] {
@@ -78,43 +78,51 @@ body > canvas[data-ready] {
 }
 
 /*
- * Header and footer have no fill while the water runs, so it shows through them (they keep --color-bg otherwise).
- * When the router leaves a water page, water.js keeps data-water until the canvas has faded out, so the bar never paints a flat fill over water that is still visible. The fill then fades in softly.
+ * The header has no fill of its own: the page background is what shows behind it, on every page.
+ * There is no topbar background to switch or fade, so the bar can never differ from the page
+ * (Rafael's decision). Only the content and the water fade (--duration-page).
  */
-.site-header,
-.site-footer {
-  transition: background-color 1s ease;
-}
-
-:root[data-water] .site-header,
-:root[data-water] .site-footer {
-  background-color: transparent;
-}
 
 /*
- * Grain: a fixed film of fine speckles over the whole page while the water runs, so text and buttons are
- * not perfectly clean against it. A tiled SVG noise (no script, no extra request, never takes a click).
+ * Static water: one frozen frame of the same shader, one per scheme. It is the background of the
+ * presentation pages and the fallback of the animated water, which only runs on wide screens with a
+ * fine pointer. The grain is gone: the water itself gives the texture, and the text stays clean.
  */
-:root[data-water] body::after {
-  content: "";
-  position: fixed;
-  inset: 0;
-  z-index: 3;
-  pointer-events: none;
-  opacity: 0.28;
-  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><filter id='n' x='0' y='0' width='100%25' height='100%25'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0  0 0 0 0 0  0 0 0 0 0  1.9 0 0 0 -0.78'/></filter><rect width='100%25' height='100%25' filter='url(%23n)'/></svg>");
-  background-size: 220px 220px;
-  transition: opacity 1s ease;
+body[data-cover] {
+  background-image: url("../assets/water/water-dark.webp");
+  background-size: cover;
+  background-position: center;
 }
 
-:root[data-water][data-water-out] body::after {
-  opacity: 0;
+:root[data-theme="light"] body[data-cover] {
+  background-image: url("../assets/water/water-light.webp");
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) body[data-cover] {
+    background-image: url("../assets/water/water-light.webp");
+  }
+}
+
+/* From the width where the animated water starts, the frame was drawn at that size, so it stays sharp. */
+@media (min-width: 781px) {
+  body[data-cover] {
+    background-image: url("../assets/water/water-dark-wide.webp");
+  }
+
+  :root[data-theme="light"] body[data-cover] {
+    background-image: url("../assets/water/water-light-wide.webp");
+  }
+}
+
+@media (min-width: 781px) and (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) body[data-cover] {
+    background-image: url("../assets/water/water-light-wide.webp");
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  body > canvas,
-  .site-header,
-  .site-footer {
+  body > canvas {
     transition: none;
   }
 }
@@ -124,6 +132,20 @@ h2,
 h3,
 h4 {
   font-family: var(--font-title);
+  line-height: 1.25;
+}
+
+/* The page title of the content pages (manifesto, articles, graph, projects): one style on all of
+   them, the size the manifesto title already had. The presentation pages (home, about) keep their
+   own title. */
+[data-page="manifesto"] > h1,
+[data-page="graph"] > h1,
+[data-page="projects"] > h1,
+[data-kind="article"] > h1 {
+  margin: 0.67em 0;
+  font-family: var(--font-title);
+  font-size: 2.125rem;
+  font-weight: 700;
   line-height: 1.25;
 }
 

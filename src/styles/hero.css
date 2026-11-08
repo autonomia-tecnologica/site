@@ -81,7 +81,7 @@
     display: block;
     padding-inline: 20px;
     padding-block: 11vh 90px;
-    min-block-size: calc(100svh - 100px);
+    min-block-size: calc(100svh - 76px);
   }
 
   .hero__title {

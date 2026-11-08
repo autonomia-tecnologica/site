@@ -56,6 +56,7 @@ STYLES_DIR = "src/styles"
 SCRIPTS_DIR = "src/scripts"
 FONTS_DIR = "src/assets/fonts"
 LOGO_DIR = "src/assets/logo"
+WATER_DIR = "src/assets/water"
 LOGO_SUFFIXES = (".svg", ".png")
 WIKI_LINK_RE = re.compile(r"\[\[([^\[\]\n]+)\]\]")
 MANIFESTO_PAGE = "manifesto"
@@ -979,6 +980,10 @@ def build_site(
     for source in sorted((root / LOGO_DIR).iterdir()):
         if source.suffix in LOGO_SUFFIXES:
             copies[f"assets/logo/{source.name}"] = source
+    # The static frames of the water background, one per scheme (the fallback of the animated one).
+    for source in sorted((root / WATER_DIR).iterdir()):
+        if source.is_file():
+            copies[f"assets/water/{source.name}"] = source
     for name, source in (images or {}).items():
         copies[f"{IMAGE_DIR}/{name}.png"] = source
     if photo is not None:

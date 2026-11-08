@@ -9,17 +9,25 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  min-block-size: calc(100svh - 145px);
+  min-block-size: calc(100svh - 143px);
   padding: 2rem max(20px, calc((100% - 1280px) / 2));
   text-align: center;
 }
 
+/* The presentation pages keep the larger title; the content pages share the reading size
+   (base.css). */
 [data-page="about"] h1 {
   margin: 0 0 2rem;
   font-family: var(--font-title);
   font-size: clamp(40px, 5vw, 64px);
   font-weight: 500;
   line-height: 1;
+}
+
+@media (max-width: 780px) {
+  [data-page="about"] {
+    min-block-size: calc(100svh - 76px);
+  }
 }
 
 [data-page="about"] ul {

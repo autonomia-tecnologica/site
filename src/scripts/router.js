@@ -8,7 +8,17 @@
   if (!window.fetch || !window.history || !history.pushState || !window.DOMParser) { return; }
 
   var reduced = window.matchMedia("(prefers-reduced-motion: reduce)");
-  var FADE = 140; // ms, each way
+
+  // The one duration of the page transition, read from the same token the stylesheets use
+  // (--duration-page in tokens.css), so the content and the water fade together. The header has
+  // no background of its own: the page background shows behind it.
+  function pageFade() {
+    var value = getComputedStyle(document.documentElement).getPropertyValue("--duration-page").trim();
+    var match = /^([\d.]+)(ms|s)$/.exec(value);
+    if (!match) { return 250; }
+    return match[2] === "s" ? parseFloat(match[1]) * 1000 : parseFloat(match[1]);
+  }
+  var FADE = pageFade(); // ms, each way
   var controller = null;
   var token = 0;
   var shown = location.pathname + location.search; // the page on screen, so a hash-only history step is left to the browser
@@ -76,6 +86,8 @@
     var nextPanel = doc.getElementById("menu-panel");
     syncHead(doc);
     if (panel && nextPanel) { panel.innerHTML = nextPanel.innerHTML; }
+    // Cover pages lock the scroll and reveal the footer; text pages keep the normal scroll.
+    document.body.toggleAttribute("data-cover", doc.body.hasAttribute("data-cover"));
     main.innerHTML = next.innerHTML;
     runScripts(main);
     var wants = hasWater(doc);
@@ -89,6 +101,7 @@
     var hash = url.hash && document.getElementById(decodeURIComponent(url.hash.slice(1)));
     if (hash) { hash.scrollIntoView(); } else { window.scrollTo(0, scroll || 0); }
     main.focus({ preventScroll: true });
+    document.dispatchEvent(new CustomEvent("page:swap"));
   }
 
   function go(url, push, scroll) {

@@ -1,13 +1,17 @@
 /*
  * Site header: the logotype, the main navigation, the locale choice (only with
- * more than one locale) and the theme button, in one row. Not fixed: it scrolls
- * away with the page. Solid --color-bg bar: no divider line, no shadow, no blur.
- * Measures follow the approved mockup: a centered column of min(1280px, 100% - 64px),
- * 58 px of top padding (28 px on phones), the logotype 65 px high (48 px on phones).
+ * more than one locale) and the theme button, in one row. It scrolls away with
+ * the page. It has no fill of its own: the page background is behind it, the
+ * same background on every page (no divider line, no shadow, no blur). Because
+ * it is see-through, it cannot stay pinned: the text would pass under it.
+ * Measures: a centered column of min(1280px, 100% - 64px), 58 px of top padding
+ * (28 px on phones), the logotype 65 px high (48 px on phones). The links sit
+ * close to the logotype, with the same gap between all of them, and the theme
+ * button stays at the far right.
  * Each link and button is at least 44 px high, for touch.
- * Below 780 px the links fold into a round button that opens a panel (see the
- * script in base.html). Without script the links stay in the row, and the theme
- * button stays hidden, as it always does without script.
+ * Below 780 px the links fold into a round button that opens a panel attached
+ * under the header row (see the script in base.html). Without script the links
+ * stay in the row, and the theme button stays hidden, as it always does.
  */
 
 .site-header {
@@ -16,7 +20,6 @@
   display: flex;
   align-items: center;
   padding: 58px max(32px, calc((100% - 1280px) / 2)) 20px;
-  background: var(--color-bg);
   color: var(--color-text);
 }
 
@@ -61,17 +64,17 @@
   }
 }
 
-/* The panel holds the navigation. On a wide screen it sits at the right, before the theme button. */
+/* The panel holds the navigation. On a wide screen it sits right after the logotype; the free space collects before the theme button. */
 .site-header__panel {
   display: flex;
   align-items: center;
-  margin-inline: auto clamp(55px, 7vw, 105px);
+  margin-inline: clamp(24px, 2.6vw, 36px) auto;
 }
 
 .site-header__panel ul {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.5rem clamp(42px, 5.4vw, 82px);
+  gap: 0.5rem clamp(24px, 2.6vw, 36px);
   margin: 0;
   padding: 0;
   list-style: none;
@@ -182,11 +185,11 @@
   }
 
   .site-header__panel {
-    margin-inline: auto 38px;
+    margin-inline: 24px auto;
   }
 
   .site-header__panel ul {
-    gap: 0.5rem 28px;
+    gap: 0.5rem 22px;
   }
 
   .site-header__panel a,
@@ -199,8 +202,7 @@
 @media (max-width: 780px) {
   .site-header {
     flex-wrap: wrap;
-    padding-top: 28px;
-    padding-inline: 20px;
+    padding: 28px 20px 0;
   }
 
   .site-header a img {
@@ -234,7 +236,7 @@
 
   .site-header__panel ul {
     flex-direction: column;
-    gap: 20px;
+    gap: 14px;
   }
 
   .site-header__panel a,
@@ -242,24 +244,19 @@
     font-size: 20px;
   }
 
-  /* With script (the button is shown) the panel floats over the page, in a solid card. */
-  .site-header .site-header__toggle:not([hidden]) + .site-header__panel {
+  /* With script the panel is a full-width sheet attached under the header row, not a floating card. */
+  :root[data-scripted] .site-header .site-header__toggle:not([hidden]) + .site-header__panel {
     position: absolute;
     inset-block-start: 100%;
-    inset-inline: 20px;
-    margin-block-start: 16px;
-    padding: 28px;
-    border: 1px solid var(--color-border);
-    border-radius: 24px;
-    background: var(--color-surface);
+    inset-inline: 0;
+    margin: 0;
+    padding: 16px 20px 28px;
+    border-block-start: 1px solid var(--color-border);
+    background: var(--color-bg);
     z-index: 1;
   }
 
-  .site-header .site-header__toggle:not([hidden]) + .site-header__panel ul {
-    gap: 20px;
-  }
-
-  .site-header .site-header__toggle[aria-expanded="false"] + .site-header__panel {
+  :root[data-scripted] .site-header .site-header__toggle[aria-expanded="false"] + .site-header__panel {
     display: none;
   }
 }

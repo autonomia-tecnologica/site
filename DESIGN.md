@@ -46,9 +46,16 @@ scheme change touches one file.
 A soft animated water surface behind the page, drawn by `src/scripts/water.js` (one WebGL fragment
 shader, no libraries). Approved by Rafael step by step; the light scheme is still a proposal.
 
-- **Where:** only on the presentation pages, Home and About. Articles, the article page, the
-  manifesto and the knowledge graph keep the plain gradient, so nothing moves behind the reading.
-  A page opts out with an empty `{% block water %}{% endblock %}` in its template.
+- **Where:** only on the presentation pages, Home and About (`data-cover` on `<body>`). Articles,
+  the article page, the manifesto and the knowledge graph keep the plain gradient, so nothing
+  moves behind the reading. A page opts out of the script with an empty
+  `{% block water %}{% endblock %}` in its template.
+- **Static frame:** every cover page carries a frozen frame of the same shader as its CSS
+  background, one per scheme and size (`water-dark.webp` and `water-light.webp` in portrait;
+  `water-dark-wide.webp` and `water-light-wide.webp` from 781 px). It is what phones, narrow
+  windows, tablets and browsers without WebGL show. The script never starts on a coarse pointer
+  or below 780 px: the shader is heavy for those devices and can give up without notice. The
+  frame is also the base layer under the animated water on desktop.
 - **What it does:** small ripples travel west (wind from the east), each group with its own size
   and speed; a faster group that catches a slower one ahead is damped, the one in front stays.
   The pointer leaves a faint wake and a click or tap sends a wide wave across the page. The wave
@@ -57,24 +64,43 @@ shader, no libraries). Approved by Rafael step by step; the light scheme is stil
   site's but quieter. No new token.
 - **The AT symbol** on the home page is drawn into the water from its own SVG (a texture), bent
   and lit by the same waves, with 4-tap antialiasing. The SVG stays in the page as the fallback
-  and is hidden only after the texture is ready.
+  (and is what phones show) and is hidden only after the texture is ready.
 - **Screensaver:** the hidden `/screensaver/` page runs the same `water.js` (`data-screensaver` on
   `<html>`) with the symbol centered at 62vmin, as a background for videos. One fixed level (about
   2.1M pixels, 30 fps), no quality ladder and no giving up, no pointer wake or click waves (the cursor stays visible), and
   reduced motion is ignored (it is recorded, not read). The SVG in that page only gives size and place.
 - **Text stays still.** Text and buttons are not moved or distorted: it made the page heavy.
-  Header and footer have no fill while the water runs, so it shows through them.
-- **Grain:** a fixed film of fine noise (`body::after` in `base.css`, a tiled SVG, no script) over
-  the whole page while the water runs, so text and buttons are not perfectly clean against it.
-  It darkens text slightly: the large purple title was 3.05:1 on dark and may now be a little
-  below 3:1 (not measured).
+  The header has no fill of its own: the page background shows behind it on every page; the
+  footer keeps its fill.
+- **No grain.** A film of fine speckles covered the page while the water ran. It was removed on
+  2026-11-08: on phones it turned into a visible weave and, in the light scheme, into dark dots
+  over the water that hurt reading. The water's own texture gives the depth.
 - **Contrast:** the brightest water pixel is capped so the muted text keeps at least 4.5:1 on it
   (measured 5.08:1; white 13.1:1). Raising the glints or the tint must be re-measured.
 - **Performance:** the starting level (380k pixels, 30 fps) is the ceiling. Quality only goes
   down: if frames come out 1.4 times slower than they should, it takes the next step of the
-  ladder (`LEVELS` in the script), and past the last step it gives up and the plain background
-  comes back. It does not start with `saveData` or without `highp`. It stops with reduced motion
-  (one still frame) and while the tab is hidden. Not measured on a real GPU yet (BACKLOG).
+  ladder (`LEVELS` in the script), and past the last step it gives up and the static frame comes
+  back. It does not start with `saveData`, on a coarse pointer, below 780 px, or without `highp`.
+  It stops with reduced motion (one still frame) and while the tab is hidden. Not measured on a
+  real GPU yet (BACKLOG).
+
+## Header and footer
+
+- **Header:** scrolls with the page. It has no fill of its own: the page background is behind it
+  on every page, water or gradient, so the bar and the page are the same surface. Because it is
+  see-through, it cannot stay pinned: the text would pass under it, so the whole page moves and
+  nothing scrolls behind the bar. The links sit close to the logotype, with the same small gap
+  between all of them (no `auto` margin before the first link), and the theme button keeps the far
+  right.
+- **Phone menu:** below 780 px the panel is a full-width sheet attached under the header row, not
+  a floating card: it takes the `--color-bg` fill, one thin rule on top, no radius. A click anywhere
+  outside it, a link in it, a page change, Esc or a wider window closes it.
+- **Footer:** credits on the left, feed link on the right, under a thin rule. On the cover pages
+  (`data-cover` on `<body>`) the page does not scroll and the footer is the scroll action: with
+  script (`data-cover-ready` on `<html>`) it waits off screen, scrolling down slides it up over
+  the page and scrolling up hides it (`data-footer-open` on `<body>`). Tab opens it when focus
+  reaches it; Page Down/Page Up toggle it; Esc and a click outside close it. Text pages keep the
+  normal scroll and the footer at the end.
 
 ## Contrast
 
@@ -115,6 +141,11 @@ plain titles.
 - Focus: one ring for every interactive element, `--color-focus`, set in `base.css`.
 - Touch: links and buttons in the header and footer, and buttons, are at least 44 px high and
   wide.
+- Motion: one duration for the whole page transition, `--duration-page` (0.25 s, `tokens.css`).
+  The content crossfade and the water fade start together and last the same; the router and
+  `water.js` read that token, so the two can never fade on different clocks. The header has no
+  background of its own, so there is nothing in the bar to switch or fade. Under
+  `prefers-reduced-motion` the transition is off.
 - Motion: the button's only transition is turned off under `prefers-reduced-motion`.
 - Button hover changes the border to `--color-text`, not the fill. A dark brand fill has
   too little contrast with the dark page to show a change alone.

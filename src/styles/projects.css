@@ -7,14 +7,6 @@
   padding: 2rem max(20px, calc((100% - 960px) / 2));
 }
 
-[data-page="projects"] h1 {
-  margin: 0 0 2rem;
-  font-family: var(--font-title);
-  font-size: clamp(40px, 5vw, 64px);
-  font-weight: 500;
-  line-height: 1;
-}
-
 [data-page="projects"] p {
   margin: 0 0 1rem;
   font-size: 1.0625rem;

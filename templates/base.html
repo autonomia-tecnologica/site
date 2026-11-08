@@ -19,12 +19,14 @@
 {% if seo.og_locale %}<meta property="og:locale" content="{{ seo.og_locale }}">
 {% endif %}{% for block in seo.json_ld %}<script type="application/ld+json">{{ block|tojson }}</script>
 {% endfor %}<script>
-/* Theme button: the only inline script of the site (graph.js is loaded by the graph page). Without it the page follows the system
-   and the button stays hidden. The saved choice is applied before the page paints;
-   with no saved choice the page follows the system. */
+/* Theme button and scripted flag. Without script the page follows the system and the button stays
+   hidden. The saved choice is applied before the page paints; with no saved choice the page follows
+   the system. The scripted flag lets the header hide the mobile panel before the first paint on
+   scripted visits, while keeping the links in the row when script is off. */
 (function () {
   var root = document.documentElement;
   var key = "theme";
+  root.setAttribute("data-scripted", "");
   var dark = window.matchMedia("(prefers-color-scheme: dark)");
   function read() {
     try { return localStorage.getItem(key); } catch (error) { return null; }
@@ -60,9 +62,9 @@
 })();
 </script>
 <script>
-/* Menu button: below 780 px it opens and closes the navigation panel. Without script the
-   button stays hidden and the links stay in the header row. Esc closes the panel and
-   gives the focus back to the button. */
+/* Menu button: below 780 px it opens and closes the navigation panel attached under the header
+   row. A click anywhere outside the panel, a link in it, a page change or Esc closes it. Without
+   script the button stays hidden and the links stay in the header row. */
 (function () {
   function setOpen(button, open) {
     button.setAttribute("aria-expanded", String(open));
@@ -71,17 +73,87 @@
   document.addEventListener("DOMContentLoaded", function () {
     var button = document.getElementById("menu-toggle");
     if (!button) { return; }
+    var panel = document.getElementById("menu-panel");
+    function close() { setOpen(button, false); }
     setOpen(button, false);
     button.hidden = false;
     button.addEventListener("click", function () {
       setOpen(button, button.getAttribute("aria-expanded") !== "true");
     });
+    document.addEventListener("click", function (event) {
+      if (button.getAttribute("aria-expanded") !== "true" || button.contains(event.target)) { return; }
+      if (panel && panel.contains(event.target) && !(event.target.closest && event.target.closest("a"))) { return; }
+      close();
+    });
     document.addEventListener("keydown", function (event) {
       if (event.key === "Escape" && button.getAttribute("aria-expanded") === "true") {
-        setOpen(button, false);
+        close();
         button.focus();
       }
     });
+    window.addEventListener("resize", function () {
+      if (window.innerWidth > 780) { close(); }
+    });
+    document.addEventListener("page:swap", close);
+  });
+})();
+</script>
+<script>
+/* Footer on the water pages: the page does not scroll. Scrolling down slides the footer up over
+   the page; scrolling up hides it. Tab reaches it (focus opens it), Page Down and Page Up toggle
+   it, Esc closes it, and a click outside closes it. Elsewhere the footer stays in the page flow. */
+(function () {
+  var root = document.documentElement;
+  var body = null;
+  var touchY = null;
+  function isCover() { return body !== null && body.hasAttribute("data-cover"); }
+  function isOpen() { return body.hasAttribute("data-footer-open"); }
+  function setOpen(open) {
+    if (open && isCover()) { body.setAttribute("data-footer-open", ""); } else { body.removeAttribute("data-footer-open"); }
+  }
+  function onWheel(event) {
+    if (!isCover() || event.ctrlKey) { return; }
+    if (event.deltaY > 0 && !isOpen()) { setOpen(true); }
+    else if (event.deltaY < 0 && isOpen()) { setOpen(false); }
+    event.preventDefault();
+  }
+  function onTouchStart(event) {
+    if (!isCover() || !event.touches.length) { return; }
+    touchY = event.touches[0].clientY;
+  }
+  function onTouchMove(event) {
+    if (!isCover() || touchY === null || !event.touches.length) { return; }
+    var y = event.touches[0].clientY;
+    if (y - touchY < -30 && !isOpen()) { setOpen(true); touchY = y; }
+    else if (y - touchY > 30 && isOpen()) { setOpen(false); touchY = y; }
+  }
+  function onKey(event) {
+    if (!isCover()) { return; }
+    if (event.key === "PageDown" && !isOpen()) { setOpen(true); }
+    else if ((event.key === "PageUp" || event.key === "Escape") && isOpen()) { setOpen(false); }
+  }
+  function onClick(event) {
+    if (!isOpen()) { return; }
+    var footer = document.querySelector(".site-footer");
+    if (footer && !footer.contains(event.target)) { setOpen(false); }
+  }
+  function onFocusIn(event) {
+    if (isCover() && event.target.closest && event.target.closest(".site-footer")) { setOpen(true); }
+  }
+  function sync() {
+    root.setAttribute("data-cover-ready", "");
+    setOpen(false);
+  }
+  document.addEventListener("DOMContentLoaded", function () {
+    body = document.body;
+    sync();
+    window.addEventListener("wheel", onWheel, { passive: false });
+    window.addEventListener("touchstart", onTouchStart, { passive: true });
+    window.addEventListener("touchmove", onTouchMove, { passive: true });
+    document.addEventListener("keydown", onKey);
+    document.addEventListener("click", onClick);
+    document.addEventListener("focusin", onFocusIn);
+    document.addEventListener("page:swap", sync);
   });
 })();
 </script>
@@ -89,7 +161,7 @@
 {"prefetch":[{"where":{"href_matches":"/*"},"eagerness":"moderate"}]}
 </script>
 </head>
-<body>
+<body{% block body_attrs %}{% endblock %}>
 <a id="skip-link" href="#main">{{ t("ui.skip_to_content") }}</a>
 <header class="site-header">
 <a href="{{ home_href }}"><img src="/assets/logo/logo-on-dark.svg" alt="{{ t('ui.home_link') }}" width="957" height="296"><img src="/assets/logo/logo-on-light.svg" alt="{{ t('ui.home_link') }}" width="957" height="296"></a>
@@ -122,10 +194,12 @@
 {% block content %}{% endblock %}
 </main>
 <footer class="site-footer">
-{% if seo.feed_href %}<p><a href="{{ seo.feed_href }}" target="_blank" rel="noopener">{{ t("ui.feed") }}<span data-sr-only>, {{ t("ui.new_tab") }}</span></a></p>{% endif %}
+<div>
 <p>{{ t("footer.credits.identity") }} <a href="{{ identity_author_url }}" target="_blank" rel="noopener">{{ t("footer.credits.identity_name") }}<span data-sr-only>, {{ t("ui.new_tab") }}</span></a></p>
 <p>{{ t("footer.credits.layout") }}</p>
 <p>{{ t("footer.credits.texts") }}</p>
+</div>
+{% if seo.feed_href %}<p><a href="{{ seo.feed_href }}" target="_blank" rel="noopener">{{ t("ui.feed") }}<span data-sr-only>, {{ t("ui.new_tab") }}</span></a></p>{% endif %}
 </footer>
 <script src="/scripts/router.js" defer></script>
 {% block scripts %}{% endblock %}

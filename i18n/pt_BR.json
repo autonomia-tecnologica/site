@@ -148,6 +148,7 @@
     },
     "graph": {
       "title": "Grafo de Conhecimento",
+      "under_construction": "Em Construção",
       "summary": "Mapa de tópicos de tecnologia e das ligações entre eles, com trilha de estudo e referências em cada tópico. Os dados estão em JSON, sob CC BY 4.0."
     }
   }
