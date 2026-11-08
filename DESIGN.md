@@ -157,6 +157,9 @@ plain titles.
 - The logotype has two versions, by background, both all in one color (pages 11 and 14 of the
   vector): `logo-on-light.svg` (purple) and `logo-on-dark.svg` (white). The header shows one of
   them by scheme, with no script.
+- The site keeps the logotypes and symbol already in `src/assets/logo/`. The "main logo 1
+  always" rule of the visual identity does not apply here, and no art is swapped (Rafael's
+  decision of 2026-11-08).
 - The colors inside these SVG files are the art's own. They are the exception to the token rule
   above: they are not written in the stylesheets or templates.
 - License: the logo, the symbol, the visual identity and the name "Autonomia Tecnológica" are all

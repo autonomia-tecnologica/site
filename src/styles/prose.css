@@ -1,9 +1,9 @@
 /*
- * Prose: the reading block. The measure is 66ch, inside the 60 to 70 character range.
+ * Prose: the reading block. The measure is 960px, the same width as the Projects page (Rafael's decision).
  */
 
 .prose {
-  max-inline-size: 66ch;
+  max-inline-size: 960px;
   margin-inline: auto;
   padding-inline: 1rem;
   font-size: 1.0625rem;
@@ -77,11 +77,9 @@
   border-block-start: 1px solid var(--color-border);
 }
 
-/* Manifesto: a column centered on the page, text justified, left edge aligned, each point's number on its line, before the text, filling the height of the screen. */
+/* Manifesto: a column centered on the page, text aligned to the start, each point's number on its line, before the text, filling the height of the screen. */
 .prose[data-page="manifesto"] {
   min-block-size: calc(100svh - 145px);
-  text-align: justify;
-  hyphens: auto;
 }
 
 .prose[data-page="manifesto"] ol {
@@ -125,11 +123,9 @@
   font-weight: inherit;
 }
 
-/* Articles: justified text, both edges straight, hyphenated so the spaces stay even. */
+/* Articles: text aligned to the start. */
 .prose[data-kind="article"],
 .prose[data-feed-item] {
-  text-align: justify;
-  hyphens: auto;
   overflow-wrap: anywhere;
 }
 

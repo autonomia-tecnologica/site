@@ -43,6 +43,7 @@ IDENTITY_AUTHOR_URL = "https://www.instagram.com/teeuscorreia/"
 # Profiles of the author, by name. The labels of each link are in i18n/<locale>.json, under about.profiles.
 PERSON_PROFILES = {
     "linkedin": "https://www.linkedin.com/in/rafael-correia/",
+    "youtube": "https://www.youtube.com/@faelcorreia",
     "github": "https://github.com/faelcorreia",
     "substack": "https://substack.com/@faelcorreia",
 }

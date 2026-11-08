@@ -29,15 +29,25 @@
   list-style: none;
 }
 
+/* A project: the image on the left, 200 px tall, and the text on the right, centered vertically on it. */
+[data-page="projects"] article {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+}
+
 [data-page="projects"] img {
   display: block;
-  inline-size: 100%;
-  block-size: auto;
+  flex: none;
+  inline-size: auto;
+  block-size: 200px;
+  max-inline-size: 40%;
+  object-fit: cover;
   border-radius: 12px;
 }
 
 [data-page="projects"] h2 {
-  margin: 1.25rem 0 0.5rem;
+  margin: 0 0 0.5rem;
   font-family: var(--font-title);
   font-size: 1.75rem;
 }
@@ -47,4 +57,15 @@
   display: inline-flex;
   align-items: center;
   min-block-size: 44px;
+}
+
+@media (max-width: 780px) {
+  [data-page="projects"] article {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  [data-page="projects"] img {
+    max-inline-size: 100%;
+  }
 }

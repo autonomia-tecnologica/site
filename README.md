@@ -52,6 +52,28 @@ npm run dev                          # builds, serves dist/ at http://localhost:
 npm run dev -- --port 8080           # same, on another port
 ```
 
+## Publishing
+
+The site is published on GitHub Pages at <https://autonomiatecnologica.com.br> (and `www.`),
+served from the orphan `gh-pages` branch, which holds the built `dist/` and nothing else. The
+repository is public because GitHub Pages on GitHub Free for organizations requires it; the code is
+MIT and the content CC BY 4.0. The production build runs on Rafael's machine, where the photo is,
+and the deploy command pushes the result to that branch; no secret is used in CI.
+
+```
+npm run deploy                       # production build and push dist/ to the gh-pages branch
+```
+
+The command builds with `SITE_URL=https://autonomiatecnologica.com.br`, copies `dist/` into a fresh
+temporary repository, writes `CNAME` with the domain and force-pushes a single parentless commit to
+`origin gh-pages`, so the branch shares no history with `main`. `--remote` and `--branch` override
+the destination (a local path works as a remote, for testing); `--domain` changes the domain and
+the build address together. The photo reaches the branch only inside the built `dist/`.
+
+This hosting is temporary. The site is published before the company exists and does not show a
+CNPJ. When Autonomia Tecnológica Consultoria starts, the site will be migrated to Kinghost
+(decision of 2026-11-08); the migration is planned, not a possibility.
+
 ## Lint and tests
 
 ```
@@ -73,9 +95,9 @@ same as for the build.
 
 ## Private photo
 
-The site photo is not part of this repository and must never be committed to Git. It lives in a
-private folder outside the repository, and the environment variable `SITE_PRIVATE_DIR` points to
-that folder:
+The site photo is not part of the source branch and must never be committed to `main`. It lives in
+a private folder outside the repository, and the environment variable `SITE_PRIVATE_DIR` points to
+that folder. The build copies the photo to `dist/`; only the published `gh-pages` branch carries it.
 
 ```
 export SITE_PRIVATE_DIR="$HOME/Produtividade/Biblioteca/Autonomia Tecnológica/Foto"
@@ -83,7 +105,7 @@ export SITE_PRIVATE_DIR="$HOME/Produtividade/Biblioteca/Autonomia Tecnológica/F
 
 The folder holds `busto-C.png`, the only approved photo. The development build does not require
 `SITE_PRIVATE_DIR` or the folder. Because the folder is outside the repository, `.gitignore` needs
-no entry for the photo; do not copy the photo into the repository.
+no entry for the photo; do not copy the photo into the source tree.
 
 ## Licenses
 

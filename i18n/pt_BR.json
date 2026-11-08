@@ -41,7 +41,6 @@
   },
   "ui": {
     "locales": "Idiomas",
-    "redirect": "Redirecionando para a página inicial.",
     "published": "Publicado em",
     "updated": "atualizado em",
     "skip_to_content": "Pular para o conteúdo",
@@ -83,6 +82,7 @@
     "photo_alt": "Rafael Correia sorrindo, com fundo roxo",
     "profiles": {
       "linkedin": "LinkedIn",
+      "youtube": "YouTube",
       "github": "GitHub",
       "substack": "Substack"
     },

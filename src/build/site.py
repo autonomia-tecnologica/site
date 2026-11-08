@@ -729,15 +729,8 @@ def build_site(
     )
     root_name = lookup(root_strings, "site.name", root_locale)
     root_description = lookup(root_strings, "site.description", root_locale)
-    if active == [root_locale]:
-        # One locale: the site address only redirects to its home page, which is kept out of the sitemap.
-        home_url = routes[("index", root_locale, "")]
-        render(
-            "redirect.html", root_locale, ("root", "", ""), tag(root_locale), in_sitemap=False,
-            href=home_url,
-            seo=page_seo(title=root_name, description=root_description, url=home_url, site_name=root_name),
-        )
-    else:
+    if active != [root_locale]:
+        # More than one locale: the site address lists the locales, since none is the default.
         render(
             "root.html", root_locale, ("root", "", ""), tag(root_locale), in_sitemap=False,
             alternates=alternates("index", ""),
@@ -762,12 +755,11 @@ def build_site(
         )
         feed = feed_href(locale)
 
-        render(
-            "index.html", locale, ("index", locale, ""), locale_tag,
-            alternates=alternates("index", ""),
-            channels=CHANNEL_PROFILES,
-            manifesto_href=routes.get(("page", locale, MANIFESTO_PAGE)),
-            seo=page_seo(
+        index_context = {
+            "alternates": alternates("index", ""),
+            "channels": CHANNEL_PROFILES,
+            "manifesto_href": routes.get(("page", locale, MANIFESTO_PAGE)),
+            "seo": page_seo(
                 title=site_name,
                 description=lookup(strings, "pages.home.summary", locale),
                 url=routes[("index", locale, "")],
@@ -777,7 +769,12 @@ def build_site(
                 json_ld=[identity_json_ld(strings, locale, home)],
                 feed=feed,
             ),
-        )
+        }
+        render("index.html", locale, ("index", locale, ""), locale_tag, **index_context)
+        if active == [root_locale]:
+            # One locale: the site address serves the same home page. The canonical, the hreflang
+            # and the sitemap keep the locale URL, and the site address stays out of the sitemap.
+            render("index.html", locale, ("root", "", ""), locale_tag, in_sitemap=False, **index_context)
         if articles:
             render(
                 "articles.html", locale, ("articles", locale, ""), locale_tag,

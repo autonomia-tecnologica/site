@@ -1,12 +1,12 @@
-"""With one locale, the site address redirects to the home page of that locale.
+"""With one locale, the site address serves the home page of that locale directly.
 
 Builds the site with the development build, then reads dist/index.html, the
-sitemap and the home page. The test fails when the site address shows a locale
-list, when it is in the sitemap, or when the navigation lists the home page.
+sitemap and the home page. The test fails when the site address redirects, shows a
+locale list, is in the sitemap, or when the navigation lists the home page.
 
 Run from the repository root:
 
-    python3 -m unittest discover -s tests/build -t tests/build -p "test_root_redirect.py"
+    python3 -m unittest discover -s tests/build -t tests/build -p "test_root_home.py"
 """
 
 import subprocess
@@ -22,7 +22,7 @@ LOCALE_NAME = "Português (Brasil)"
 HOME_LABEL = "Início"
 
 
-class RootRedirectTest(unittest.TestCase):
+class RootHomeTest(unittest.TestCase):
     @classmethod
     def setUpClass(cls):
         result = subprocess.run(
@@ -37,10 +37,14 @@ class RootRedirectTest(unittest.TestCase):
         cls.sitemap = (DIST / "sitemap.xml").read_text(encoding="utf-8")
         cls.home = (DIST / "pt-br" / "index.html").read_text(encoding="utf-8")
 
-    def test_site_address_redirects_to_the_locale_home(self):
-        self.assertIn(f'<meta http-equiv="refresh" content="0; url={HOME_HREF}">', self.root)
+    def test_site_address_serves_the_home(self):
+        self.assertNotIn('http-equiv="refresh"', self.root)
+        self.assertNotIn("Redirecionando", self.root)
         self.assertIn(f'<link rel="canonical" href="{HOME_URL}">', self.root)
-        self.assertIn(f'<a href="{HOME_HREF}">', self.root)
+        self.assertIn('<h1 class="hero__title">', self.root)
+
+    def test_site_address_is_the_same_home(self):
+        self.assertEqual(self.root, self.home)
 
     def test_site_address_shows_no_locale_list(self):
         self.assertNotIn(LOCALE_NAME, self.root)
