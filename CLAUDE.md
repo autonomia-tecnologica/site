@@ -7,8 +7,8 @@ lives primarily on this site, in `i18n/pt_BR.json` (`pages.manifesto.points`); o
 
 ## Text
 
-- Text for humans is never generated. No model writes articles, pages, bios, manifesto points or
-  interface copy. Rafael writes it.
+- Rafael writes the text for humans: articles, pages, bios, manifesto points and interface copy. A
+  model may only review and suggest, never draft it.
 - No machine translation without Rafael's decision.
 - Pending text is marked `[a escrever]`. The production build fails while any marker remains.
 - All user-facing text lives in `i18n/<lang>.json`, never hard-coded in templates or code.
