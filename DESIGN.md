@@ -41,6 +41,37 @@ scheme change touches one file.
   the same purple as the light accent, so the button reads the same on both pages. The light
   scheme is still a proposal for Rafael to approve. The pill button belongs to `button.css`,
   which is done by another item, not by the tokens.
+## Water background
+
+A soft animated water surface behind the page, drawn by `src/scripts/water.js` (one WebGL fragment
+shader, no libraries). Approved by Rafael step by step; the light scheme is still a proposal.
+
+- **Where:** only on the presentation pages, Home and About. Articles, the article page, the
+  manifesto and the knowledge graph keep the plain gradient, so nothing moves behind the reading.
+  A page opts out with an empty `{% block water %}{% endblock %}` in its template.
+- **What it does:** small ripples travel west (wind from the east), each group with its own size
+  and speed; a faster group that catches a slower one ahead is damped, the one in front stays.
+  The pointer leaves a faint wake and a click or tap sends a wide wave across the page. The wave
+  directions are fixed on purpose: variation comes from size and speed, never from the angle.
+- **Colors:** read from the tokens and dulled toward gray in the shader, so the purple stays the
+  site's but quieter. No new token.
+- **The AT symbol** on the home page is drawn into the water from its own SVG (a texture), bent
+  and lit by the same waves, with 4-tap antialiasing. The SVG stays in the page as the fallback
+  and is hidden only after the texture is ready.
+- **Text stays still.** Text and buttons are not moved or distorted: it made the page heavy.
+  Header and footer have no fill while the water runs, so it shows through them.
+- **Grain:** a fixed film of fine noise (`body::after` in `base.css`, a tiled SVG, no script) over
+  the whole page while the water runs, so text and buttons are not perfectly clean against it.
+  It darkens text slightly: the large purple title was 3.05:1 on dark and may now be a little
+  below 3:1 (not measured).
+- **Contrast:** the brightest water pixel is capped so the muted text keeps at least 4.5:1 on it
+  (measured 5.08:1; white 13.1:1). Raising the glints or the tint must be re-measured.
+- **Performance:** the starting level (380k pixels, 30 fps) is the ceiling. Quality only goes
+  down: if frames come out 1.4 times slower than they should, it takes the next step of the
+  ladder (`LEVELS` in the script), and past the last step it gives up and the plain background
+  comes back. It does not start with `saveData` or without `highp`. It stops with reduced motion
+  (one still frame) and while the tab is hidden. Not measured on a real GPU yet (BACKLOG).
+
 ## Contrast
 
 - Text: 4.5:1 (WCAG 2.x AA). Graphics and large elements: 3:1. Borders are decorative and exempt.
