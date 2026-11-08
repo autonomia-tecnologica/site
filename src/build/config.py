@@ -65,6 +65,6 @@ PHOTO_FILE_NAME = "busto-C.png"
 # organization must be listed here. Texts are in i18n/<locale>.json under pages.projects.items.<name>; the
 # image is content/projects/<name>.png.
 PROJECTS_ORG_URL = "https://github.com/autonomia-tecnologica"
-PROJECTS = ("ambiente-de-trabalho", "ai-tmux-workspace")
+PROJECTS = ("ambiente-de-trabalho", "ai-tmux-workspace", "at")
 PROJECTS_DIR = "content/projects"
 PROJECTS_PHILOSOPHY = "ambiente-de-trabalho"

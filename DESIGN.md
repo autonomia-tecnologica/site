@@ -29,10 +29,12 @@ scheme change touches one file.
   no decorative blur, no glow on buttons or logos.
 - Background: `--color-bg` (`#1f1233`), solid on the left half of the page. On the right,
   `--color-bg-glow` (`#2f1656`) makes a soft radial glow (`radial-gradient` in `base.css`, 26 vw
-  around 74 % / 70 % of the page). The glow sits behind the symbol and is placed on the page
-  (`body`), not on the viewport. On light, `--color-bg-glow` (`#ebe0ff`) is the subtle lilac
-  equivalent (proposal, see above).
-- Header and footer keep their own `--color-bg` fill, so the glow stops at them.
+  around 74 % / 70 % of the viewport). The glow sits behind the symbol and is fixed to the
+  viewport (`background-attachment: fixed`), like the water canvas: it stays in place while the
+  page scrolls, so a tall page never shows where the first screen ends. On light,
+  `--color-bg-glow` (`#ebe0ff`) is the subtle lilac equivalent (proposal, see above).
+- The header and the footer are transparent, so the page background shows behind them on every
+  page.
 - Purple of the mockup: `--color-accent` (`#7b39ec`) for graphics and large text on dark. On dark
   it has 3.05:1 on `--color-bg`, so it is not used for normal text. Text on dark uses
   `--color-accent-text` (`#a476ff`, 5.55:1).
@@ -70,8 +72,8 @@ shader, no libraries). Approved by Rafael step by step; the light scheme is stil
   2.1M pixels, 30 fps), no quality ladder and no giving up, no pointer wake or click waves (the cursor stays visible), and
   reduced motion is ignored (it is recorded, not read). The SVG in that page only gives size and place.
 - **Text stays still.** Text and buttons are not moved or distorted: it made the page heavy.
-  The header has no fill of its own: the page background shows behind it on every page; the
-  footer keeps its fill.
+  The header has no fill of its own: the page background shows behind it on every page, and the
+  footer is transparent too, so the background shows behind it.
 - **No grain.** A film of fine speckles covered the page while the water ran. It was removed on
   2026-11-08: on phones it turned into a visible weave and, in the light scheme, into dark dots
   over the water that hurt reading. The water's own texture gives the depth.
@@ -95,9 +97,10 @@ shader, no libraries). Approved by Rafael step by step; the light scheme is stil
 - **Phone menu:** below 780 px the panel is a full-width sheet attached under the header row, not
   a floating card: it takes the `--color-bg` fill, one thin rule on top, no radius. A click anywhere
   outside it, a link in it, a page change, Esc or a wider window closes it.
-- **Footer:** credits on the left, feed link on the right, under a thin rule. It sits at the end
-  of the page, in the normal flow, on every page: every page scrolls normally, cover or text.
-  The slide-up-over-the-page behavior was removed on 2026-11-08.
+- **Footer:** the credits centered under a thin rule, with a small vertical padding, and no feed
+  link. It is transparent, so the page background shows through it, and sits at the end of the
+  page, in the normal flow, on every page: every page scrolls normally, cover or text. The
+  slide-up-over-the-page behavior was removed on 2026-11-08.
 
 ## Contrast
 

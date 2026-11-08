@@ -21,11 +21,13 @@
   list-style: none;
 }
 
-/* A project: the image on the left, 200 px tall, and the text on the right, centered vertically on it. */
-[data-page="projects"] article {
+/* A project: the whole card is the link to the repository. The image on the left, 200 px tall,
+   and the text on the right, centered vertically on it. */
+[data-page="projects"] li > a {
   display: flex;
   align-items: center;
   gap: 1.5rem;
+  color: inherit;
 }
 
 [data-page="projects"] img {
@@ -44,15 +46,8 @@
   font-size: 1.75rem;
 }
 
-/* Links keep the 44 px touch target. */
-[data-page="projects"] a {
-  display: inline-flex;
-  align-items: center;
-  min-block-size: 44px;
-}
-
 @media (max-width: 780px) {
-  [data-page="projects"] article {
+  [data-page="projects"] li > a {
     flex-direction: column;
     align-items: flex-start;
   }

@@ -36,6 +36,8 @@ html {
 /*
  * The page is solid --color-bg on the left half. On the right, a radial glow
  * (--color-bg-glow) sits behind where the symbol will be (see DESIGN.md).
+ * The background is fixed to the viewport, like the water canvas: the glow stays in place while
+ * the page scrolls, so a tall page never shows where the first screen ends.
  */
 body {
   display: flex;
@@ -45,7 +47,8 @@ body {
   background-color: var(--color-bg);
   background-image: radial-gradient(circle 26vw at 74% 70%, var(--color-bg-glow), var(--color-bg));
   background-repeat: no-repeat;
-  background-size: 100% 100svh; /* the glow belongs to the first screen, not to the page height: a tall article stays flat below it */
+  background-size: 100% 100svh;
+  background-attachment: fixed;
   color: var(--color-text);
   font-family: var(--font-text);
   font-size: 1rem;
