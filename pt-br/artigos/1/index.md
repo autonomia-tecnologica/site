@@ -1,0 +1,38 @@
+---
+title: Introdução
+date: 2026-11-05
+updated: 2026-11-05
+summary: "Introdução sobre o projeto Autonomia Tecnológica, explicando seus objetivos e em que acredita"
+author: Rafael Correia
+---
+Esse é o primeiro material produzido do Autonomia Tecnológica.
+
+O nome foi escolhido para explicar completamente o que ele se propõe: promover autonomia tecnológica, para o máximo de pessoas possível. 
+
+Se por si só isso não explica, podemos imaginar uma pessoa qualquer. Essa pessoa usa um smartphone, e muitas vezes um computador. E sem nenhum curso prévio, se deparou em um Ecossistema Computacional amplo, muitas vezes ignorando seus diversos cantos e suas diversas esquinas, pois é incapaz de entender a maioria das coisas que ela se depara.
+
+Veja, isso não é novo no smartphone e computador. Essa pessoa já sofria ao tentar entender tecnologias antes. Se o mecânico diz que o carro precisa de uma peça, como ela seria capaz de julgar se realmente o carro precisa da peça? Se o pedreiro diz que a única forma de reformar uma determinada área do banheiro é quebrando ele inteiro, quem é ela para dizer o contrário?
+
+Agora, a sensação dela, é que entender como as coisas funcionam nesse Ecossistema Computacional, é inócuo. Toda tentativa de entender um programa, um site, uma técnica, cai num buraco de conhecimentos prévios não obtidos, por motivos diversos.
+
+Se temos um mecânico de confiança, e um pedreiro de confiança, quem é nosso TI de confiança? Às vezes vamos ter essa pessoa. Aquele "menino/menina da TI" que formata meu computador e resolve problemas. Mas e quem não tem? E se a própria pessoa de TI se sente incapaz de apoiar em um determinado assunto? A estudar um determinado assunto? Ela vai ter uma rede de conhecimento que a apoie? Ou vai cair no limbo de cursos pagos?
+
+Em 2026, cá estamos, vivenciando um momento onde nos perguntamos se a humanidade está acabando, e se o nosso emprego está fadado a terminar. Por uma tal de IA. Mas, além disso, precisamos saber se o contato do WhatsApp é realmente quem eu estou conversando. Preciso saber se a ligação do banco é uma tentativa de golpe ou é oficial. Se preciso preocupar com privacidade, ou se isso é propaganda. Se minha televisão me enxerga. Se estão usando minha wi-fi. Se meu e-mail foi invadido.
+
+Absorvo muitas coisas, e muitas vezes elas ficam armazenadas sem motivos aparentes. Trabalhar pelo menos 8h por dia com computação constantemente faz com que boa parte dessas coisas armazenadas sejam sobre computação. Porque eu gosto. Tenho interesse em praticamente tudo que ela oferece. Mas deixar a decisão sempre nas mãos de outras pessoas sobre minha vida dentro do quase obrigatório Ecossistema Computacional que vivemos me gera ansiedade. E talvez te gere também. Acredito que o caminho é saber o suficiente para você ter Autonomia no que você realmente precisa realizar nesse Ecossistema.
+
+Esse projeto tem um [MANIFESTO](pagina:manifesto). Esse manifesto não é apenas um quadro bonito, é o compromisso do Autonomia Tecnológica com o conhecimento que ele quer fomentar. Conhecimento não é neutro, e como pretendemos passar esse conhecimento precisa estar claro.
+
+Não falar especificadamente sobre IA tornaria esse artigo incompleto. Logo, gostaria de colocar alguns pontos que entendo como muito importantes sobre esse assunto:
+
+1. Modelos de IA são estruturadas de dados estatísticas e probabilísticas. Tal qual a terra é plana para alguém sem conhecimento de astronomia, IAs são humanos para alguém sem conhecimento de tecnologia.
+2. Modelos de IA maiores nem sempre são a resposta. A tentativa de expandir um modelo de IA ao máximo do que já foi produzido é apenas um delírio. Somos a favor do uso de modelos pequenos bem contextualizados, e entendo que estamos indo para esse caminho.
+3. Concordância servil, ou viés do agrado, são problemas reais em IA (principalmente em LLMs) e entende-se necessário contexto para se evitar.
+4. Modelos de IA devem sempre ser usados em um contexto pessoal pré-estabelecido estrito. Somos contra usar modelos de IA diretamente sem um preparo de contexto e contra chamar de contexto o armazenamento cego de todas as informações enviadas a ela.
+5. A IA ideal nasce de um trabalho colaborativo, autorizado e hospedado localmente. Buscamos usar IAs criadas nesse contexto, e usamos IAs criadas fora desse contexto como contradições aceitas.
+6. Em um ambiente tecnológico, IAs são, preferencialmente, utilizadas para criar ações determinísticas (como *scripts*). Assim evitando delírios e prejuízos pessoais.
+7. Todo erro causado por uma IA (sob a percepção individual do que é um erro) é corrigido e registrado como contexto.
+
+Muito é necessário para se dissecar o que acreditamos e o projeto não se propõe a entregar isso de uma vez. Ficaremos felizes de poder falar de cada item individualmente.
+
+De qualquer forma, é importante entender que o projeto vem para trazer, para as mãos das pessoas, a oportunidade de serem apresentadas às decisões que deveríamos tomar, e as decisões que decidimos não tomar. Como adultos, precisamos saber que os nossos problemas são nossos. Usar tecnologias podem causar problemas, e precisamos ter ciência quanto ao que não nos foi apresentado ao aceitar os termos cegamente.

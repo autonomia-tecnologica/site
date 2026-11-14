@@ -1,0 +1,210 @@
+/*
+ * Base: page background, text, headings, links, focus and the skip link.
+ * Element selectors and the skip link's id only. Colors and font families come from tokens.css.
+ * Rationale: see DESIGN.md.
+ */
+
+html {
+  -webkit-text-size-adjust: 100%;
+  text-size-adjust: 100%;
+}
+
+/*
+ * Page navigation: browsers that support cross-document view transitions crossfade between pages
+ * instead of flashing white. The header keeps its place across pages. Others navigate as usual.
+ */
+@view-transition {
+  navigation: auto;
+}
+
+.site-header {
+  view-transition-name: site-header;
+}
+
+::view-transition-group(root) {
+  animation-duration: var(--duration-page);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  ::view-transition-group(*),
+  ::view-transition-old(*),
+  ::view-transition-new(*) {
+    animation: none;
+  }
+}
+
+/*
+ * The page is solid --color-bg on the left half. On the right, a radial glow
+ * (--color-bg-glow) sits behind where the symbol will be (see DESIGN.md).
+ * The background is fixed to the viewport, like the water canvas: the glow stays in place while
+ * the page scrolls, so a tall page never shows where the first screen ends.
+ */
+body {
+  display: flex;
+  flex-direction: column;
+  min-block-size: 100svh;
+  margin: 0;
+  background-color: var(--color-bg);
+  background-image: radial-gradient(circle 26vw at 74% 70%, var(--color-bg-glow), var(--color-bg));
+  background-repeat: no-repeat;
+  background-size: 100% 100svh;
+  background-attachment: fixed;
+  color: var(--color-text);
+  font-family: var(--font-text);
+  font-size: 1rem;
+  line-height: 1.6;
+}
+
+/*
+ * Water: the canvas that src/scripts/water.js adds as the first child of the body. It sits behind
+ * everything, never takes a click, and fades in once it has drawn. Without script it does not exist.
+ * 100lvh keeps it from resizing when a phone's address bar comes and goes.
+ */
+body > canvas {
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  inline-size: 100%;
+  block-size: 100lvh;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity var(--duration-page) ease;
+}
+
+body > canvas[data-ready] {
+  opacity: 1;
+}
+
+/* Once the water draws the home symbol itself, the SVG in the page steps aside (it stays as the fallback). */
+:root[data-water-mark] .hero__symbol {
+  visibility: hidden;
+}
+
+/*
+ * The header has no fill of its own: the page background is what shows behind it, on every page.
+ * There is no topbar background to switch or fade, so the bar can never differ from the page
+ * (Rafael's decision). Only the content and the water fade (--duration-page).
+ */
+
+/*
+ * Static water: one frozen frame of the same shader, one per scheme. It is the background of the
+ * presentation pages and the fallback of the animated water, which only runs on wide screens with a
+ * fine pointer. The grain is gone: the water itself gives the texture, and the text stays clean.
+ */
+body[data-cover] {
+  background-image: url("../assets/water/water-dark.webp");
+  background-size: cover;
+  background-position: center;
+}
+
+:root[data-theme="light"] body[data-cover] {
+  background-image: url("../assets/water/water-light.webp");
+}
+
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) body[data-cover] {
+    background-image: url("../assets/water/water-light.webp");
+  }
+}
+
+/* From the width where the animated water starts, the frame was drawn at that size, so it stays sharp. */
+@media (min-width: 781px) {
+  body[data-cover] {
+    background-image: url("../assets/water/water-dark-wide.webp");
+  }
+
+  :root[data-theme="light"] body[data-cover] {
+    background-image: url("../assets/water/water-light-wide.webp");
+  }
+}
+
+@media (min-width: 781px) and (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) body[data-cover] {
+    background-image: url("../assets/water/water-light-wide.webp");
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  body > canvas {
+    transition: none;
+  }
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-title);
+  line-height: 1.25;
+}
+
+/* The page title of the content pages (manifesto, articles, graph, projects): one style on all of
+   them, the size the manifesto title already had. The presentation pages (home, about) keep their
+   own title. */
+[data-page="manifesto"] > h1,
+[data-page="graph"] > h1,
+[data-page="projects"] > h1,
+[data-kind="article"] > h1 {
+  margin: 0.67em 0;
+  font-family: var(--font-title);
+  font-size: 2.125rem;
+  font-weight: 700;
+  line-height: 1.25;
+}
+
+/* Links have no underline (Rafael's decision). They stand out by color; in the reading block also by weight.
+   Visited links use the muted text color, not red. */
+a {
+  color: var(--color-link);
+  text-decoration: none;
+}
+
+a:visited {
+  color: var(--color-text-muted);
+}
+
+a:hover {
+  color: var(--color-link-hover);
+}
+
+/* One focus ring for every interactive element. */
+:focus-visible {
+  outline: 3px solid var(--color-focus);
+  outline-offset: 2px;
+}
+
+/* The skip link is off screen until it gets focus, then it sits at the top left. Touch target: 44 px. */
+#skip-link {
+  position: absolute;
+  inset-block-start: 0.5rem;
+  inset-inline-start: 0.5rem;
+  z-index: 1;
+  min-block-size: 44px;
+  min-inline-size: 44px;
+  padding: 0.5rem 1rem;
+  background: var(--color-bg);
+  color: var(--color-text);
+  transform: translateY(-250%);
+}
+
+#skip-link:focus {
+  transform: none;
+}
+
+/* Text for screen readers only: the language list's title (the site name is already in the header),
+   the articles page's h1 (the page shows article titles as h2) and the "opens in a new tab" note of links. */
+#root-title,
+#feed-title,
+[data-sr-only] {
+  position: absolute;
+  inline-size: 1px;
+  block-size: 1px;
+  overflow: hidden;
+  clip-path: inset(50%);
+  white-space: nowrap;
+}
+
+/* The footer is always at the bottom: main takes the free height. */
+main {
+  flex: 1;
+}

@@ -1,0 +1,169 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Autonomia Tecnológica</title>
+<meta name="description" content="Entender tecnologia para não ser consumido por ela: manifesto, artigos e grafo de conhecimento do Autonomia Tecnológica, em português brasileiro.">
+<link rel="canonical" href="https://autonomiatecnologica.com.br/pt-br/">
+<link rel="icon" href="/assets/logo/symbol.svg" type="image/svg+xml">
+<link rel="icon" href="/assets/logo/favicon-32.png" type="image/png" sizes="32x32">
+<link rel="alternate" hreflang="pt-BR" href="https://autonomiatecnologica.com.br/pt-br/">
+<link rel="alternate" type="application/rss+xml" title="Autonomia Tecnológica" href="https://autonomiatecnologica.com.br/pt-br/feed.xml">
+<link rel="stylesheet" href="/styles/tokens.css">
+<link rel="stylesheet" href="/styles/base.css">
+<link rel="stylesheet" href="/styles/elements.css">
+<link rel="stylesheet" href="/styles/prose.css">
+<link rel="stylesheet" href="/styles/button.css">
+<link rel="stylesheet" href="/styles/card.css">
+<link rel="stylesheet" href="/styles/hero.css">
+<link rel="stylesheet" href="/styles/about.css">
+<link rel="stylesheet" href="/styles/projects.css">
+<link rel="stylesheet" href="/styles/graph.css">
+<link rel="stylesheet" href="/styles/site-header.css">
+<link rel="stylesheet" href="/styles/site-footer.css">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Autonomia Tecnológica">
+<meta property="og:description" content="Entender tecnologia para não ser consumido por ela: manifesto, artigos e grafo de conhecimento do Autonomia Tecnológica, em português brasileiro.">
+<meta property="og:url" content="https://autonomiatecnologica.com.br/pt-br/">
+<meta property="og:site_name" content="Autonomia Tecnológica">
+<meta property="og:locale" content="pt_BR">
+<script type="application/ld+json">{"@context": "https://schema.org", "@graph": [{"@type": "Organization", "description": "Autonomia Tecnol\u00f3gica \u00e9 um projeto em portugu\u00eas brasileiro com manifesto, artigos e um grafo de conhecimento para entender tecnologia e escolher as ferramentas com consci\u00eancia, em vez de ser consumido por elas.", "name": "Autonomia Tecnol\u00f3gica", "url": "https://autonomiatecnologica.com.br/"}, {"@type": "Person", "name": "Rafael Correia", "sameAs": ["https://www.linkedin.com/in/rafael-correia/", "https://www.youtube.com/@faelcorreia", "https://github.com/faelcorreia", "https://substack.com/@faelcorreia"], "url": "https://autonomiatecnologica.com.br/"}]}</script>
+<script>
+/* Theme button and scripted flag. Without script the page follows the system and the button stays
+   hidden. The saved choice is applied before the page paints; with no saved choice the page follows
+   the system. The scripted flag lets the header hide the mobile panel before the first paint on
+   scripted visits, while keeping the links in the row when script is off. */
+(function () {
+  var root = document.documentElement;
+  var key = "theme";
+  root.setAttribute("data-scripted", "");
+  var dark = window.matchMedia("(prefers-color-scheme: dark)");
+  function read() {
+    try { return localStorage.getItem(key); } catch (error) { return null; }
+  }
+  function write(value) {
+    try { localStorage.setItem(key, value); } catch (error) { /* storage blocked: the choice lasts for this page only */ }
+  }
+  function apply(value) {
+    if (value === "dark" || value === "light") { root.setAttribute("data-theme", value); } else { root.removeAttribute("data-theme"); }
+  }
+  function shown() {
+    var forced = root.getAttribute("data-theme");
+    if (forced === "dark" || forced === "light") { return forced; }
+    return dark.matches ? "dark" : "light";
+  }
+  apply(read());
+  document.addEventListener("DOMContentLoaded", function () {
+    var button = document.getElementById("theme-toggle");
+    if (!button) { return; }
+    function show() {
+      button.setAttribute("aria-pressed", String(shown() === "dark"));
+    }
+    button.addEventListener("click", function () {
+      var next = shown() === "dark" ? "light" : "dark";
+      write(next);
+      apply(next);
+      show();
+    });
+    dark.addEventListener("change", show);
+    show();
+    button.hidden = false;
+  });
+})();
+</script>
+<script>
+/* Menu button: below 780 px it opens and closes the navigation panel attached under the header
+   row. A click anywhere outside the panel, a link in it, a page change or Esc closes it. Without
+   script the button stays hidden and the links stay in the header row. */
+(function () {
+  function setOpen(button, open) {
+    button.setAttribute("aria-expanded", String(open));
+    button.setAttribute("aria-label", button.getAttribute(open ? "data-close-label" : "data-open-label"));
+  }
+  document.addEventListener("DOMContentLoaded", function () {
+    var button = document.getElementById("menu-toggle");
+    if (!button) { return; }
+    var panel = document.getElementById("menu-panel");
+    function close() { setOpen(button, false); }
+    setOpen(button, false);
+    button.hidden = false;
+    button.addEventListener("click", function () {
+      setOpen(button, button.getAttribute("aria-expanded") !== "true");
+    });
+    document.addEventListener("click", function (event) {
+      if (button.getAttribute("aria-expanded") !== "true" || button.contains(event.target)) { return; }
+      if (panel && panel.contains(event.target) && !(event.target.closest && event.target.closest("a"))) { return; }
+      close();
+    });
+    document.addEventListener("keydown", function (event) {
+      if (event.key === "Escape" && button.getAttribute("aria-expanded") === "true") {
+        close();
+        button.focus();
+      }
+    });
+    window.addEventListener("resize", function () {
+      if (window.innerWidth > 780) { close(); }
+    });
+    document.addEventListener("page:swap", close);
+  });
+})();
+</script>
+<script type="speculationrules">
+{"prefetch":[{"where":{"href_matches":"/*"},"eagerness":"moderate"}]}
+</script>
+</head>
+<body data-cover>
+<a id="skip-link" href="#main">Pular para o conteúdo</a>
+<header class="site-header">
+<a href="/pt-br/"><img src="/assets/logo/logo-on-dark.svg" alt="Autonomia Tecnológica, página inicial" width="957" height="296"><img src="/assets/logo/logo-on-light.svg" alt="Autonomia Tecnológica, página inicial" width="957" height="296"></a>
+
+<button type="button" class="site-header__toggle" id="menu-toggle" aria-controls="menu-panel" aria-label="Abrir menu" data-open-label="Abrir menu" data-close-label="Fechar menu" hidden><span></span><span></span><span></span></button>
+<div class="site-header__panel" id="menu-panel">
+<nav aria-label="Navegação principal">
+<ul>
+<li><a href="/pt-br/manifesto/">Manifesto</a></li>
+<li><a href="/pt-br/artigos/">Artigos</a></li>
+<li><a href="/pt-br/grafo/">Grafo de Conhecimento</a></li>
+<li><a href="/pt-br/projetos/">Projetos</a></li>
+<li><a href="/pt-br/quem-somos/">Quem somos</a></li>
+
+</ul>
+</nav>
+
+</div>
+
+<button type="button" id="theme-toggle" aria-label="Tema escuro" aria-pressed="false" hidden>
+<svg data-icon="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+<svg data-icon="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+</button>
+</header>
+<main id="main" tabindex="-1">
+
+<section class="hero">
+<h1 class="hero__title">Entender tecnologia para <span class="hero__accent">não ser consumido por ela.</span></h1>
+<p class="hero__lead">Leia o <a href="/pt-br/manifesto/">nosso manifesto</a> e nos siga no Substack e no YouTube.</p>
+<div>
+<a class="button button--pill" href="https://substack.com/@faelcorreia" target="_blank" rel="noopener">Substack<span data-sr-only>, abre em nova aba</span></a>
+<a class="button button--pill" href="https://www.youtube.com/@autonomiatecnologica" target="_blank" rel="noopener">YouTube<span data-sr-only>, abre em nova aba</span></a>
+<a class="button button--pill" href="https://github.com/autonomia-tecnologica/" target="_blank" rel="noopener">GitHub<span data-sr-only>, abre em nova aba</span></a>
+</div>
+<svg class="hero__symbol" viewBox="31.542969 9.898438 274.6 274.6" aria-hidden="true" focusable="false">
+<path fill="currentColor" d="M 168.839844 9.898438 C 93.011719 9.898438 31.542969 71.371094 31.542969 147.195312 C 31.542969 169.757812 36.984375 191.042969 46.628906 209.820312 C 51.597656 199.332031 56.90625 193.300781 59.144531 191.039062 C 53.648438 177.277344 50.761719 162.460938 50.761719 147.195312 C 50.761719 115.65625 63.042969 86.003906 85.347656 63.703125 C 107.648438 41.402344 137.300781 29.117188 168.839844 29.117188 C 200.378906 29.117188 230.03125 41.402344 252.332031 63.703125 C 260.554688 71.925781 267.414062 81.148438 272.796875 91.097656 L 177.050781 91.25 C 169.40625 91.265625 163.578125 99.773438 163.980469 106.121094 C 164.453125 113.5625 170.472656 119.761719 178.386719 119.792969 L 201.90625 119.886719 C 208.972656 119.917969 214.679688 125.65625 214.667969 132.722656 L 214.539062 205.199219 C 214.523438 213.257812 221.085938 219.78125 229.144531 219.722656 C 237.082031 219.664062 243.5 213.226562 243.53125 205.285156 L 243.851562 128.234375 C 243.871094 123.652344 247.589844 119.945312 252.171875 119.933594 L 282.175781 119.898438 C 282.710938 119.898438 283.230469 119.867188 283.738281 119.820312 C 285.832031 128.6875 286.917969 137.855469 286.917969 147.195312 C 286.917969 178.734375 274.636719 208.386719 252.332031 230.691406 C 230.03125 252.992188 200.378906 265.273438 168.839844 265.273438 C 137.300781 265.273438 107.648438 252.992188 85.347656 230.691406 C 84.433594 229.777344 83.542969 228.851562 82.664062 227.914062 C 83.484375 226.074219 84.382812 224.234375 85.386719 222.40625 C 89.757812 214.472656 100.363281 210.457031 109.039062 209.925781 L 127.34375 208.808594 C 166.449219 206.421875 199.476562 181.601562 201.726562 142.367188 C 201.988281 137.820312 198.433594 133.964844 193.882812 133.984375 L 188.246094 134.007812 C 183.058594 134.027344 178.441406 137.316406 176.734375 142.214844 C 175.453125 145.890625 174.152344 149.441406 172.304688 152.59375 C 162.105469 170.007812 145.164062 178.820312 125.46875 179.6875 C 93.484375 181.101562 67.546875 186.441406 54.742188 218.246094 C 51.402344 226.535156 48.078125 234.984375 45.789062 243.453125 C 43.402344 252.277344 48.230469 260.902344 55.757812 262.605469 C 67.746094 265.320312 71.8125 258.375 75.5 247.855469 C 99.996094 270.585938 132.789062 284.492188 168.839844 284.492188 C 244.667969 284.492188 306.136719 223.023438 306.136719 147.195312 C 306.136719 71.371094 244.667969 9.898438 168.839844 9.898438 "/>
+<path fill="currentColor" d="M 74.167969 176.808594 C 84.5 172.578125 92.78125 169.6875 103.480469 168.40625 C 104.339844 168.304688 105.085938 167.757812 105.421875 166.964844 L 122.160156 127.570312 L 138.417969 163.40625 C 138.796875 164.242188 139.761719 164.664062 140.625 164.355469 C 149.121094 161.324219 155.988281 156.722656 161.175781 150.097656 C 161.867188 149.214844 161.980469 148.007812 161.523438 146.984375 L 142.179688 103.539062 C 138.398438 95.050781 128.542969 90.476562 120.210938 91.148438 C 111.820312 91.824219 104.503906 97.277344 101.089844 105.746094 L 72.921875 175.582031 C 72.609375 176.359375 73.394531 177.128906 74.167969 176.808594 "/>
+</svg>
+</section>
+
+</main>
+<footer class="site-footer">
+<div>
+<p>Logo e identidade visual por <a href="https://www.instagram.com/teeuscorreia/" target="_blank" rel="noopener">Mateus Correia<span data-sr-only>, abre em nova aba</span></a></p>
+<p>Layout, design e desenvolvimento do site gerados por IA com supervisão de Rafael Correia</p>
+<p>Textos escritos por humanos</p>
+</div>
+</footer>
+<script src="/scripts/router.js" defer></script>
+
+<script src="/scripts/water.js" defer></script>
+</body>
+</html>

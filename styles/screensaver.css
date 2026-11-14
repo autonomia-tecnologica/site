@@ -1,0 +1,29 @@
+/* Screensaver page: the water background of the site, full window, with the AT symbol centered.
+   Used as a background for videos. src/scripts/water.js adds the canvas and draws the symbol into the water
+   from the SVG below, which only gives it the size and the place (it is never painted itself). */
+html, body {
+  margin: 0;
+  height: 100%;
+  overflow: hidden;
+  background: var(--color-bg);
+  cursor: none;
+}
+
+body > canvas {
+  position: fixed;
+  inset: 0;
+  inline-size: 100%;
+  block-size: 100%;
+  pointer-events: none;
+}
+
+.hero__symbol {
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  width: 62vmin;
+  height: auto;
+  transform: translate(-50%, -50%);
+  visibility: hidden;
+  pointer-events: none;
+}

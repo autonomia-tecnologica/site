@@ -1,0 +1,211 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Artigos</title>
+<meta name="description" content="Autonomia Tecnológica é um projeto em português brasileiro com manifesto, artigos e um grafo de conhecimento para entender tecnologia e escolher as ferramentas com consciência, em vez de ser consumido por elas.">
+<link rel="canonical" href="https://autonomiatecnologica.com.br/pt-br/artigos/">
+<link rel="icon" href="/assets/logo/symbol.svg" type="image/svg+xml">
+<link rel="icon" href="/assets/logo/favicon-32.png" type="image/png" sizes="32x32">
+<link rel="alternate" hreflang="pt-BR" href="https://autonomiatecnologica.com.br/pt-br/artigos/">
+<link rel="alternate" type="application/rss+xml" title="Autonomia Tecnológica" href="https://autonomiatecnologica.com.br/pt-br/feed.xml">
+<link rel="stylesheet" href="/styles/tokens.css">
+<link rel="stylesheet" href="/styles/base.css">
+<link rel="stylesheet" href="/styles/elements.css">
+<link rel="stylesheet" href="/styles/prose.css">
+<link rel="stylesheet" href="/styles/button.css">
+<link rel="stylesheet" href="/styles/card.css">
+<link rel="stylesheet" href="/styles/hero.css">
+<link rel="stylesheet" href="/styles/about.css">
+<link rel="stylesheet" href="/styles/projects.css">
+<link rel="stylesheet" href="/styles/graph.css">
+<link rel="stylesheet" href="/styles/site-header.css">
+<link rel="stylesheet" href="/styles/site-footer.css">
+<meta property="og:type" content="website">
+<meta property="og:title" content="Artigos">
+<meta property="og:description" content="Autonomia Tecnológica é um projeto em português brasileiro com manifesto, artigos e um grafo de conhecimento para entender tecnologia e escolher as ferramentas com consciência, em vez de ser consumido por elas.">
+<meta property="og:url" content="https://autonomiatecnologica.com.br/pt-br/artigos/">
+<meta property="og:site_name" content="Autonomia Tecnológica">
+<meta property="og:locale" content="pt_BR">
+<script>
+/* Theme button and scripted flag. Without script the page follows the system and the button stays
+   hidden. The saved choice is applied before the page paints; with no saved choice the page follows
+   the system. The scripted flag lets the header hide the mobile panel before the first paint on
+   scripted visits, while keeping the links in the row when script is off. */
+(function () {
+  var root = document.documentElement;
+  var key = "theme";
+  root.setAttribute("data-scripted", "");
+  var dark = window.matchMedia("(prefers-color-scheme: dark)");
+  function read() {
+    try { return localStorage.getItem(key); } catch (error) { return null; }
+  }
+  function write(value) {
+    try { localStorage.setItem(key, value); } catch (error) { /* storage blocked: the choice lasts for this page only */ }
+  }
+  function apply(value) {
+    if (value === "dark" || value === "light") { root.setAttribute("data-theme", value); } else { root.removeAttribute("data-theme"); }
+  }
+  function shown() {
+    var forced = root.getAttribute("data-theme");
+    if (forced === "dark" || forced === "light") { return forced; }
+    return dark.matches ? "dark" : "light";
+  }
+  apply(read());
+  document.addEventListener("DOMContentLoaded", function () {
+    var button = document.getElementById("theme-toggle");
+    if (!button) { return; }
+    function show() {
+      button.setAttribute("aria-pressed", String(shown() === "dark"));
+    }
+    button.addEventListener("click", function () {
+      var next = shown() === "dark" ? "light" : "dark";
+      write(next);
+      apply(next);
+      show();
+    });
+    dark.addEventListener("change", show);
+    show();
+    button.hidden = false;
+  });
+})();
+</script>
+<script>
+/* Menu button: below 780 px it opens and closes the navigation panel attached under the header
+   row. A click anywhere outside the panel, a link in it, a page change or Esc closes it. Without
+   script the button stays hidden and the links stay in the header row. */
+(function () {
+  function setOpen(button, open) {
+    button.setAttribute("aria-expanded", String(open));
+    button.setAttribute("aria-label", button.getAttribute(open ? "data-close-label" : "data-open-label"));
+  }
+  document.addEventListener("DOMContentLoaded", function () {
+    var button = document.getElementById("menu-toggle");
+    if (!button) { return; }
+    var panel = document.getElementById("menu-panel");
+    function close() { setOpen(button, false); }
+    setOpen(button, false);
+    button.hidden = false;
+    button.addEventListener("click", function () {
+      setOpen(button, button.getAttribute("aria-expanded") !== "true");
+    });
+    document.addEventListener("click", function (event) {
+      if (button.getAttribute("aria-expanded") !== "true" || button.contains(event.target)) { return; }
+      if (panel && panel.contains(event.target) && !(event.target.closest && event.target.closest("a"))) { return; }
+      close();
+    });
+    document.addEventListener("keydown", function (event) {
+      if (event.key === "Escape" && button.getAttribute("aria-expanded") === "true") {
+        close();
+        button.focus();
+      }
+    });
+    window.addEventListener("resize", function () {
+      if (window.innerWidth > 780) { close(); }
+    });
+    document.addEventListener("page:swap", close);
+  });
+})();
+</script>
+<script type="speculationrules">
+{"prefetch":[{"where":{"href_matches":"/*"},"eagerness":"moderate"}]}
+</script>
+</head>
+<body>
+<a id="skip-link" href="#main">Pular para o conteúdo</a>
+<header class="site-header">
+<a href="/pt-br/"><img src="/assets/logo/logo-on-dark.svg" alt="Autonomia Tecnológica, página inicial" width="957" height="296"><img src="/assets/logo/logo-on-light.svg" alt="Autonomia Tecnológica, página inicial" width="957" height="296"></a>
+
+<button type="button" class="site-header__toggle" id="menu-toggle" aria-controls="menu-panel" aria-label="Abrir menu" data-open-label="Abrir menu" data-close-label="Fechar menu" hidden><span></span><span></span><span></span></button>
+<div class="site-header__panel" id="menu-panel">
+<nav aria-label="Navegação principal">
+<ul>
+<li><a href="/pt-br/manifesto/">Manifesto</a></li>
+<li><a href="/pt-br/artigos/" aria-current="page">Artigos</a></li>
+<li><a href="/pt-br/grafo/">Grafo de Conhecimento</a></li>
+<li><a href="/pt-br/projetos/">Projetos</a></li>
+<li><a href="/pt-br/quem-somos/">Quem somos</a></li>
+
+</ul>
+</nav>
+
+</div>
+
+<button type="button" id="theme-toggle" aria-label="Tema escuro" aria-pressed="false" hidden>
+<svg data-icon="moon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><path d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8z"/></svg>
+<svg data-icon="sun" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" focusable="false"><circle cx="12" cy="12" r="4"/><path d="M12 2v2M12 20v2M4.93 4.93l1.41 1.41M17.66 17.66l1.41 1.41M2 12h2M20 12h2M4.93 19.07l1.41-1.41M17.66 6.34l1.41-1.41"/></svg>
+</button>
+</header>
+<main id="main" tabindex="-1">
+
+<h1 id="feed-title">Artigos</h1>
+<article class="prose" data-feed-item>
+<h2><a href="/pt-br/artigos/1/">Introdução</a></h2>
+<p><a href="/pt-br/quem-somos/" rel="author">Rafael Correia</a> · <time datetime="2026-11-05">05/11/2026</time> · 5 min de leitura</p>
+<p>Esse é o primeiro material produzido do Autonomia Tecnológica.</p>
+<p>O nome foi escolhido para explicar completamente o que ele se propõe: promover autonomia tecnológica, para o máximo de pessoas possível.</p>
+<p>Se por si só isso não explica, podemos imaginar uma pessoa qualquer. Essa pessoa usa um smartphone, e muitas vezes um computador. E sem nenhum curso prévio, se deparou em um Ecossistema Computacional amplo, muitas vezes ignorando seus diversos cantos e suas diversas esquinas, pois é incapaz de entender a maioria das coisas que ela se depara.</p>
+<p>Veja, isso não é novo no smartphone e computador. Essa pessoa já sofria ao tentar entender tecnologias antes. Se o mecânico diz que o carro precisa de uma peça, como ela seria capaz de julgar se realmente o carro precisa da peça? Se o pedreiro diz que a única forma de reformar uma determinada área do banheiro é quebrando ele inteiro, quem é ela para dizer o contrário?</p>
+<p>Agora, a sensação dela, é que entender como as coisas funcionam nesse Ecossistema Computacional, é inócuo. Toda tentativa de entender um programa, um site, uma técnica, cai num buraco de conhecimentos prévios não obtidos, por motivos diversos.</p>
+<p>Se temos um mecânico de confiança, e um pedreiro de confiança, quem é nosso TI de confiança? Às vezes vamos ter essa pessoa. Aquele &quot;menino/menina da TI&quot; que formata meu computador e resolve problemas. Mas e quem não tem? E se a própria pessoa de TI se sente incapaz de apoiar em um determinado assunto? A estudar um determinado assunto? Ela vai ter uma rede de conhecimento que a apoie? Ou vai cair no limbo de cursos pagos?</p>
+<p>Em 2026, cá estamos, vivenciando um momento onde nos perguntamos se a humanidade está acabando, e se o nosso emprego está fadado a terminar. Por uma tal de IA. Mas, além disso, precisamos saber se o contato do WhatsApp é realmente quem eu estou conversando. Preciso saber se a ligação do banco é uma tentativa de golpe ou é oficial. Se preciso preocupar com privacidade, ou se isso é propaganda. Se minha televisão me enxerga. Se estão usando minha wi-fi. Se meu e-mail foi invadido.</p>
+<p>Absorvo muitas coisas, e muitas vezes elas ficam armazenadas sem motivos aparentes. Trabalhar pelo menos 8h por dia com computação constantemente faz com que boa parte dessas coisas armazenadas sejam sobre computação. Porque eu gosto. Tenho interesse em praticamente tudo que ela oferece. Mas deixar a decisão sempre nas mãos de outras pessoas sobre minha vida dentro do quase obrigatório Ecossistema Computacional que vivemos me gera ansiedade. E talvez te gere também. Acredito que o caminho é saber o suficiente para você ter Autonomia no que você realmente precisa realizar nesse Ecossistema.</p>
+<p>Esse projeto tem um <a href="/pt-br/manifesto/" target="_blank" rel="noopener">MANIFESTO<span data-sr-only>, abre em nova aba</span></a>. Esse manifesto não é apenas um quadro bonito, é o compromisso do Autonomia Tecnológica com o conhecimento que ele quer fomentar. Conhecimento não é neutro, e como pretendemos passar esse conhecimento precisa estar claro.</p>
+<p>Não falar especificadamente sobre IA tornaria esse artigo incompleto. Logo, gostaria de colocar alguns pontos que entendo como muito importantes sobre esse assunto:</p>
+<ol>
+<li>Modelos de IA são estruturadas de dados estatísticas e probabilísticas. Tal qual a terra é plana para alguém sem conhecimento de astronomia, IAs são humanos para alguém sem conhecimento de tecnologia.</li>
+<li>Modelos de IA maiores nem sempre são a resposta. A tentativa de expandir um modelo de IA ao máximo do que já foi produzido é apenas um delírio. Somos a favor do uso de modelos pequenos bem contextualizados, e entendo que estamos indo para esse caminho.</li>
+<li>Concordância servil, ou viés do agrado, são problemas reais em IA (principalmente em LLMs) e entende-se necessário contexto para se evitar.</li>
+<li>Modelos de IA devem sempre ser usados em um contexto pessoal pré-estabelecido estrito. Somos contra usar modelos de IA diretamente sem um preparo de contexto e contra chamar de contexto o armazenamento cego de todas as informações enviadas a ela.</li>
+<li>A IA ideal nasce de um trabalho colaborativo, autorizado e hospedado localmente. Buscamos usar IAs criadas nesse contexto, e usamos IAs criadas fora desse contexto como contradições aceitas.</li>
+<li>Em um ambiente tecnológico, IAs são, preferencialmente, utilizadas para criar ações determinísticas (como <em>scripts</em>). Assim evitando delírios e prejuízos pessoais.</li>
+<li>Todo erro causado por uma IA (sob a percepção individual do que é um erro) é corrigido e registrado como contexto.</li>
+</ol>
+<p>Muito é necessário para se dissecar o que acreditamos e o projeto não se propõe a entregar isso de uma vez. Ficaremos felizes de poder falar de cada item individualmente.</p>
+<p>De qualquer forma, é importante entender que o projeto vem para trazer, para as mãos das pessoas, a oportunidade de serem apresentadas às decisões que deveríamos tomar, e as decisões que decidimos não tomar. Como adultos, precisamos saber que os nossos problemas são nossos. Usar tecnologias podem causar problemas, e precisamos ter ciência quanto ao que não nos foi apresentado ao aceitar os termos cegamente.</p>
+
+</article>
+
+<div id="feed-end"></div>
+<script>
+/* Infinite scroll: the page holds every article; the script shows 5 at first and
+   reveals 5 more each time the end of the list nears the screen, or when the keyboard
+   focus reaches the last shown article (Tab would otherwise skip the hidden ones).
+   Without script all show. */
+(function () {
+  var items = Array.prototype.slice.call(document.querySelectorAll("[data-feed-item]"));
+  var step = 5, shown = step;
+  var end = document.getElementById("feed-end");
+  if (items.length <= step || !("IntersectionObserver" in window)) { return; }
+  var observer;
+  function reveal() {
+    shown += step;
+    items.forEach(function (item, i) { item.hidden = i >= shown; });
+    if (shown >= items.length) { observer.disconnect(); }
+  }
+  items.forEach(function (item, i) {
+    item.hidden = i >= shown;
+    item.addEventListener("focusin", function () {
+      if (i >= shown - 1 && shown < items.length) { reveal(); }
+    });
+  });
+  observer = new IntersectionObserver(function (entries) {
+    if (entries[0].isIntersecting) { reveal(); }
+  }, { rootMargin: "600px" });
+  observer.observe(end);
+})();
+</script>
+
+</main>
+<footer class="site-footer">
+<div>
+<p>Logo e identidade visual por <a href="https://www.instagram.com/teeuscorreia/" target="_blank" rel="noopener">Mateus Correia<span data-sr-only>, abre em nova aba</span></a></p>
+<p>Layout, design e desenvolvimento do site gerados por IA com supervisão de Rafael Correia</p>
+<p>Textos escritos por humanos</p>
+</div>
+</footer>
+<script src="/scripts/router.js" defer></script>
+
+</body>
+</html>

@@ -1,0 +1,112 @@
+/*
+ * Design tokens. The only place where colors, font families and durations are written.
+ * Everything else reads them with var(--token).
+ *
+ * Schemes:
+ *   - dark is the default and the reference: the values on :root below.
+ *   - light applies when the visitor's system asks for it, unless the visitor
+ *     forced dark with data-theme="dark" on :root.
+ *   - data-theme="light" on :root forces light, whatever the system says.
+ *
+ * The light scheme is a PROPOSAL, waiting for Rafael's approval (see DESIGN.md).
+ *
+ * Rationale for each rule: see DESIGN.md.
+ */
+
+@font-face {
+  font-family: "Quicksand";
+  src: url("../assets/fonts/quicksand-variable.woff2") format("woff2");
+  font-weight: 300 700;
+  font-style: normal;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "Nunito Sans";
+  src: url("../assets/fonts/nunito-sans-variable.woff2") format("woff2");
+  font-weight: 200 1000;
+  font-style: normal;
+  font-display: swap;
+}
+
+:root {
+  /* Fonts. Titles are provisional (Quicksand); swap the variable to change them. */
+  --font-title: "Quicksand", system-ui, sans-serif;
+  --font-text: "Nunito Sans", system-ui, sans-serif;
+  --font-code: ui-monospace, "SFMono-Regular", Menlo, Consolas, monospace;
+
+  /* Motion. One duration for the page transition: the content crossfade and the water fade start
+     together and last the same. The router and water.js read this token, so the two can never
+     drift apart. The header has no background of its own. */
+  --duration-page: 0.25s;
+
+  /* Dark scheme (default and reference). */
+  color-scheme: dark;
+  --color-bg: #1f1233;
+  --color-bg-glow: #2f1656;
+  --color-surface: #2b1a4a;
+  --color-surface-brand: #4c1d95;
+  --color-text: #ffffff;
+  --color-text-muted: #9ca3af;
+  --color-accent: #7b39ec;
+  --color-on-accent: #ffffff;
+  --color-on-brand: #ffffff;
+  --color-accent-text: #a476ff;
+  --color-link: #a476ff;
+  --color-link-hover: #bb9aff;
+  --color-border: #3b2960;
+  --color-border-strong: #9ca3af;
+  --color-focus: #a476ff;
+  --color-dep-strong: #d2bbff;
+  --color-dep-weak: #816daa;
+  /* Pill button: one solid fill, no gradient, no shadow. Its text is --color-on-accent. */
+  --color-button: #7b39ec;
+}
+
+/* Light scheme (PROPOSAL, not approved yet), when the system asks for it and the visitor did not force dark. */
+@media (prefers-color-scheme: light) {
+  :root:not([data-theme="dark"]) {
+    color-scheme: light;
+    --color-bg: #f6f1ff;
+    --color-bg-glow: #ebe0ff;
+    --color-surface: #ffffff;
+    --color-surface-brand: #4c1d95;
+    --color-text: #1a1a1a;
+    --color-text-muted: #5f6672;
+    --color-accent: #7b39ec;
+    --color-on-accent: #ffffff;
+    --color-on-brand: #ffffff;
+    --color-accent-text: #7b39ec;
+    --color-link: #7b39ec;
+    --color-link-hover: #4c1d95;
+    --color-border: #d9cdf0;
+    --color-border-strong: #6f7685;
+    --color-focus: #7b39ec;
+    --color-dep-strong: #4c00a9;
+    --color-dep-weak: #9767f7;
+    --color-button: #7b39ec;
+  }
+}
+
+/* Light scheme (PROPOSAL, not approved yet), forced by the visitor. */
+:root[data-theme="light"] {
+  color-scheme: light;
+  --color-bg: #f6f1ff;
+  --color-bg-glow: #ebe0ff;
+  --color-surface: #ffffff;
+  --color-surface-brand: #4c1d95;
+  --color-text: #1a1a1a;
+  --color-text-muted: #5f6672;
+  --color-accent: #7b39ec;
+  --color-on-accent: #ffffff;
+  --color-on-brand: #ffffff;
+  --color-accent-text: #7b39ec;
+  --color-link: #7b39ec;
+  --color-link-hover: #4c1d95;
+  --color-border: #d9cdf0;
+  --color-border-strong: #6f7685;
+  --color-focus: #7b39ec;
+  --color-dep-strong: #4c00a9;
+  --color-dep-weak: #9767f7;
+  --color-button: #7b39ec;
+}

@@ -1,0 +1,18 @@
+# Autonomia Tecnológica
+
+> Autonomia Tecnológica é um projeto em português brasileiro com manifesto, artigos e um grafo de conhecimento para entender tecnologia e escolher as ferramentas com consciência, em vez de ser consumido por elas.
+
+## Grafo
+
+- [Grafo de Conhecimento](https://autonomiatecnologica.com.br/pt-br/grafo/): Mapa de tópicos de tecnologia e das ligações entre eles, com trilha de estudo e referências em cada tópico. Os dados estão em JSON, sob CC BY 4.0.
+- [Grafo em JSON](https://autonomiatecnologica.com.br/pt-br/grafo/grafo.json): Tópicos e ligações do grafo de conhecimento, em JSON. Licença CC BY 4.0.
+
+## Artigos
+
+- [Introdução](https://autonomiatecnologica.com.br/pt-br/artigos/1/index.md): Introdução sobre o projeto Autonomia Tecnológica, explicando seus objetivos e em que acredita
+
+## Páginas
+
+- [Manifesto](https://autonomiatecnologica.com.br/pt-br/manifesto/): Os princípios do Autonomia Tecnológica: o trabalho humano como fonte de valor, conhecimento público, dependências assumidas com justificativa e IA como ferramenta, com limites definidos por pessoas.
+- [Projetos](https://autonomiatecnologica.com.br/pt-br/projetos/): Projetos do Autonomia Tecnológica: repositórios abertos no GitHub, todos gerados com IA, para gerar conhecimento aberto com ferramentas que já existem.
+- [Quem somos](https://autonomiatecnologica.com.br/pt-br/quem-somos/): Quem faz o Autonomia Tecnológica: Rafael Correia, profissional de tecnologia desde 2010, com foco em segurança de aplicações e segurança ofensiva.

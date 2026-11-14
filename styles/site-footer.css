@@ -1,0 +1,32 @@
+/*
+ * Site footer: the credits centered under a thin rule, with a small vertical padding.
+ * It is transparent, so the page background shows through it, and sits at the end of the page,
+ * in the normal flow, on every page. The page always scrolls normally.
+ */
+
+.site-footer {
+  padding-block: 0.5rem;
+  padding-inline: 20px;
+  border-block-start: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+  font-size: 0.875rem;
+  line-height: 1.4;
+  text-align: center;
+}
+
+.site-footer > div {
+  display: grid;
+  gap: 0.2rem;
+}
+
+.site-footer p {
+  margin: 0;
+}
+
+/* Touch target of 44 px without loosening the lines: the padding is taken back by the negative margin. */
+.site-footer a {
+  display: inline-block;
+  min-inline-size: 44px;
+  padding-block: 0.8rem;
+  margin-block: -0.8rem;
+}

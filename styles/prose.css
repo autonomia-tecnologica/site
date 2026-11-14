@@ -1,0 +1,141 @@
+/*
+ * Prose: the reading block. The measure is 960px, the same width as the Projects page (Rafael's decision).
+ */
+
+.prose {
+  max-inline-size: 960px;
+  margin-inline: auto;
+  padding-inline: 1rem;
+  font-size: 1.0625rem;
+  line-height: 1.7;
+  text-wrap: pretty;
+}
+
+.prose > * + * {
+  margin-block-start: 1em;
+}
+
+.prose h2 {
+  margin-block-start: 2em;
+  font-size: 1.5rem;
+}
+
+.prose h3 {
+  margin-block-start: 1.5em;
+  font-size: 1.25rem;
+}
+
+/* Lists: the index of a long text is a list of links. */
+.prose ul,
+.prose ol {
+  padding-inline-start: 1.5em;
+}
+
+.prose li + li {
+  margin-block-start: 0.35em;
+}
+
+/* Images fit the measure; a figure caption is smaller and muted. */
+.prose img {
+  display: block;
+  max-inline-size: 100%;
+  block-size: auto;
+  margin-inline: auto;
+}
+
+.prose figure {
+  margin-inline: 0;
+}
+
+.prose figcaption {
+  margin-block-start: 0.5em;
+  color: var(--color-text-muted);
+  font-size: 0.9375rem;
+}
+
+/* Footnote reference, and the notes section after a rule. */
+.prose sup {
+  font-size: 0.75em;
+  line-height: 0;
+}
+
+.prose hr {
+  margin-block: 2em;
+  border: 0;
+  border-block-start: 1px solid var(--color-border);
+}
+
+.prose section {
+  font-size: 0.9375rem;
+  text-align: start;
+}
+
+/* The topics of the graph that an article belongs to: a rule above them, after the text. */
+.prose section[data-kind="graph-nodes"] {
+  margin-block-start: 2em;
+  padding-block-start: 1em;
+  border-block-start: 1px solid var(--color-border);
+}
+
+/* Manifesto: a column centered on the page, text aligned to the start, each point's number on its line, before the text, filling the height of the screen. */
+.prose[data-page="manifesto"] {
+  min-block-size: calc(100svh - 145px);
+}
+
+.prose[data-page="manifesto"] ol {
+  padding: 0;
+  list-style: none;
+  counter-reset: point;
+}
+
+.prose[data-page="manifesto"] li {
+  counter-increment: point;
+}
+
+/* The text of a point is a paragraph; it runs inline so the number stays on the same line. */
+.prose[data-page="manifesto"] li p {
+  display: inline;
+  margin: 0;
+}
+
+.prose[data-page="manifesto"] li::before {
+  content: counter(point) ".";
+  margin-inline-end: 0.35em;
+  color: var(--color-accent-text);
+  font-weight: 700;
+}
+
+/* Links in the text: no underline, so they are told apart by color and weight. */
+.prose a {
+  font-weight: 600;
+}
+
+/* The title of an article in the feed is a link to it, but looks like any other title.
+   It is an h2 (the feed's h1 is screen-reader only), drawn at the size of an h1. */
+.prose[data-feed-item] > h2 {
+  margin-block: 0.67em;
+  font-size: 2em;
+}
+
+.prose[data-feed-item] > h2 a,
+.prose[data-feed-item] > h2 a:visited {
+  color: inherit;
+  font-weight: inherit;
+}
+
+/* Articles: text aligned to the start. */
+.prose[data-kind="article"],
+.prose[data-feed-item] {
+  overflow-wrap: anywhere;
+}
+
+/* The articles feed: one article under the other, a rule between them. */
+main > .prose + .prose {
+  margin-block-start: 3rem;
+  padding-block-start: 3rem;
+  border-block-start: 1px solid var(--color-border);
+}
+
+main > .prose[hidden] {
+  display: none;
+}

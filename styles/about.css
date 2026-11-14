@@ -1,0 +1,83 @@
+/*
+ * About: the people of the project, centered on the page. Each person is one column
+ * (photo, name, bio, links); more people sit side by side and wrap to a new row when
+ * the page is full. Fills the height of the screen like the other pages.
+ */
+
+[data-page="about"] {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-block-size: calc(100svh - 143px);
+  padding: 2rem max(20px, calc((100% - 1280px) / 2));
+  text-align: center;
+}
+
+/* The presentation pages keep the larger title; the content pages share the reading size
+   (base.css). */
+[data-page="about"] h1 {
+  margin: 0 0 2rem;
+  font-family: var(--font-title);
+  font-size: clamp(40px, 5vw, 64px);
+  font-weight: 500;
+  line-height: 1;
+}
+
+@media (max-width: 780px) {
+  [data-page="about"] {
+    min-block-size: calc(100svh - 76px);
+  }
+}
+
+[data-page="about"] ul {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 1rem 1.5rem;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+[data-page="about"] > ul {
+  inline-size: 100%;
+  align-items: flex-start;
+  gap: 3rem;
+}
+
+[data-page="about"] article {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  inline-size: 360px;
+  max-inline-size: 100%;
+}
+
+[data-page="about"] img {
+  display: block;
+  inline-size: 220px;
+  block-size: 220px;
+  object-fit: cover;
+  border-radius: 50%;
+}
+
+[data-page="about"] h2 {
+  margin: 1.25rem 0 0.5rem;
+  font-family: var(--font-title);
+  font-size: 1.75rem;
+}
+
+[data-page="about"] p {
+  margin: 0 0 1rem;
+  font-size: 1.0625rem;
+  line-height: 1.6;
+}
+
+/* Profile links keep the 44 px touch target. */
+[data-page="about"] article a {
+  display: inline-flex;
+  align-items: center;
+  min-block-size: 44px;
+  min-inline-size: 44px;
+}

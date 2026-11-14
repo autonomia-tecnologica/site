@@ -1,0 +1,58 @@
+/*
+ * Projects: an introduction (philosophy, AI notice, how to contribute) and one card per public
+ * repository (screenshot, name, description, link). Same width and rhythm as About.
+ */
+
+[data-page="projects"] {
+  padding: 2rem max(20px, calc((100% - 960px) / 2));
+}
+
+[data-page="projects"] p {
+  margin: 0 0 1rem;
+  font-size: 1.0625rem;
+  line-height: 1.6;
+}
+
+[data-page="projects"] ul {
+  display: grid;
+  gap: 3rem;
+  margin: 2.5rem 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+/* A project: the whole card is the link to the repository. The image on the left, 200 px tall,
+   and the text on the right, centered vertically on it. */
+[data-page="projects"] li > a {
+  display: flex;
+  align-items: center;
+  gap: 1.5rem;
+  color: inherit;
+}
+
+[data-page="projects"] img {
+  display: block;
+  flex: none;
+  inline-size: auto;
+  block-size: 200px;
+  max-inline-size: 40%;
+  object-fit: cover;
+  border-radius: 12px;
+}
+
+[data-page="projects"] h2 {
+  margin: 0 0 0.5rem;
+  font-family: var(--font-title);
+  font-size: 1.75rem;
+}
+
+@media (max-width: 780px) {
+  [data-page="projects"] li > a {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  [data-page="projects"] img {
+    max-inline-size: 100%;
+  }
+}

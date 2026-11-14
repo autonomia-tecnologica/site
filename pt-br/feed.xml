@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<rss version="2.0">
+<channel>
+<title>Autonomia Tecnológica</title>
+<link>https://autonomiatecnologica.com.br/pt-br/</link>
+<description>Autonomia Tecnológica é um projeto em português brasileiro com manifesto, artigos e um grafo de conhecimento para entender tecnologia e escolher as ferramentas com consciência, em vez de ser consumido por elas.</description>
+<language>pt-br</language>
+<item>
+<title>Introdução</title>
+<link>https://autonomiatecnologica.com.br/pt-br/artigos/1/</link>
+<guid isPermaLink="true">https://autonomiatecnologica.com.br/pt-br/artigos/1/</guid>
+<pubDate>Thu, 05 Nov 2026 00:00:00 GMT</pubDate>
+<description>Introdução sobre o projeto Autonomia Tecnológica, explicando seus objetivos e em que acredita</description>
+</item>
+</channel>
+</rss>
