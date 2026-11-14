@@ -69,7 +69,7 @@ shader, no libraries). Approved by Rafael step by step; the light scheme is stil
   (and is what phones show) and is hidden only after the texture is ready.
 - **Screensaver:** the hidden `/screensaver/` page runs the same `water.js` (`data-screensaver` on
   `<html>`) with the symbol centered at 62vmin, as a background for videos. One fixed level (about
-  2.1M pixels, 30 fps), no quality ladder and no giving up, no pointer wake or click waves (the cursor stays visible), and
+  2.1M pixels, 30 fps), no quality ladder and no giving up, no pointer wake or click waves, the cursor hidden, a try at full screen (`screensaver.js`: on load, then on the first click or key press, since browsers require a gesture), and
   reduced motion is ignored (it is recorded, not read). The SVG in that page only gives size and place.
 - **Text stays still.** Text and buttons are not moved or distorted: it made the page heavy.
   The header has no fill of its own: the page background shows behind it on every page, and the

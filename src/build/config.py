@@ -25,6 +25,7 @@ SCRIPTS = (
     "water.js",
     "router.js",
     "graph.js",
+    "screensaver.js",
 )
 
 # Stylesheets of src/styles/ used only by the hidden screensaver page, copied to /styles/ but not linked elsewhere.

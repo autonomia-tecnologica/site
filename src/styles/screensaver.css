@@ -6,6 +6,7 @@ html, body {
   height: 100%;
   overflow: hidden;
   background: var(--color-bg);
+  cursor: none;
 }
 
 body > canvas {
